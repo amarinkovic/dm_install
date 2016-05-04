@@ -12,7 +12,8 @@
         <module>prodctm-util</module>
         <module>prodctm-aspects</module>
         <module>prodctm-test</module>
-        <!-- <module>prodctm-jdo</module> -->
+        <module>prodctm-jdo</module>
+        <module>prodctm-model</module>
     </modules>
 
 </project>
