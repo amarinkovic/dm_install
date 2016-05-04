@@ -5,8 +5,8 @@ package pro.documentum.junit.auth;
  */
 public interface ICredentialManager {
 
-	String getDocbaseName();
+    String getDocbaseName();
 
-	IDocumentumCredentials getCredentials(String userName, String password);
+    IDocumentumCredentials getCredentials(String userName, String password);
 
 }

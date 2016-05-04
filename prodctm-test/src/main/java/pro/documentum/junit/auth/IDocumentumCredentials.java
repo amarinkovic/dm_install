@@ -5,12 +5,12 @@ package pro.documentum.junit.auth;
  */
 public interface IDocumentumCredentials {
 
-	String getDocbaseName();
+    String getDocbaseName();
 
-	String getUserName();
+    String getUserName();
 
-	String getPassword();
+    String getPassword();
 
-	String getDomain();
+    String getDomain();
 
 }

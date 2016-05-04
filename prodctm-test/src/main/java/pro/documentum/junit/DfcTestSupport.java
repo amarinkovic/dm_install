@@ -22,70 +22,72 @@ import pro.documentum.junit.auth.PropertiesCredentialManager;
  */
 public abstract class DfcTestSupport extends Assert {
 
-	public static final IDfClient CLIENT;
+    public static final IDfClient CLIENT;
 
-	static {
-		try {
-			CLIENT = new DfClientX().getLocalClient();
-		} catch (DfException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
+    static {
+        try {
+            CLIENT = new DfClientX().getLocalClient();
+        } catch (DfException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
-	@Rule
-	public final TestName testName = new TestName();
+    @Rule
+    public final TestName _testName = new TestName();
 
-	private IDfSession _session;
+    private IDfSession _session;
 
-	public DfcTestSupport() {
-		super();
-	}
+    public DfcTestSupport() {
+        super();
+    }
 
-	public String getTestMethodName() {
-		return testName.getMethodName();
-	}
+    public String getTestMethodName() {
+        return _testName.getMethodName();
+    }
 
-	protected IDfSession getSession() {
-		return _session;
-	}
+    protected IDfSession getSession() {
+        return _session;
+    }
 
-	@Before
-	public final void setUp() throws Exception {
-		doPreSetup();
-		doSetup();
-		doPostSetup();
-	}
+    @Before
+    public final void setUp() throws Exception {
+        doPreSetup();
+        doSetup();
+        doPostSetup();
+    }
 
-	private void doSetup() throws DfException {
-		IDocumentumCredentials credentials = new PropertiesCredentialManager(null).getCredentials(null, null);
-		IDfSessionManager sessionManager = CLIENT.newSessionManager();
-		IDfLoginInfo loginInfo = new DfLoginInfo(credentials.getUserName(), credentials.getPassword());
-		loginInfo.setDomain(credentials.getDomain());
-		sessionManager.setIdentity(credentials.getDocbaseName(), loginInfo);
-		_session = sessionManager.newSession(credentials.getDocbaseName());
-		_session.beginTrans();
-	}
+    private void doSetup() throws DfException {
+        IDocumentumCredentials credentials = new PropertiesCredentialManager(
+                null).getCredentials(null, null);
+        IDfSessionManager sessionManager = CLIENT.newSessionManager();
+        IDfLoginInfo loginInfo = new DfLoginInfo(credentials.getUserName(),
+                credentials.getPassword());
+        loginInfo.setDomain(credentials.getDomain());
+        sessionManager.setIdentity(credentials.getDocbaseName(), loginInfo);
+        _session = sessionManager.newSession(credentials.getDocbaseName());
+        _session.beginTrans();
+    }
 
-	protected void doPreSetup() throws Exception {
-		// noop
-	}
+    protected void doPreSetup() throws Exception {
+        // noop
+    }
 
-	protected void doPostSetup() throws Exception {
-		// noop
-	}
+    protected void doPostSetup() throws Exception {
+        // noop
+    }
 
-	@After
-	public final void tearDown() throws Exception {
-		if (_session == null) {
-			return;
-		}
-		try {
-			if (_session.isTransactionActive()) {
-				_session.abortTrans();
-			}
-		} finally {
-			_session.disconnect();
-		}
-	}
+    @After
+    public final void tearDown() throws Exception {
+        if (_session == null) {
+            return;
+        }
+        try {
+            if (_session.isTransactionActive()) {
+                _session.abortTrans();
+            }
+        } finally {
+            _session.disconnect();
+        }
+    }
 
 }

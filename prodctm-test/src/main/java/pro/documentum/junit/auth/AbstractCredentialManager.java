@@ -5,15 +5,15 @@ package pro.documentum.junit.auth;
  */
 public abstract class AbstractCredentialManager implements ICredentialManager {
 
-	private final String _docbaseName;
+    private final String _docbaseName;
 
-	AbstractCredentialManager(String docbaseName) {
-		_docbaseName = docbaseName;
-	}
+    AbstractCredentialManager(final String docbaseName) {
+        _docbaseName = docbaseName;
+    }
 
-	@Override
-	public String getDocbaseName() {
-		return _docbaseName;
-	}
+    @Override
+    public String getDocbaseName() {
+        return _docbaseName;
+    }
 
 }
