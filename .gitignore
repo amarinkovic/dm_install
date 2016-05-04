@@ -1,0 +1,42 @@
+# Class files
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs
+hs_err_pid*
+
+# idea project files
+*.iml
+.idea/
+
+#eclipse project files
+.classpath
+.project
+.settings
+.groovy
+
+# maven files
+target/
+overlays/
+
+# build properties
+build.properties
+connection.properties
+documentumcredentials.properties
+dfc.keystore
+dfc.properties
+
+# MacOS X stuff
+.DS_Store
+
+# DFC stuff
+trace.log
+log4j.log
+
