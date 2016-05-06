@@ -19,12 +19,12 @@ public class ConverterTest extends DfcTestSupport {
 
     @Override
     protected void doPostSetup() throws Exception {
-        _converter = new Converter();
+        _converter = Converter.getInstance();
     }
 
     @Test
     public void testString1() throws Exception {
-        assertEquals("", _converter.convert(null, IDfValue.DF_STRING));
+        assertEquals(null, _converter.convert(null, IDfValue.DF_STRING));
         assertEquals("X", _converter.convert("X", IDfValue.DF_STRING));
         assertEquals("X", _converter.convert(new DfValue("X"),
                 IDfValue.DF_STRING));

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import com.documentum.fc.common.DfLogger;
 import com.documentum.fc.common.DfPreferences;
 import com.documentum.fc.common.impl.preferences.annotation.BooleanConstraint;
 import com.documentum.fc.common.impl.preferences.annotation.DirectoryConstraint;
@@ -14,6 +13,8 @@ import com.documentum.fc.common.impl.preferences.annotation.FileConstraint;
 import com.documentum.fc.common.impl.preferences.annotation.IntegerConstraint;
 import com.documentum.fc.common.impl.preferences.annotation.Preference;
 import com.documentum.fc.common.impl.preferences.annotation.StringConstraint;
+
+import pro.documentum.util.logger.Logger;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -169,7 +170,7 @@ public class PreferencesLoader {
                 Integer.parseInt((String) preferenceValue);
                 return true;
             } catch (NumberFormatException ex) {
-                DfLogger.error(this, ex.getMessage(), null, ex);
+                Logger.error(ex);
             }
             return false;
         }

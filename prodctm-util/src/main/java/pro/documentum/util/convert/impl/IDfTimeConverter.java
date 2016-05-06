@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -14,7 +15,6 @@ import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.documentum.fc.common.DfLogger;
 import com.documentum.fc.common.DfPreferences;
 import com.documentum.fc.common.DfTime;
 import com.documentum.fc.common.DfValue;
@@ -23,6 +23,7 @@ import com.documentum.fc.common.IDfValue;
 import com.documentum.fc.impl.util.DateFormatUtil;
 
 import pro.documentum.util.convert.IConverter;
+import pro.documentum.util.logger.Logger;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -48,8 +49,10 @@ public class IDfTimeConverter extends AbstractConverter<Object, IDfTime> {
         CONVERTERS.put(IDfTime.class, new IDfTimeToIDfTime());
         CONVERTERS.put(DfTime.class, CONVERTERS.get(IDfTime.class));
         CONVERTERS.put(Date.class, new DateToIDfTime());
-        CONVERTERS.put(Long.class, new DateToIDfTime());
+        CONVERTERS.put(Long.class, new LongToIDfTime());
         CONVERTERS.put(long.class, CONVERTERS.get(Long.class));
+        CONVERTERS.put(Calendar.class, new CalendarToIDfTime());
+        CONVERTERS.put(GregorianCalendar.class, CONVERTERS.get(Calendar.class));
     }
 
     private static List<SimpleDateFormat> simpleDateFormats;
@@ -158,7 +161,7 @@ public class IDfTimeConverter extends AbstractConverter<Object, IDfTime> {
         try {
             return format.parse(value);
         } catch (ParseException ex) {
-            DfLogger.debug(IDfTimeConverter.class, ex.getMessage(), null, ex);
+            Logger.debug(ex);
         }
         return null;
     }
@@ -240,6 +243,33 @@ public class IDfTimeConverter extends AbstractConverter<Object, IDfTime> {
         @Override
         public IDfTime convert(final Date value) {
             return new DfTime(value);
+        }
+
+    }
+
+    static class CalendarToIDfTime implements IConverter<Calendar, IDfTime> {
+
+        CalendarToIDfTime() {
+            super();
+        }
+
+        @Override
+        public IDfTime convert(final Calendar value) throws ParseException {
+            return new DfTime(value.getTime());
+        }
+
+    }
+
+    static class LongToIDfTime implements IConverter<Long, IDfTime> {
+
+        LongToIDfTime() {
+            super();
+        }
+
+        @Override
+        public IDfTime convert(final Long value) throws ParseException {
+            Date date = new Date(value);
+            return new DfTime(date);
         }
 
     }

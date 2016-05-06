@@ -17,6 +17,7 @@
         <mockito.version>1.10.19</mockito.version>
         <hamcrest.version>2.0.0.0</hamcrest.version>
         <log4j.version>1.2.13</log4j.version>
+        <slf4j.version>1.7.21</slf4j.version>
         <commons-lang.version>2.4</commons-lang.version>
         <commons-io.version>2.4</commons-io.version>
         <dfc.version>7.2.0030.0070</dfc.version>
@@ -25,6 +26,7 @@
         <datanucleus-core.version>4.1.7</datanucleus-core.version>
         <datanucleus-api-jdo.version>4.1.1</datanucleus-api-jdo.version>
         <datanucleus-jdo-query.version>4.0.5</datanucleus-jdo-query.version>
+        <lombok.version>1.16.8</lombok.version>
     </properties>
 
     <dependencyManagement>
@@ -48,9 +50,22 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>com.emc.documentum</groupId>
                 <artifactId>dfc</artifactId>
                 <version>${dfc.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
@@ -89,6 +104,11 @@
                 <groupId>org.datanucleus</groupId>
                 <artifactId>datanucleus-jdo-query</artifactId>
                 <version>${datanucleus-jdo-query.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
             </dependency>
 
             <!-- Testing libraries -->
@@ -180,10 +200,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jmock</groupId>
             <artifactId>jmock</artifactId>
         </dependency>
@@ -260,15 +276,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.16</version>
                     <configuration>
-                        <includes>
-                            <include>**/*Test.java</include>
-                            <include>**/*Test$*.java</include>
-                            <include>**/*Test_*.java</include>
-                            <include>**/*Spec*.java</include>
-                        </includes>
                         <excludes>
-                            <exclude>**/Test*.java</exclude>
-                            <exclude>**/*ForTesting.java</exclude>
                             <exclude>**/*Abstract*.java</exclude>
                         </excludes>
                         <useFile>true</useFile>

@@ -18,7 +18,7 @@ import pro.documentum.junit.DfcTestSupport;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class BulkCollectionIteratortTest extends DfcTestSupport {
+public class BulkCollectionIteratorTest extends DfcTestSupport {
 
     @Test
     public void testSingleSysObject() throws Exception {

@@ -1,6 +1,7 @@
 package pro.documentum.util.objects;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -256,6 +257,21 @@ public final class DfObjects {
         ISysObjectInternal internal = (ISysObjectInternal) object;
         for (int i = internal.getFolderIdCountEx() - 1; i >= 0; i--) {
             internal.unlink(internal.getFolderIdEx(i).getId());
+        }
+    }
+
+    public static void removeVersionLabels(final IDfSysObject object)
+        throws DfException {
+        for (int i = object.getVersionLabelCount() - 1; i >= 0; i++) {
+            object.unmark(object.getVersionLabel(i));
+        }
+    }
+
+    public static void setVersionLabels(final IDfSysObject object,
+            final Collection<String> labels) throws DfException {
+        removeVersionLabels(object);
+        for (String label : labels) {
+            object.mark(label);
         }
     }
 
