@@ -23,7 +23,7 @@ public final class Sessions {
         return !transactionActive;
     }
 
-    public static <T> T executeInTransaction(final IDfSession session,
+    public static <T> T inTransaction(final IDfSession session,
             final IDfSessionInvoker<T> invoker) throws DfException {
         boolean txStartsHere = false;
         try {
@@ -39,6 +39,11 @@ public final class Sessions {
                 session.abortTrans();
             }
         }
+    }
+
+    public static String getHostName(final IDfSession session)
+        throws DfException {
+        return session.getSessionConfig().getString("r_host_name");
     }
 
 }

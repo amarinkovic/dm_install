@@ -18,12 +18,12 @@ import pro.documentum.util.versions.Versions;
  */
 public class VersionHandler extends AbstractSysObjectAttributeHandler {
 
-    public static final Set<String> LOCK_ATTRIBUTES;
+    public static final Set<String> VERSION_ATTRIBUTES;
 
     static {
-        LOCK_ATTRIBUTES = new HashSet<String>();
-        LOCK_ATTRIBUTES.add("r_lock_owner");
-        LOCK_ATTRIBUTES.add("r_version_label");
+        VERSION_ATTRIBUTES = new HashSet<String>();
+        VERSION_ATTRIBUTES.add("r_lock_owner");
+        VERSION_ATTRIBUTES.add("r_version_label");
     }
 
     public VersionHandler() {
@@ -32,12 +32,7 @@ public class VersionHandler extends AbstractSysObjectAttributeHandler {
 
     @Override
     protected boolean doAccept(final Set<String> attrNames) {
-        for (String attrName : LOCK_ATTRIBUTES) {
-            if (attrNames.contains(attrName)) {
-                return true;
-            }
-        }
-        return false;
+        return containsKey(attrNames, VERSION_ATTRIBUTES);
     }
 
     @Override
@@ -53,7 +48,7 @@ public class VersionHandler extends AbstractSysObjectAttributeHandler {
                 return true;
             }
             object.checkin(!isEmptyLockOwner, getVersionLabels(object, values));
-            cleanAttrs(values);
+            removeKey(values, VERSION_ATTRIBUTES);
             return false;
         }
 
@@ -64,30 +59,24 @@ public class VersionHandler extends AbstractSysObjectAttributeHandler {
                 } else {
                     object.cancelCheckout();
                 }
-                cleanAttrs(values);
+                removeKey(values, VERSION_ATTRIBUTES);
             }
             return !isLast;
         }
 
         if (!object.isCheckedOut() && hasLockOwner(object, values)) {
             object.checkout();
-            cleanAttrs(values);
+            removeKey(values, VERSION_ATTRIBUTES);
             return false;
         }
 
         return false;
     }
 
-    private void cleanAttrs(final Map<String, ?> values) {
-        for (String attrName : LOCK_ATTRIBUTES) {
-            values.remove(attrName);
-        }
-    }
-
     private boolean isLastOp(final IDfSysObject object,
             final Map<String, ?> values) throws DfException {
         int required = 0;
-        for (String attr : LOCK_ATTRIBUTES) {
+        for (String attr : VERSION_ATTRIBUTES) {
             if (values.containsKey(attr)) {
                 required++;
             }

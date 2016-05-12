@@ -30,12 +30,7 @@ public class FolderHandler extends AbstractSysObjectAttributeHandler {
 
     @Override
     protected boolean doAccept(final Set<String> attrNames) {
-        for (String attrName : FOLDER_ATTRIBUTES) {
-            if (attrNames.contains(attrName)) {
-                return true;
-            }
-        }
-        return false;
+        return containsKey(attrNames, FOLDER_ATTRIBUTES);
     }
 
     @Override

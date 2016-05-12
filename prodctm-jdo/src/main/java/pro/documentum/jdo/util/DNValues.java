@@ -3,6 +3,8 @@ package pro.documentum.jdo.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jdo.annotations.Transactional;
+
 import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.state.ObjectProvider;
@@ -120,6 +122,7 @@ public final class DNValues {
         setFields(object, op, nonRelPositions, table, insert);
     }
 
+    @Transactional
     public static void setFields(final IDfPersistentObject object,
             final ObjectProvider op, final int[] fields, final Table table,
             final boolean insert) {

@@ -27,12 +27,7 @@ public final class UserPermitHandler extends AbstractUserAttributeHandler {
 
     @Override
     protected boolean doAccept(final Set<String> attrNames) {
-        for (String attrName : PERMIT_ATTRS) {
-            if (attrNames.contains(attrName)) {
-                return true;
-            }
-        }
-        return false;
+        return containsKey(attrNames, PERMIT_ATTRS);
     }
 
     @Override

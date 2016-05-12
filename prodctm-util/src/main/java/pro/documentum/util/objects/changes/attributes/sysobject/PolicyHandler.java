@@ -28,12 +28,7 @@ public class PolicyHandler extends AbstractSysObjectAttributeHandler {
 
     @Override
     protected boolean doAccept(final Set<String> attrNames) {
-        for (String attrName : POLICY_ATTRIBUTES) {
-            if (attrNames.contains(attrName)) {
-                return true;
-            }
-        }
-        return false;
+        return containsKey(attrNames, POLICY_ATTRIBUTES);
     }
 
     @Override
@@ -44,6 +39,7 @@ public class PolicyHandler extends AbstractSysObjectAttributeHandler {
         if (newPolicy.isNull()) {
             object.detachPolicy();
         }
+        removeKey(values, POLICY_ATTRIBUTES);
         return false;
     }
 

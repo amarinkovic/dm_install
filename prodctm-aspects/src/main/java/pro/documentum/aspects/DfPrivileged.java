@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface PrivilegedAction {
+public @interface DfPrivileged {
 
     String[] roles() default {};
 

@@ -26,7 +26,7 @@ public class PersistentHandler implements
 
     static {
         IGNORE_ATTRIBUTES = new HashSet<String>();
-        IGNORE_ATTRIBUTES.addAll(VersionHandler.LOCK_ATTRIBUTES);
+        IGNORE_ATTRIBUTES.addAll(VersionHandler.VERSION_ATTRIBUTES);
     }
 
     public PersistentHandler() {

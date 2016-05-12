@@ -9,7 +9,6 @@ import javax.transaction.xa.XAResource;
 import org.apache.commons.lang.StringUtils;
 import org.datanucleus.ExecutionContext;
 import org.datanucleus.PropertyNames;
-import org.datanucleus.exceptions.NucleusDataStoreException;
 import org.datanucleus.exceptions.NucleusException;
 import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.connection.AbstractConnectionFactory;
@@ -109,8 +108,7 @@ public class DocumentumConnectionFactory extends AbstractConnectionFactory {
                             .debug("Created new documentum session");
                 }
             } catch (DfException ex) {
-                throw new NucleusDataStoreException(
-                        "Unable to connect to documentum", ex);
+                throw DfExceptions.dataStoreException(ex);
             }
         }
 

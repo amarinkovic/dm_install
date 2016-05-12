@@ -16,6 +16,7 @@ import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfId;
 
+import pro.documentum.aspects.DfTransactional;
 import pro.documentum.util.ids.DfIdUtil;
 import pro.documentum.util.objects.DfObjects;
 
@@ -32,28 +33,41 @@ public final class Nucleus {
             final Object id, final AbstractClassMetaData cmd,
             final StoreManager storeMgr) {
         try {
-            Table table = storeMgr.getStoreDataForClass(cmd.getFullClassName())
-                    .getTable();
-            String objectId = String.valueOf(IdentityUtils
-                    .getTargetKeyForDatastoreIdentity(id));
-            return DfObjects.newObject(session, table.getName(), objectId);
+            return doNewObject(session, id, cmd, storeMgr);
         } catch (DfException ex) {
             throw DfExceptions.dataStoreException(ex);
         }
     }
 
+    @DfTransactional
+    private static IDfPersistentObject doNewObject(final IDfSession session,
+            final Object id, final AbstractClassMetaData cmd,
+            final StoreManager storeMgr) throws DfException {
+        Table table = storeMgr.getStoreDataForClass(cmd.getFullClassName())
+                .getTable();
+        String objectId = String.valueOf(IdentityUtils
+                .getTargetKeyForDatastoreIdentity(id));
+        return DfObjects.newObject(session, table.getName(), objectId);
+    }
+
     public static void save(final IDfPersistentObject object) {
         try {
-            if (!object.isDirty()) {
-                return;
-            }
-            if (object instanceof IDfSysObject) {
-                ((IDfSysObject) object).saveLock();
-            }
-            object.save();
+            doSave(object);
         } catch (DfException ex) {
             throw DfExceptions.dataStoreException(ex);
         }
+    }
+
+    @DfTransactional
+    private static void doSave(final IDfPersistentObject object)
+        throws DfException {
+        if (!object.isDirty()) {
+            return;
+        }
+        if (object instanceof IDfSysObject) {
+            ((IDfSysObject) object).saveLock();
+        }
+        object.save();
     }
 
     public static String getObjectId(final Object id) {

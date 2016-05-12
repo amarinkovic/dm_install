@@ -1,5 +1,7 @@
 package pro.documentum.util.objects.changes.attributes.persistent;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,7 +15,7 @@ import pro.documentum.util.objects.changes.attributes.Depends;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-@Depends(on = {AspectNameHandler.class })
+@Depends(on = {ReadOnlyHandler.class, AspectNameHandler.class })
 public abstract class AbstractPersistentAttributeHandler<T extends IDfPersistentObject>
         extends AbstractAttributeHandler<T> {
 
@@ -27,7 +29,7 @@ public abstract class AbstractPersistentAttributeHandler<T extends IDfPersistent
     }
 
     protected boolean requireTransaction() {
-        return false;
+        return true;
     }
 
     @Override
@@ -66,6 +68,61 @@ public abstract class AbstractPersistentAttributeHandler<T extends IDfPersistent
             throw new IllegalStateException(
                     "Operation must be performed in transaction");
         }
+    }
+
+    protected void removeKey(final Map<String, ?> values, final String attribute) {
+        values.remove(attribute);
+    }
+
+    protected void removeKey(final Map<String, ?> values,
+            final String... attributes) {
+        removeKey(values, Arrays.asList(attributes));
+    }
+
+    protected void removeKey(final Map<String, ?> values,
+            final Collection<String> attributes) {
+        for (String attrName : attributes) {
+            removeKey(values, attrName);
+        }
+    }
+
+    protected boolean containsKey(final Set<String> keys, final String attribute) {
+        return keys.contains(attribute);
+    }
+
+    protected boolean containsKey(final Set<String> keys,
+            final String... attributes) {
+        return containsKey(keys, Arrays.asList(attributes));
+    }
+
+    protected boolean containsKey(final Set<String> keys,
+            final Collection<String> attributes) {
+        for (String attrName : attributes) {
+            if (containsKey(keys, attrName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected boolean containsKey(final Map<String, ?> values,
+            final String attribute) {
+        return values.containsKey(attribute);
+    }
+
+    protected boolean containsKey(final Map<String, ?> values,
+            final String... attributes) {
+        return containsKey(values, Arrays.asList(attributes));
+    }
+
+    protected boolean containsKey(final Map<String, ?> values,
+            final Collection<String> attributes) {
+        for (String attrName : attributes) {
+            if (containsKey(values, attrName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

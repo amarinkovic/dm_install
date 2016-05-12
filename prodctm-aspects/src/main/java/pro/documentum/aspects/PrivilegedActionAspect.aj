@@ -14,9 +14,9 @@ import pro.documentum.util.priviledges.PrivilegedActionInRole;
  */
 public aspect PrivilegedActionAspect {
 
-    Object around (): execution(* *(..)) && @annotation(PrivilegedAction) {
+    Object around (): execution(* *(..)) && @annotation(pro.documentum.aspects.DfPrivileged) {
         Method method = MethodSignature.class.cast(thisJoinPoint.getSignature()).getMethod();
-        PrivilegedAction annotation = method.getAnnotation(PrivilegedAction.class);
+        DfPrivileged annotation = method.getAnnotation(DfPrivileged.class);
         if (annotation == null) {
             return proceed();
         }

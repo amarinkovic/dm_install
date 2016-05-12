@@ -29,7 +29,7 @@ public final class DNMetaData {
     }
 
     public static StoreData getStoreData(final ExecutionContext ec,
-                                         final String className) {
+            final String className) {
         StoreManager storeMgr = ec.getStoreManager();
         StoreData sd = storeMgr.getStoreDataForClass(className);
         if (sd == null) {
@@ -75,7 +75,7 @@ public final class DNMetaData {
     }
 
     public static String getClassNameForObject(final ExecutionContext ec,
-                                               final IDfPersistentObject object) {
+            final IDfPersistentObject object) {
         try {
             return getClassNameForType(ec, object.getType());
         } catch (DfException ex) {
@@ -84,7 +84,7 @@ public final class DNMetaData {
     }
 
     public static String getClassNameForType(final ExecutionContext ec,
-                                             final IDfType type) {
+            final IDfType type) {
         try {
             Map<String, String> tables = getKnownTables(ec);
             IDfType current = type;
@@ -102,7 +102,7 @@ public final class DNMetaData {
     }
 
     public static StoreData getStoreData(final ExecutionContext ec,
-                                         final AbstractClassMetaData cmd) {
+            final AbstractClassMetaData cmd) {
         return getStoreData(ec, cmd.getFullClassName());
     }
 

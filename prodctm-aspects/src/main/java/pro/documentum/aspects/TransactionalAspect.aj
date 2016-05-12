@@ -19,12 +19,12 @@ import pro.documentum.util.sessions.Sessions;
  */
 public abstract aspect TransactionalAspect {
 
-    Object around ()throws DfException: execution(* *(..)) && @annotation(Transactional) {
+    Object around ()throws DfException: execution(* *(..)) && @annotation(pro.documentum.aspects.DfTransactional) {
         IDfSession session = findSession(thisJoinPoint);
         if (session == null) {
             return proceed();
         }
-        return Sessions.executeInTransaction(session, new IDfSessionInvoker<Object>() {
+        return Sessions.inTransaction(session, new IDfSessionInvoker<Object>() {
             @Override
             public Object invoke(IDfSession session) throws DfException {
                 return proceed();
@@ -43,7 +43,7 @@ public abstract aspect TransactionalAspect {
             Annotation[] annotations = parameterAnnotations[i];
             boolean hasAnnotation = false;
             for (Annotation annotation : annotations) {
-                if (annotation.annotationType() == SessionHolder.class) {
+                if (annotation.annotationType() == DfSession.class) {
                     hasAnnotation = true;
                     break;
                 }

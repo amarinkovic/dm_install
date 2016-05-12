@@ -21,7 +21,7 @@ public class AspectNameHandler extends
 
     @Override
     protected boolean doAccept(final Set<String> attrNames) {
-        return attrNames.contains("r_aspect_name");
+        return containsKey(attrNames, "r_aspect_name");
     }
 
     @Override

@@ -8,8 +8,6 @@ import com.documentum.fc.client.IDfUser;
 import com.documentum.fc.common.DfDocbaseConstants;
 import com.documentum.fc.common.DfException;
 
-import pro.documentum.util.logger.Logger;
-
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
@@ -42,14 +40,7 @@ public final class UserReadOnlyHandler extends AbstractUserAttributeHandler {
     @Override
     public boolean doApply(final IDfUser object, final Map<String, ?> values)
         throws DfException {
-        for (String attrName : READONLY_ATTRS) {
-            if (!values.containsKey(attrName)) {
-                continue;
-            }
-            Logger.debug("Attempt to set readonly attribute: {0}",
-                    new Exception(), attrName);
-            values.remove(attrName);
-        }
+        removeKey(values, READONLY_ATTRS);
         return false;
     }
 

@@ -17,7 +17,7 @@ public class ObjectNameHandler extends AbstractSysObjectAttributeHandler {
 
     @Override
     protected boolean doAccept(final Set<String> attrNames) {
-        return attrNames.contains("object_name");
+        return containsKey(attrNames, "object_name");
     }
 
     @Override

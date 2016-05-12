@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import com.documentum.fc.client.IDfFolder;
 import com.documentum.fc.client.IDfSession;
+import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfId;
 import com.documentum.fc.common.IDfId;
 
@@ -48,6 +49,17 @@ public class DfObjectsTest extends DfcTestSupport {
         folder2.link(folder1.getObjectId().getId());
         assertTrue(DfObjects.isLinkedToFolder(folder2, folder1.getObjectId()
                 .getId()));
+    }
+
+    @Test
+    public void testGetImp() throws Exception {
+        IDfSession session = getSession();
+        IDfSysObject proxy = (IDfSysObject) session.newObject("dm_document");
+        IDfSysObject imp = DfObjects.getImp(proxy);
+        assertNotNull(imp);
+        assertNotEquals(proxy, imp);
+        assertNotNull(DfObjects.getImp(imp));
+        assertEquals(imp, DfObjects.getImp(imp));
     }
 
 }

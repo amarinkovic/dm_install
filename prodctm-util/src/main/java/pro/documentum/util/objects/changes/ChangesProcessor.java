@@ -7,12 +7,18 @@ import java.util.Map;
 import java.util.Queue;
 
 import com.documentum.fc.client.IDfPersistentObject;
+import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfException;
 
+import pro.documentum.util.IDfSessionInvoker;
 import pro.documentum.util.convert.Converter;
+import pro.documentum.util.logger.Logger;
 import pro.documentum.util.objects.changes.attributes.IAttributeHandler;
 import pro.documentum.util.objects.changes.attributes.PersistentHandler;
+import pro.documentum.util.objects.changes.attributes.content.ContentReadOnlyHandler;
+import pro.documentum.util.objects.changes.attributes.content.ParentIdHandler;
 import pro.documentum.util.objects.changes.attributes.persistent.AspectNameHandler;
+import pro.documentum.util.objects.changes.attributes.persistent.ReadOnlyHandler;
 import pro.documentum.util.objects.changes.attributes.sysobject.FolderHandler;
 import pro.documentum.util.objects.changes.attributes.sysobject.ObjectNameHandler;
 import pro.documentum.util.objects.changes.attributes.sysobject.PolicyHandler;
@@ -24,6 +30,7 @@ import pro.documentum.util.objects.changes.attributes.user.UserReadOnlyHandler;
 import pro.documentum.util.objects.changes.attributes.workitem.OutputPortHandler;
 import pro.documentum.util.objects.changes.attributes.workitem.PerformerHandler;
 import pro.documentum.util.objects.changes.attributes.workitem.RuntimeStateHandler;
+import pro.documentum.util.sessions.Sessions;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -37,38 +44,44 @@ public final class ChangesProcessor {
     }
 
     static {
+        // aspects
         addAttributeHandler(AspectNameHandler.class);
+        // workitems
         addAttributeHandler(OutputPortHandler.class);
         addAttributeHandler(PerformerHandler.class);
         addAttributeHandler(RuntimeStateHandler.class);
+        // sysobjects
         addAttributeHandler(ObjectNameHandler.class);
         addAttributeHandler(TitleHandler.class);
         addAttributeHandler(FolderHandler.class);
         addAttributeHandler(VersionHandler.class);
-        addAttributeHandler(SysObjectReadOnlyHandler.class);
-        addAttributeHandler(UserReadOnlyHandler.class);
         addAttributeHandler(PolicyHandler.class);
+        // users
         addAttributeHandler(UserPermitHandler.class);
         addAttributeHandler(PersistentHandler.class);
+        // content
+        addAttributeHandler(ParentIdHandler.class);
+        // read-only
+        addAttributeHandler(ReadOnlyHandler.class);
+        addAttributeHandler(UserReadOnlyHandler.class);
+        addAttributeHandler(SysObjectReadOnlyHandler.class);
+        addAttributeHandler(ContentReadOnlyHandler.class);
     }
 
     private ChangesProcessor() {
         super();
     }
 
-    @SuppressWarnings("unchecked")
     public static void process(final IDfPersistentObject object,
             final Map<String, ?> values) throws DfException {
         Map<String, Object> data = prepare(object, values);
         Queue<IAttributeHandler> handlers = getHandlers(object, data);
-        while (!handlers.isEmpty()) {
-            IAttributeHandler handler = handlers.remove();
-            if (handler.apply(object, data)) {
-                handlers.offer(handler);
-            }
+        if (handlers == null) {
+            Logger.debug("Nothing to do for object ", object.getObjectId());
+            return;
         }
-        IAttributeHandler handler = getAttributeHandler(PersistentHandler.class);
-        handler.apply(object, data);
+        Sessions.inTransaction(object.getObjectSession(),
+                new TransactionalChanges(object, data, handlers));
     }
 
     private static Queue<IAttributeHandler> getHandlers(
@@ -153,6 +166,38 @@ public final class ChangesProcessor {
         } catch (IllegalAccessException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    static class TransactionalChanges implements IDfSessionInvoker<Void> {
+
+        private final IDfPersistentObject _object;
+
+        private final Map<String, ?> _data;
+
+        private final Queue<IAttributeHandler> _handlers;
+
+        TransactionalChanges(final IDfPersistentObject object,
+                final Map<String, ?> data,
+                final Queue<IAttributeHandler> handlers) {
+            _object = object;
+            _data = data;
+            _handlers = handlers;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public Void invoke(final IDfSession session) throws DfException {
+            while (!_handlers.isEmpty()) {
+                IAttributeHandler handler = _handlers.remove();
+                if (handler.apply(_object, _data)) {
+                    _handlers.offer(handler);
+                }
+            }
+            IAttributeHandler handler = getAttributeHandler(PersistentHandler.class);
+            handler.apply(_object, _data);
+            return null;
+        }
+
     }
 
 }

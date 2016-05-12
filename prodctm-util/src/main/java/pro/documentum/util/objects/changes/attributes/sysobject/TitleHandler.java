@@ -17,7 +17,7 @@ public class TitleHandler extends AbstractSysObjectAttributeHandler {
 
     @Override
     protected boolean doAccept(final Set<String> attrNames) {
-        return attrNames.contains("title");
+        return containsKey(attrNames, "title");
     }
 
     @Override

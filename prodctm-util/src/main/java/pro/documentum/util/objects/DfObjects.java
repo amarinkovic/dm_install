@@ -12,7 +12,10 @@ import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.client.IDfTypedObject;
+import com.documentum.fc.client.content.IDfContent;
+import com.documentum.fc.client.content.impl.IContent;
 import com.documentum.fc.client.impl.IPersistentObject;
+import com.documentum.fc.client.impl.ISysObject;
 import com.documentum.fc.client.impl.ITypedObject;
 import com.documentum.fc.client.impl.ObjectIdManager;
 import com.documentum.fc.client.impl.objectmanager.IPersistentObjectFactory;
@@ -26,6 +29,7 @@ import com.documentum.fc.common.DfDocbaseConstants;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfId;
 import com.documentum.fc.common.IDfId;
+import com.documentum.fc.impl.util.reflection.proxy.IProxyHandler;
 
 import pro.documentum.util.ids.DfIdUtil;
 import pro.documentum.util.types.DfTypes;
@@ -70,6 +74,17 @@ public final class DfObjects {
     }
 
     @SuppressWarnings("unchecked")
+    public static <T extends IDfPersistentObject> T getImp(final T object)
+        throws DfException {
+        IProxyHandler proxyHandler = ((IPersistentObject) object)
+                .getProxyHandler();
+        if (proxyHandler == null) {
+            return object;
+        }
+        return (T) proxyHandler.____getImp____();
+    }
+
+    @SuppressWarnings("unchecked")
     public static <T extends IDfPersistentObject> T buildObject(
             final IDfSession dfSession, final IDfTypedObject data,
             final String typeName) throws DfException {
@@ -107,6 +122,30 @@ public final class DfObjects {
         return (T) buildObject(session, objectData, true);
     }
 
+    public static <T extends IDfPersistentObject> T newObject(
+            final IDfSession dfSession, final String typeName)
+        throws DfException {
+        return newObject(dfSession, typeName, true);
+    }
+
+    public static <T extends IDfPersistentObject> T newUnCached(
+            final IDfSession dfSession, final String typeName)
+        throws DfException {
+        return newObject(dfSession, typeName, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends IDfPersistentObject> T newObject(
+            final IDfSession dfSession, final String typeName,
+            final boolean cached) throws DfException {
+        ISession session = (ISession) dfSession;
+        if (cached) {
+            return (T) session.newObject(typeName);
+        }
+        PersistentObjectManager objectManager = session.getObjectManager();
+        return (T) objectManager.newUncachedObject(typeName, null);
+    }
+
     @SuppressWarnings("unchecked")
     private static <T extends IDfPersistentObject> T buildObject(
             final IDfSession dfSession, final ITypedData data,
@@ -121,12 +160,6 @@ public final class DfObjects {
             objectManager.replaceObject(persistentObject);
         }
         return (T) persistentObject;
-    }
-
-    public static <T extends IDfPersistentObject> T newObject(
-            final IDfSession dfSession, final String typeName)
-        throws DfException {
-        return newObject(dfSession, typeName, makeId(dfSession, typeName));
     }
 
     public static <T extends IDfPersistentObject> T newObject(
@@ -164,8 +197,8 @@ public final class DfObjects {
             return true;
         }
         if (!current.getAttr(current.findAttrIndex(attrName)).isRepeating()) {
-            return !Objects.equals(current.getValue(attrName), unCached
-                    .getValue(attrName));
+            return !Objects.equals(current.getValue(attrName),
+                    unCached.getValue(attrName));
         }
         if (current.getValueCount(attrName) != unCached.getValueCount(attrName)) {
             return true;
@@ -314,6 +347,34 @@ public final class DfObjects {
         IDfSession session = object.getSession();
         IDfFolder folder = session.getFolderByPath(path);
         return isLinkedToFolder(object, folder.getObjectId());
+    }
+
+    public static void unlinkAllParents(final IDfContent content)
+        throws DfException {
+        ((IContent) content).resetLinks();
+    }
+
+    public static void link(final IDfContent content, final IDfId objectId,
+            final int pageNo, final String pageModifier) throws DfException {
+        IDfSession session = content.getSession();
+        ((IContent) content).link((ISysObject) session.getObject(objectId),
+                pageNo, pageModifier);
+    }
+
+    public static void link(final IDfContent content,
+            final IDfSysObject object, final int pageNo,
+            final String pageModifier) throws DfException {
+        ((IContent) content).link((ISysObject) object, pageNo, pageModifier);
+    }
+
+    public static void setPrimary(IDfSysObject dfObject, IDfContent content)
+        throws DfException {
+        ISysObject object = (ISysObject) dfObject;
+        object.setContentsId(content.getObjectId());
+        if (object.getPageCount() == 0) {
+            object.setPageCount(1);
+        }
+        object.setContentType(content.getFullFormat());
     }
 
 }
