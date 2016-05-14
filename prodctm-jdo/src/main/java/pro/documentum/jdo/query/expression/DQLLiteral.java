@@ -1,23 +1,37 @@
 package pro.documentum.jdo.query.expression;
 
+import java.util.Date;
+
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DQLLiteral extends DQLExpression {
+public abstract class DQLLiteral<T> extends DQLExpression {
 
-    private Object _value;
-
-    public DQLLiteral(final Object value) {
-        _value = value;
-        setDqlText(toString());
+    protected DQLLiteral(final String value) {
+        super(value);
     }
 
-    public Object getValue() {
-        return _value;
+    public boolean isNull() {
+        return false;
     }
 
-    public String toString() {
-        return String.valueOf(_value);
+    public static DQLLiteral getInstance(final Object object) {
+        if (object == null) {
+            return new DQLNull();
+        }
+        if (object instanceof String) {
+            return new DQLString((String) object);
+        }
+        if (object instanceof Date) {
+            return new DQLDate((Date) object);
+        }
+        if (object instanceof Number) {
+            return new DQLNumber((Number) object);
+        }
+        if (object instanceof Boolean) {
+            return new DQLBoolean((Boolean) object);
+        }
+        return null;
     }
 
 }

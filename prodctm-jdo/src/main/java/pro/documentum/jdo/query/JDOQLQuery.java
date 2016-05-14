@@ -58,13 +58,17 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
         if (compilation == null || _datastoreCompilation == null) {
             return false;
         }
-        if (!_datastoreCompilation.isPrecompilable()) {
+        if (!isPrecompilable()) {
             NucleusLogger.GENERAL
                     .info("Query compiled but not precompilable so ditching datastore compilation");
             _datastoreCompilation = null;
             return false;
         }
         return true;
+    }
+
+    private boolean isPrecompilable() {
+        return _datastoreCompilation.isPrecompilable();
     }
 
     protected boolean evaluateInMemory() {
@@ -119,11 +123,13 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
             }
         }
 
-        if (cacheKey != null) {
-            if (_datastoreCompilation.isPrecompilable()) {
-                qm.addDatastoreQueryCompilation(datastoreKey, getLanguage(),
-                        cacheKey, _datastoreCompilation);
-            }
+        if (cacheKey == null) {
+            return;
+        }
+
+        if (isPrecompilable()) {
+            qm.addDatastoreQueryCompilation(datastoreKey, getLanguage(),
+                    cacheKey, _datastoreCompilation);
         }
     }
 
@@ -150,24 +156,23 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
                         .getMetaDataForClass(candidateClass,
                                 ec.getClassLoaderResolver());
                 String dqlTextForQuery = DNQueries.getDqlTextForQuery(ec, cmd,
-                        compilation.getCandidateAlias(), subclasses, null,
-                        null, null, null, null);
+                        getCandidateAlias(), subclasses, null, null, null,
+                        null, null);
                 candidates = DNQueries.executeDqlQuery(this, session,
                         dqlTextForQuery, cmd);
             } else {
-                filterInMemory = !_datastoreCompilation.isFilterComplete();
+                filterInMemory = !isFilterComplete();
                 if (!filterInMemory) {
-                    resultInMemory = !_datastoreCompilation.isResultComplete();
-                    orderInMemory = !_datastoreCompilation.isOrderComplete();
+                    resultInMemory = !isResultComplete();
+                    orderInMemory = !isOrderComplete();
                     if (!orderInMemory) {
-                        rangeInMemory = !_datastoreCompilation
-                                .isRangeComplete();
+                        rangeInMemory = !isRangeComplete();
                     }
                 }
                 AbstractClassMetaData cmd = ec.getMetaDataManager()
                         .getMetaDataForClass(candidateClass,
                                 ec.getClassLoaderResolver());
-                String dqlText = _datastoreCompilation.getDqlText();
+                String dqlText = getNativeQuery();
                 candidates = DNQueries.executeDqlQuery(this, session, dqlText,
                         cmd);
             }
@@ -193,42 +198,45 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
                         + (System.currentTimeMillis() - startTime)));
             }
 
-            if (results instanceof QueryResult) {
-                final QueryResult qr1 = (QueryResult) results;
-                final ManagedConnection mconn1 = mconn;
-                ManagedConnectionResourceListener listener = new ManagedConnectionResourceListener() {
-                    public void transactionFlushed() {
-                    }
-
-                    public void transactionPreClose() {
-                        // Tx : disconnect query from ManagedConnection (read in unread rows etc)
-                        qr1.disconnect();
-                    }
-
-                    public void managedConnectionPreClose() {
-                        if (!ec.getTransaction().isActive()) {
-                            // Non-Tx : disconnect query from ManagedConnection (read in unread rows etc)
-                            qr1.disconnect();
-                        }
-                    }
-
-                    public void managedConnectionPostClose() {
-                    }
-
-                    public void resourcePostClose() {
-                        mconn1.removeListener(this);
-                    }
-                };
-                mconn.addListener(listener);
-                if (qr1 instanceof AbstractQueryResult) {
-                    ((AbstractQueryResult) qr1).addConnectionListener(listener);
-                }
-            }
-
-            return results;
+            return addListeners(mconn, results);
         } finally {
             mconn.release();
         }
+    }
+
+    private Object addListeners(final ManagedConnection mconn,
+            final Collection results) {
+        if (!(results instanceof QueryResult)) {
+            return results;
+        }
+        QueryResult queryResult = (QueryResult) results;
+        ManagedConnectionResourceListener listener = new QueryResultResourceListener(
+                queryResult, mconn);
+        mconn.addListener(listener);
+        if (queryResult instanceof AbstractQueryResult) {
+            ((AbstractQueryResult) queryResult).addConnectionListener(listener);
+        }
+        return results;
+    }
+
+    private String getCandidateAlias() {
+        return compilation.getCandidateAlias();
+    }
+
+    private boolean isRangeComplete() {
+        return _datastoreCompilation.isRangeComplete();
+    }
+
+    private boolean isOrderComplete() {
+        return _datastoreCompilation.isOrderComplete();
+    }
+
+    private boolean isResultComplete() {
+        return _datastoreCompilation.isResultComplete();
+    }
+
+    private boolean isFilterComplete() {
+        return _datastoreCompilation.isFilterComplete();
     }
 
     private void compileQueryFull(final Map parameters,
@@ -239,11 +247,48 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
     }
 
     @Override
-    public Object getNativeQuery() {
+    public String getNativeQuery() {
         if (_datastoreCompilation != null) {
             return _datastoreCompilation.getDqlText();
         }
         return null;
+    }
+
+    private class QueryResultResourceListener implements
+            ManagedConnectionResourceListener {
+
+        private final QueryResult _queryResult;
+
+        private final ManagedConnection _mconn;
+
+        QueryResultResourceListener(final QueryResult queryResult,
+                final ManagedConnection mconn) {
+            _queryResult = queryResult;
+            _mconn = mconn;
+        }
+
+        public void transactionFlushed() {
+            // noop
+        }
+
+        public void transactionPreClose() {
+            _queryResult.disconnect();
+        }
+
+        public void managedConnectionPreClose() {
+            if (ec.getTransaction().isActive()) {
+                return;
+            }
+            _queryResult.disconnect();
+        }
+
+        public void managedConnectionPostClose() {
+        }
+
+        public void resourcePostClose() {
+            _mconn.removeListener(this);
+        }
+
     }
 
 }

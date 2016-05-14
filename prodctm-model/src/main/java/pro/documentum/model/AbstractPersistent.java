@@ -19,7 +19,7 @@ import org.datanucleus.metadata.MetaData;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-@PersistenceCapable(identityType = IdentityType.DATASTORE)
+@PersistenceCapable(identityType = IdentityType.DATASTORE, detachable = "true")
 @Version(strategy = VersionStrategy.VERSION_NUMBER, column = "i_vstamp", extensions = {@Extension(vendorName = MetaData.VENDOR_NAME, key = MetaData.EXTENSION_CLASS_VERSION_FIELD_NAME, value = "vStamp") })
 @DatastoreIdentity(strategy = IdGeneratorStrategy.INCREMENT, column = "r_object_id")
 @Inheritance(strategy = InheritanceStrategy.COMPLETE_TABLE)

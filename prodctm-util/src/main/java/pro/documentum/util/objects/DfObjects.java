@@ -197,8 +197,8 @@ public final class DfObjects {
             return true;
         }
         if (!current.getAttr(current.findAttrIndex(attrName)).isRepeating()) {
-            return !Objects.equals(current.getValue(attrName),
-                    unCached.getValue(attrName));
+            return !Objects.equals(current.getValue(attrName), unCached
+                    .getValue(attrName));
         }
         if (current.getValueCount(attrName) != unCached.getValueCount(attrName)) {
             return true;
@@ -367,8 +367,8 @@ public final class DfObjects {
         ((IContent) content).link((ISysObject) object, pageNo, pageModifier);
     }
 
-    public static void setPrimary(IDfSysObject dfObject, IDfContent content)
-        throws DfException {
+    public static void setPrimary(final IDfSysObject dfObject,
+            final IDfContent content) throws DfException {
         ISysObject object = (ISysObject) dfObject;
         object.setContentsId(content.getObjectId());
         if (object.getPageCount() == 0) {

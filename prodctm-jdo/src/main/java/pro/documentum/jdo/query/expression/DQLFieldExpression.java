@@ -5,15 +5,19 @@ package pro.documentum.jdo.query.expression;
  */
 public class DQLFieldExpression extends DQLExpression {
 
-    private String _fieldName;
+    private final boolean _repeating;
 
     public DQLFieldExpression(final String fieldName) {
-        _fieldName = fieldName;
-        setDqlText(fieldName);
+        this(fieldName, false);
     }
 
-    public String getFieldName() {
-        return _fieldName;
+    public DQLFieldExpression(final String fieldName, final boolean repeating) {
+        super(fieldName);
+        _repeating = repeating;
+    }
+
+    public boolean isRepeating() {
+        return _repeating;
     }
 
 }

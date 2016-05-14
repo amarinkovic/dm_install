@@ -23,7 +23,8 @@ import com.documentum.fc.client.IDfQuery;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfException;
 
-import pro.documentum.jdo.query.LazyLoadQueryResult;
+import pro.documentum.jdo.query.result.DQLQueryResult;
+import pro.documentum.util.queries.Queries;
 import pro.documentum.util.queries.ReservedWords;
 
 /**
@@ -108,16 +109,26 @@ public final class DNQueries {
     public static List executeDqlQuery(final Query query,
             final IDfSession session, final String dqlText,
             final AbstractClassMetaData candidateCmd) {
+        boolean processed = false;
+        List<IDfCollection> collections = new ArrayList<IDfCollection>();
         try {
-            LazyLoadQueryResult result = new LazyLoadQueryResult(query);
+            DQLQueryResult result = new DQLQueryResult(query);
             int[] members = query.getFetchPlan().getFetchPlanForClass(
                     candidateCmd).getMemberNumbers();
             IDfCollection collection = new DfQuery(dqlText).execute(session,
                     IDfQuery.DF_EXEC_QUERY);
+            collections.add(collection);
             result.addCandidateResult(candidateCmd, collection, members);
+            processed = true;
             return result;
         } catch (DfException ex) {
             throw DfExceptions.dataStoreException(ex);
+        } finally {
+            if (!processed) {
+                for (IDfCollection collection : collections) {
+                    Queries.close(collection);
+                }
+            }
         }
     }
 

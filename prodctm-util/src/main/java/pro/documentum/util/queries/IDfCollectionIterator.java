@@ -1,7 +1,6 @@
 package pro.documentum.util.queries;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -84,7 +83,7 @@ public class IDfCollectionIterator implements Iterator<IDfTypedObject>,
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         Queries.close(_collection);
     }
 

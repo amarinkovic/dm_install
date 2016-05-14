@@ -5,14 +5,14 @@ package pro.documentum.jdo.query.expression;
  */
 public abstract class DQLExpression {
 
-    private String _dqlText;
+    private final String _text;
 
-    public String getDqlText() {
-        return _dqlText;
+    protected DQLExpression(final String text) {
+        _text = text;
     }
 
-    protected void setDqlText(final String dqlText) {
-        _dqlText = dqlText;
+    public String getText() {
+        return _text;
     }
 
 }

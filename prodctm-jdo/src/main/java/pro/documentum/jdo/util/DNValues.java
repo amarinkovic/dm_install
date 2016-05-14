@@ -3,8 +3,6 @@ package pro.documentum.jdo.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.jdo.annotations.Transactional;
-
 import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.state.ObjectProvider;
@@ -18,6 +16,7 @@ import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfTime;
 import com.documentum.fc.common.IDfValue;
 
+import pro.documentum.aspects.DfTransactional;
 import pro.documentum.jdo.fieldmanager.FetchFieldManager;
 import pro.documentum.jdo.fieldmanager.StoreFieldManager;
 import pro.documentum.util.objects.changes.ChangesProcessor;
@@ -122,17 +121,23 @@ public final class DNValues {
         setFields(object, op, nonRelPositions, table, insert);
     }
 
-    @Transactional
     public static void setFields(final IDfPersistentObject object,
             final ObjectProvider op, final int[] fields, final Table table,
             final boolean insert) {
         try {
-            StoreFieldManager fm = new StoreFieldManager(op, insert, table);
-            op.provideFields(fields, fm);
-            ChangesProcessor.process(object, fm.getValues());
+            doSetFields(object, op, fields, table, insert);
         } catch (DfException ex) {
             throw DfExceptions.dataStoreException(ex);
         }
+    }
+
+    @DfTransactional
+    private static void doSetFields(final IDfPersistentObject object,
+            final ObjectProvider op, final int[] fields, final Table table,
+            final boolean insert) throws DfException {
+        StoreFieldManager fm = new StoreFieldManager(op, insert, table);
+        op.provideFields(fields, fm);
+        ChangesProcessor.process(object, fm.getValues());
     }
 
     public static void loadNonRelationalFields(final ObjectProvider op,

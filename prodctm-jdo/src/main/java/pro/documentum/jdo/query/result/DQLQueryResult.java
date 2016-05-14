@@ -1,4 +1,4 @@
-package pro.documentum.jdo.query;
+package pro.documentum.jdo.query.result;
 
 import java.io.ObjectStreamException;
 import java.util.ArrayList;
@@ -25,29 +25,21 @@ import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfTypedObject;
 
 import pro.documentum.jdo.util.DNFind;
-import pro.documentum.util.queries.IDfCollectionIterator;
-import pro.documentum.util.queries.Queries;
 
-public class LazyLoadQueryResult<E> extends AbstractQueryResult<E> {
+public class DQLQueryResult<E> extends AbstractQueryResult<E> {
 
-    private final ExecutionContext _executionContext;
+    private final ExecutionContext _ec;
 
     private List<CandidateClassResult> _results = new ArrayList<CandidateClassResult>();
 
-    private Iterator<IDfTypedObject> _typedObjectIterator;
-
     private final Map<Integer, E> _itemsByIndex;
 
-    private boolean _rangeProcessed;
-
-    private boolean _orderProcessed;
-
     @SuppressWarnings("unchecked")
-    public LazyLoadQueryResult(final Query query) {
+    public DQLQueryResult(final Query query) {
         super(query);
-        _executionContext = query.getExecutionContext();
+        _ec = query.getExecutionContext();
 
-        String cacheType = this.query.getStringExtensionProperty("cacheType",
+        String cacheType = query.getStringExtensionProperty("cacheType",
                 "strong");
         if (cacheType == null) {
             _itemsByIndex = new WeakValueMap();
@@ -77,22 +69,6 @@ public class LazyLoadQueryResult<E> extends AbstractQueryResult<E> {
         _results.add(new CandidateClassResult(cmd, cursor, fpMembers));
     }
 
-    public void setRangeProcessed(final boolean processed) {
-        _rangeProcessed = processed;
-    }
-
-    public boolean getRangeProcessed() {
-        return _rangeProcessed;
-    }
-
-    public void setOrderProcessed(final boolean processed) {
-        _orderProcessed = processed;
-    }
-
-    public boolean getOrderProcessed() {
-        return _orderProcessed;
-    }
-
     @Override
     protected void closingConnection() {
         if (!loadResultsAtCommit) {
@@ -101,7 +77,7 @@ public class LazyLoadQueryResult<E> extends AbstractQueryResult<E> {
         if (!isOpen()) {
             return;
         }
-        if (_results.isEmpty()) {
+        if (!hasNext()) {
             return;
         }
         NucleusLogger.QUERY.info(Localiser.msg("052606", query.toString()));
@@ -112,41 +88,9 @@ public class LazyLoadQueryResult<E> extends AbstractQueryResult<E> {
         if (!isOpen()) {
             return;
         }
-        if (_results.isEmpty()) {
-            return;
-        }
-
         synchronized (this) {
-            if (_typedObjectIterator != null && !_results.isEmpty()) {
-                CandidateClassResult result = _results.get(0);
-                while (_typedObjectIterator.hasNext()) {
-                    IDfTypedObject dbObject = _typedObjectIterator.next();
-                    E pojo = DNFind.getPojoForDBObjectForCandidate(dbObject,
-                            _executionContext, result._classMetaData,
-                            result._fpmembers, query.getIgnoreCache());
-                    _itemsByIndex.put(_itemsByIndex.size(), pojo);
-                }
-                Queries.close(result._collection);
-                _results.remove(0);
-                _typedObjectIterator = null;
-            }
-
-            Iterator<CandidateClassResult> candidateResultsIter = _results
-                    .iterator();
-            while (candidateResultsIter.hasNext()) {
-                CandidateClassResult result = candidateResultsIter.next();
-                _typedObjectIterator = new IDfCollectionIterator(
-                        result._collection);
-                while (_typedObjectIterator.hasNext()) {
-                    IDfTypedObject dbObject = _typedObjectIterator.next();
-                    E pojo = DNFind.getPojoForDBObjectForCandidate(dbObject,
-                            _executionContext, result._classMetaData,
-                            result._fpmembers, query.getIgnoreCache());
-                    _itemsByIndex.put(_itemsByIndex.size(), pojo);
-                }
-                Queries.close(result._collection);
-                candidateResultsIter.remove();
-                _typedObjectIterator = null;
+            while (hasNext()) {
+                getNextObject();
             }
         }
     }
@@ -157,7 +101,7 @@ public class LazyLoadQueryResult<E> extends AbstractQueryResult<E> {
             _itemsByIndex.clear();
         }
         for (CandidateClassResult result : _results) {
-            Queries.close(result._collection);
+            result.close();
         }
         _results = null;
         super.close();
@@ -173,14 +117,9 @@ public class LazyLoadQueryResult<E> extends AbstractQueryResult<E> {
         if (!"LAST".equalsIgnoreCase(resultSizeMethod)) {
             return super.getSizeUsingMethod();
         }
-        while (true) {
-            getNextObject();
-            if (!_results.isEmpty()) {
-                continue;
-            }
-            size = _itemsByIndex.size();
-            return size;
-        }
+        loadRemainingResults();
+        size = _itemsByIndex.size();
+        return size;
     }
 
     @Override
@@ -198,7 +137,7 @@ public class LazyLoadQueryResult<E> extends AbstractQueryResult<E> {
             if (_itemsByIndex.size() == (index + 1)) {
                 return nextPojo;
             }
-            if (_results.isEmpty()) {
+            if (!hasNext()) {
                 throw new IndexOutOfBoundsException(
                         "Beyond size of the results (" + _itemsByIndex.size()
                                 + ")");
@@ -206,59 +145,50 @@ public class LazyLoadQueryResult<E> extends AbstractQueryResult<E> {
         }
     }
 
-    protected E getNextObject() {
+    protected boolean hasNext() {
         if (_results.isEmpty()) {
+            return false;
+        }
+        Iterator<CandidateClassResult> iter = _results.iterator();
+        while (iter.hasNext()) {
+            CandidateClassResult result = iter.next();
+            Iterator<IDfTypedObject> inner = result.iterator();
+            if (inner.hasNext()) {
+                return true;
+            }
+            iter.remove();
+        }
+        return false;
+    }
+
+    protected E getNextObject() {
+        if (!hasNext()) {
             return null;
         }
-
         E pojo = null;
-        CandidateClassResult result = _results.get(0);
-
-        if (_typedObjectIterator != null) {
-            IDfTypedObject dbObject = _typedObjectIterator.next();
-            pojo = DNFind.getPojoForDBObjectForCandidate(dbObject,
-                    _executionContext, result._classMetaData,
-                    result._fpmembers, query.getIgnoreCache());
-            _itemsByIndex.put(_itemsByIndex.size(), pojo);
-
-            if (!_typedObjectIterator.hasNext()) {
-                Queries.close(result._collection);
-                _typedObjectIterator = null;
-                _results.remove(result);
+        Iterator<CandidateClassResult> iter = _results.iterator();
+        outer: while (iter.hasNext()) {
+            CandidateClassResult result = iter.next();
+            // noinspection LoopStatementThatDoesntLoop
+            for (IDfTypedObject dbObject : result) {
+                pojo = getPojoForCandidate(result, dbObject);
+                addObject(pojo);
+                break outer;
             }
-        } else {
-            boolean noNextResult = true;
-            while (noNextResult) {
-                _typedObjectIterator = new IDfCollectionIterator(
-                        result._collection);
-                if (_typedObjectIterator.hasNext()) {
-                    IDfTypedObject dbObject = _typedObjectIterator.next();
-                    pojo = DNFind.getPojoForDBObjectForCandidate(dbObject,
-                            _executionContext, result._classMetaData,
-                            result._fpmembers, query.getIgnoreCache());
-                    _itemsByIndex.put(_itemsByIndex.size(), pojo);
-                    noNextResult = false;
-
-                    if (!_typedObjectIterator.hasNext()) {
-                        Queries.close(result._collection);
-                        _typedObjectIterator = null;
-                        _results.remove(result);
-                    }
-                } else {
-                    Queries.close(result._collection);
-                    _typedObjectIterator = null;
-                    _results.remove(result);
-                    if (_results.isEmpty()) {
-                        noNextResult = false;
-                        pojo = null;
-                    } else {
-                        result = _results.get(0);
-                    }
-                }
-            }
+            iter.remove();
         }
-
         return pojo;
+    }
+
+    private E getPojoForCandidate(final CandidateClassResult result,
+            final IDfTypedObject dbObject) {
+        return DNFind.getPojoForDBObjectForCandidate(dbObject, _ec, result
+                .getClassMetaData(), result.getMembers(), query
+                .getIgnoreCache());
+    }
+
+    private void addObject(final E pojo) {
+        _itemsByIndex.put(_itemsByIndex.size(), pojo);
     }
 
     @Override
@@ -290,11 +220,11 @@ public class LazyLoadQueryResult<E> extends AbstractQueryResult<E> {
 
     @Override
     public boolean equals(final Object o) {
-        if (o == null || !(o instanceof LazyLoadQueryResult)) {
+        if (o == null || !(o instanceof DQLQueryResult)) {
             return false;
         }
 
-        LazyLoadQueryResult other = (LazyLoadQueryResult) o;
+        DQLQueryResult other = (DQLQueryResult) o;
         if (_results != null) {
             return other._results.equals(_results);
         } else if (query != null) {
@@ -318,20 +248,6 @@ public class LazyLoadQueryResult<E> extends AbstractQueryResult<E> {
         return list;
     }
 
-    private static class CandidateClassResult {
-
-        private final AbstractClassMetaData _classMetaData;
-        private final IDfCollection _collection;
-        private final int[] _fpmembers;
-
-        CandidateClassResult(final AbstractClassMetaData classMetaData,
-                final IDfCollection curs, final int[] fpMemberPositions) {
-            _classMetaData = classMetaData;
-            _collection = curs;
-            _fpmembers = fpMemberPositions;
-        }
-    }
-
     private class QueryResultIterator extends AbstractQueryResultIterator<E> {
 
         private int _nextRowNum;
@@ -346,29 +262,30 @@ public class LazyLoadQueryResult<E> extends AbstractQueryResult<E> {
 
         @Override
         public boolean hasNext() {
-            synchronized (LazyLoadQueryResult.this) {
+            synchronized (DQLQueryResult.this) {
                 if (!isOpen()) {
                     return false;
                 }
+                // noinspection SimplifiableIfStatement
                 if (_nextRowNum < _itemsByIndex.size()) {
                     return true;
                 }
-                return !_results.isEmpty();
+                return DQLQueryResult.this.hasNext();
             }
         }
 
         @Override
         public E next() {
-            synchronized (LazyLoadQueryResult.this) {
+            synchronized (DQLQueryResult.this) {
                 if (!isOpen()) {
                     throw new NoSuchElementException(Localiser.msg("052600"));
                 }
-
                 if (_nextRowNum < _itemsByIndex.size()) {
                     E pojo = _itemsByIndex.get(_nextRowNum);
                     ++_nextRowNum;
                     return pojo;
-                } else if (!_results.isEmpty()) {
+                }
+                if (hasNext()) {
                     E pojo = getNextObject();
                     ++_nextRowNum;
                     return pojo;
@@ -396,6 +313,7 @@ public class LazyLoadQueryResult<E> extends AbstractQueryResult<E> {
         public int previousIndex() {
             throw new UnsupportedOperationException("Not yet implemented");
         }
+
     }
 
 }
