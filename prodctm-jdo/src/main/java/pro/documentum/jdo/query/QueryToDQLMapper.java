@@ -495,6 +495,7 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
                     + " is not currently set, so cannot complete the _qc");
         }
 
+        // todo: do we need support collections?
         DQLLiteral literal = DQLLiteral.getInstance(paramValue);
         if (literal != null) {
             pushExpression(literal);

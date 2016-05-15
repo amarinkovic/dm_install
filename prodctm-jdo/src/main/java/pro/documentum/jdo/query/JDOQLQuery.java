@@ -254,6 +254,12 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
         return null;
     }
 
+    @Override
+    protected void checkParameterTypesAgainstCompilation(
+            final Map parameterValues) {
+        // todo perform checks
+    }
+
     private class QueryResultResourceListener implements
             ManagedConnectionResourceListener {
 

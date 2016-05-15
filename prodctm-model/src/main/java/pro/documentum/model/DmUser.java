@@ -61,12 +61,10 @@ public class DmUser extends AbstractPersistent {
 
     @Column(name = "r_is_group")
     @Getter
-    @Setter
     private boolean group;
 
     @Column(name = "r_modify_date")
     @Getter
-    @Setter
     private Date modifyDate;
 
     @Column(name = "owner_def_permit")
