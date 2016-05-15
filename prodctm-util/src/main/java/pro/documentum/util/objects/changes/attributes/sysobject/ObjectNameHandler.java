@@ -6,6 +6,8 @@ import java.util.Set;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
 
+import pro.documentum.util.logger.Logger;
+
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
@@ -23,7 +25,10 @@ public class ObjectNameHandler extends AbstractSysObjectAttributeHandler {
     @Override
     public boolean doApply(final IDfSysObject object,
             final Map<String, ?> values) throws DfException {
-        object.setObjectName((String) values.remove("object_name"));
+        String value = (String) values.remove("object_name");
+        Logger.debug("Setting object_name of {0} to {1}", object.getObjectId(),
+                value);
+        object.setObjectName(value);
         return false;
     }
 

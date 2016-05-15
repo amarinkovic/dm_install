@@ -38,4 +38,9 @@ public class ReadOnlyHandler extends
         return false;
     }
 
+    @Override
+    protected boolean isReadOnly() {
+        return true;
+    }
+
 }

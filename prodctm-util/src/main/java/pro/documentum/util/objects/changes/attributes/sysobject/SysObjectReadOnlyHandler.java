@@ -39,4 +39,9 @@ public final class SysObjectReadOnlyHandler extends
         return false;
     }
 
+    @Override
+    protected boolean isReadOnly() {
+        return true;
+    }
+
 }

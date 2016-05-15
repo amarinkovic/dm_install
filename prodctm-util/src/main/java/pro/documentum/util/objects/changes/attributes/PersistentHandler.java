@@ -14,6 +14,7 @@ import com.documentum.fc.common.IDfAttr;
 import com.documentum.fc.common.IDfId;
 import com.documentum.fc.common.IDfTime;
 
+import pro.documentum.util.logger.Logger;
 import pro.documentum.util.objects.changes.attributes.sysobject.VersionHandler;
 
 /**
@@ -48,6 +49,8 @@ public class PersistentHandler implements
             }
             toRemove.add(attrName);
             Object value = values.get(attrName);
+            Logger.debug("Setting {0} value of object {1} to {2}", attrName,
+                    object.getObjectId(), value);
             int dataType = object.getAttrDataType(attrName);
             if (!object.isAttrRepeating(attrName)) {
                 setValue(object, attrName, value, dataType, 0);
@@ -107,6 +110,11 @@ public class PersistentHandler implements
     public boolean accept(final Object object, final Set<String> attrNames)
         throws DfException {
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getName();
     }
 
 }

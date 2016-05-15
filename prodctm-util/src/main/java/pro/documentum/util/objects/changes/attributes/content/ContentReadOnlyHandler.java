@@ -39,4 +39,9 @@ public class ContentReadOnlyHandler extends AbstractContentAttributeHandler {
         return false;
     }
 
+    @Override
+    protected boolean isReadOnly() {
+        return true;
+    }
+
 }

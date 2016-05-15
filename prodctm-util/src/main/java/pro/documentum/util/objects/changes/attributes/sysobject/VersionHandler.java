@@ -11,6 +11,7 @@ import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
 import com.documentum.operations.IDfCheckinOperation;
 
+import pro.documentum.util.logger.Logger;
 import pro.documentum.util.versions.Versions;
 
 /**
@@ -45,8 +46,12 @@ public class VersionHandler extends AbstractSysObjectAttributeHandler {
 
         if (isCheckIn) {
             if (!isLast) {
+                Logger.debug("Postponing check in operation for object {0}",
+                        object.getObjectId());
                 return true;
             }
+            Logger.debug("Performing check in operation for object {0}", object
+                    .getObjectId());
             object.checkin(!isEmptyLockOwner, getVersionLabels(object, values));
             removeKey(values, VERSION_ATTRIBUTES);
             return false;
@@ -55,16 +60,25 @@ public class VersionHandler extends AbstractSysObjectAttributeHandler {
         if (object.isCheckedOut() && isEmptyLockOwner) {
             if (isLast) {
                 if (object.isDirty()) {
+                    Logger.debug("Performing save "
+                            + "operation for object {0}", object.getObjectId());
                     object.save();
                 } else {
+                    Logger.debug("Performing cancel check out "
+                            + "operation for object {0}", object.getObjectId());
                     object.cancelCheckout();
                 }
                 removeKey(values, VERSION_ATTRIBUTES);
+            } else {
+                Logger.debug("Postponing save/unlock operation for object {0}",
+                        object.getObjectId());
             }
             return !isLast;
         }
 
         if (!object.isCheckedOut() && hasLockOwner(object, values)) {
+            Logger.debug("Performing check out operation for object {0}",
+                    object.getObjectId());
             object.checkout();
             removeKey(values, VERSION_ATTRIBUTES);
             return false;

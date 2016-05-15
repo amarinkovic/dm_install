@@ -1,6 +1,7 @@
 package pro.documentum.jdo;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
@@ -23,12 +24,13 @@ import pro.documentum.model.DmSysobject;
 public class DmSysobjectTest extends JDOTestSupport {
 
     @Test
-    public void testLock() throws Exception {
+    public void testCheckOut() throws Exception {
         String objectName = RandomStringUtils.randomAscii(100);
         IDfSysObject object = (IDfSysObject) getSession().newObject(
                 "dm_document");
         object.setObjectName(objectName);
         object.save();
+        String objectId = object.getObjectId().getId();
         Query query = getPersistenceManager().newQuery(DmSysobject.class,
                 "objectName == :objectName && objectId == :objectId");
         Map<String, Object> params = new HashMap<String, Object>();
@@ -39,15 +41,27 @@ public class DmSysobjectTest extends JDOTestSupport {
         assertNotNull(results);
         assertEquals(1, results.size());
         DmSysobject sysobject = results.get(0);
-        assertEquals(sysobject.getObjectId(), object.getObjectId().getId());
-        assertEquals(sysobject.getObjectName(), object.getObjectName());
+        assertEquals(objectId, sysobject.getObjectId());
+        assertEquals(objectName, sysobject.getObjectName());
         sysobject = getPersistenceManager().detachCopy(sysobject);
         sysobject.setLockOwner(getSession().getLoginUserName());
         sysobject = getPersistenceManager().makePersistent(sysobject);
         getPersistenceManager().flush();
-        assertEquals(sysobject.getObjectId(), object.getObjectId().getId());
-        assertEquals(sysobject.getObjectName(), object.getObjectName());
+        assertEquals(objectId, sysobject.getObjectId());
+        assertEquals(objectName, sysobject.getObjectName());
+        object.revert();
         assertTrue(object.isCheckedOutBy(null));
+        sysobject = getPersistenceManager().detachCopy(sysobject);
+        objectName = RandomStringUtils.randomAscii(100);
+        sysobject.setLockOwner(null);
+        sysobject.setObjectName(objectName);
+        sysobject = getPersistenceManager().makePersistent(sysobject);
+        getPersistenceManager().flush();
+        assertEquals(objectId, sysobject.getObjectId());
+        assertEquals(objectName, sysobject.getObjectName());
+        object.revert();
+        assertFalse(object.isCheckedOut());
+        assertEquals(objectName, object.getObjectName());
     }
 
 }

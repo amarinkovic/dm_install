@@ -80,6 +80,8 @@ public final class ChangesProcessor {
             Logger.debug("Nothing to do for object ", object.getObjectId());
             return;
         }
+        Logger.debug("Using following handlers for object {0}: {1}", object
+                .getObjectId(), handlers);
         Sessions.inTransaction(object.getObjectSession(),
                 new TransactionalChanges(object, data, handlers));
     }

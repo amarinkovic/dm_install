@@ -1,6 +1,5 @@
 package pro.documentum.util.objects.changes.attributes;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,31 +16,48 @@ public abstract class AbstractAttributeHandler<T extends IDfPersistentObject>
 
     @Override
     public List<Class<? extends IAttributeHandler>> getDependencies() {
+        if (isReadOnly()) {
+            return Collections.emptyList();
+        }
         if (_dependencies != null) {
             return Collections.unmodifiableList(_dependencies);
         }
         _dependencies = buildDependencies(getClass());
+        _dependencies.remove(getClass());
         return _dependencies;
     }
 
     private List<Class<? extends IAttributeHandler>> buildDependencies(
             final Class cls) {
         List<Class<? extends IAttributeHandler>> result = new ArrayList<Class<? extends IAttributeHandler>>();
-        Class current = cls;
-        while (current != Object.class) {
-            Annotation annotation = cls.getAnnotation(Depends.class);
-            if (annotation != null) {
-                for (Class<? extends IAttributeHandler> dep : ((Depends) annotation)
-                        .on()) {
-                    if (result.contains(dep)) {
-                        continue;
-                    }
-                    result.add(dep);
-                }
+        Class current = null;
+        do {
+            if (current == null) {
+                current = cls;
+            } else {
+                current = current.getSuperclass();
             }
-            current = current.getSuperclass();
-        }
+            Depends depends = (Depends) current.getAnnotation(Depends.class);
+            if (depends == null) {
+                continue;
+            }
+            for (Class<? extends IAttributeHandler> dep : depends.on()) {
+                if (result.contains(dep)) {
+                    continue;
+                }
+                result.add(dep);
+            }
+        } while (current != Object.class);
         return result;
+    }
+
+    protected boolean isReadOnly() {
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getName();
     }
 
 }

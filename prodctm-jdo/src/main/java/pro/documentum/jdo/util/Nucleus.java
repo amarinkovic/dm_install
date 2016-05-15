@@ -18,6 +18,7 @@ import com.documentum.fc.common.DfId;
 
 import pro.documentum.aspects.DfTransactional;
 import pro.documentum.util.ids.DfIdUtil;
+import pro.documentum.util.logger.Logger;
 import pro.documentum.util.objects.DfObjects;
 
 /**
@@ -61,11 +62,19 @@ public final class Nucleus {
     @DfTransactional
     private static void doSave(final IDfPersistentObject object)
         throws DfException {
+        Logger.debug("Trying to save object {0}", object.getObjectId());
         if (!object.isDirty()) {
+            Logger.debug("Object {0} is not dirty, skipping", object
+                    .getObjectId());
             return;
         }
         if (object instanceof IDfSysObject) {
-            ((IDfSysObject) object).saveLock();
+            IDfSysObject sysObject = (IDfSysObject) object;
+            Logger.debug("Object {0} is sysobject, saving lock, "
+                    + "current lock owner is: {1}", object.getObjectId(),
+                    sysObject.getLockOwner());
+            sysObject.saveLock();
+            return;
         }
         object.save();
     }

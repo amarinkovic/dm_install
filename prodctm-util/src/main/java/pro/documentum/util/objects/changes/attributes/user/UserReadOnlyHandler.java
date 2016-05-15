@@ -44,4 +44,9 @@ public final class UserReadOnlyHandler extends AbstractUserAttributeHandler {
         return false;
     }
 
+    @Override
+    protected boolean isReadOnly() {
+        return true;
+    }
+
 }
