@@ -34,7 +34,10 @@ import pro.documentum.jdo.query.expression.DQLAnyExpression;
 import pro.documentum.jdo.query.expression.DQLBooleanExpression;
 import pro.documentum.jdo.query.expression.DQLExpression;
 import pro.documentum.jdo.query.expression.DQLFieldExpression;
-import pro.documentum.jdo.query.expression.DQLLiteral;
+import pro.documentum.jdo.query.expression.functions.DQLDateExpression;
+import pro.documentum.jdo.query.expression.functions.DQLDateToStringExpression;
+import pro.documentum.jdo.query.expression.literals.DQLDateLiteral;
+import pro.documentum.jdo.query.expression.literals.DQLLiteral;
 import pro.documentum.jdo.util.DNMetaData;
 import pro.documentum.jdo.util.DNQueries;
 
@@ -208,21 +211,20 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
         int i = 0;
         for (Expression expr : resultExprs) {
             DQLExpression dqlExpression = null;
-            if (expr instanceof PrimaryExpression) {
-                PrimaryExpression primExpr = (PrimaryExpression) expr;
-                processPrimaryExpression(primExpr);
+            if (DQLExpression.isPrimary(expr)) {
+                processPrimaryExpression(DQLExpression.asPrimary(expr));
                 dqlExpression = popExpression();
                 str.append(dqlExpression.getText());
-            } else if (expr instanceof Literal) {
-                processLiteral((Literal) expr);
+            } else if (DQLExpression.isLiteral(expr)) {
+                processLiteral(DQLExpression.asLiteral(expr));
                 dqlExpression = popExpression();
                 str.append(dqlExpression.getText());
-            } else if (expr instanceof ParameterExpression) {
-                processParameterExpression((ParameterExpression) expr);
+            } else if (DQLExpression.isParameter(expr)) {
+                processParameterExpression(DQLExpression.asParameter(expr));
                 dqlExpression = popExpression();
                 str.append(dqlExpression.getText());
-            } else if (expr instanceof InvokeExpression) {
-                processInvokeExpression((InvokeExpression) expr, str);
+            } else if (DQLExpression.isInvoke(expr)) {
+                processInvokeExpression(DQLExpression.asInvoke(expr), str);
             } else {
                 NucleusLogger.GENERAL.info("Query result expression " + expr
                         + " not supported via DQL "
@@ -250,8 +252,8 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
         }
 
         Expression argExpr = argExprs.get(0);
-        if (argExpr instanceof PrimaryExpression) {
-            processPrimaryExpression((PrimaryExpression) argExpr);
+        if (DQLExpression.isPrimary(argExpr)) {
+            processPrimaryExpression(DQLExpression.asPrimary(argExpr));
         } else {
             throw new NucleusUserException("Invocation of static method "
                     + invokeExpr.getOperation() + " with arg of type "
@@ -276,7 +278,7 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
         DQLBooleanExpression right = (DQLBooleanExpression) popExpression();
         DQLBooleanExpression left = (DQLBooleanExpression) popExpression();
         DQLBooleanExpression andExpr = DQLBooleanExpression.getInstance(left,
-                Expression.OP_AND, right);
+                right, Expression.OP_AND);
         if (andExpr != null) {
             pushExpression(andExpr);
             return andExpr;
@@ -289,7 +291,7 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
         DQLBooleanExpression right = (DQLBooleanExpression) popExpression();
         DQLBooleanExpression left = (DQLBooleanExpression) popExpression();
         DQLBooleanExpression andExpr = DQLBooleanExpression.getInstance(left,
-                Expression.OP_OR, right);
+                right, Expression.OP_OR);
         if (andExpr != null) {
             pushExpression(andExpr);
             return andExpr;
@@ -299,11 +301,58 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
 
     @Override
     protected Object processInvokeExpression(final InvokeExpression invokeExpr) {
-        if (DQLAnyExpression.isAnyExpr(invokeExpr)
-                && invokeExpr.getLeft() == null) {
+        if (DQLAnyExpression.isAnyExpr(invokeExpr)) {
             return processAnyExpression(invokeExpr);
         }
+        if (DQLDateExpression.isDate(invokeExpr)) {
+            return processDateExpression(invokeExpr);
+        }
+        if (DQLDateToStringExpression.isDateToString(invokeExpr)) {
+            return processDateToStringExpression(invokeExpr);
+        }
         return super.processInvokeExpression(invokeExpr);
+    }
+
+    protected Object processDateToStringExpression(
+            final InvokeExpression invokeExpr) {
+        return null;
+    }
+
+    protected Object processDateExpression(final InvokeExpression invokeExpr) {
+        List<Expression> dateExprs = invokeExpr.getArguments();
+        Expression valueExpr = dateExprs.get(0);
+        // date(now), date(today), ...
+        if (DQLExpression.isVariable(valueExpr)) {
+            String value = DQLExpression.asVariable(valueExpr).getId();
+            DQLDateLiteral dateLiteral = new DQLDateLiteral(value);
+            pushExpression(dateLiteral);
+            return dateLiteral;
+        }
+        DQLExpression dateExpression = processLiteralOfParameter(valueExpr);
+        if (dateExpression == null) {
+            return null;
+        }
+        Expression formatExpr = dateExprs.get(1);
+        DQLExpression formatExpression = processLiteralOfParameter(formatExpr);
+        if (formatExpression == null) {
+            return null;
+        }
+        DQLDateLiteral dateLiteral = DQLDateLiteral.getInstance(dateExpression,
+                formatExpression);
+        pushExpression(dateLiteral);
+        return dateLiteral;
+    }
+
+    protected DQLExpression processLiteralOfParameter(
+            final Expression expression) {
+        if (DQLExpression.isLiteral(expression)) {
+            processLiteral(DQLExpression.asLiteral(expression));
+        } else if (DQLExpression.isParameter(expression)) {
+            processParameterExpression(DQLExpression.asParameter(expression));
+        } else {
+            return null;
+        }
+        return popExpression();
     }
 
     protected Object processAnyExpression(final InvokeExpression invokeExpr) {
@@ -315,30 +364,23 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
         Expression anyExpr = anyExprs.get(0);
         anyExpr.evaluate(this);
         DQLExpression expression = popExpression();
-        expression = new DQLAnyExpression(expression.getText());
+        if (DQLFieldExpression.isFieldExpression(expression)) {
+            expression = new DQLFieldExpression(expression.getText(), true);
+        } else if (DQLBooleanExpression.isBooleanExpression(expression)) {
+            expression = new DQLAnyExpression(expression.getText());
+        } else {
+            return null;
+        }
         pushExpression(expression);
         return expression;
     }
 
     private Object processExpression(final Expression expr,
             final Expression.DyadicOperator op) {
-        return processExpression(expr, op, op);
-    }
-
-    private Object processExpression(final Expression expr,
-            final Expression.DyadicOperator op1,
-            final Expression.DyadicOperator op2) {
-        Object right = popExpression();
-        Object left = popExpression();
-        DQLExpression dqlExpression = null;
-        if (left instanceof DQLLiteral && right instanceof DQLFieldExpression) {
-            dqlExpression = DQLBooleanExpression.getInstance(
-                    (DQLFieldExpression) right, (DQLLiteral) left, op1);
-        } else if (left instanceof DQLFieldExpression
-                && right instanceof DQLLiteral) {
-            dqlExpression = DQLBooleanExpression.getInstance(
-                    (DQLFieldExpression) left, (DQLLiteral) right, op2);
-        }
+        DQLExpression right = popExpression();
+        DQLExpression left = popExpression();
+        DQLBooleanExpression dqlExpression = DQLBooleanExpression.getInstance(
+                left, right, op);
         if (dqlExpression != null) {
             pushExpression(dqlExpression);
             return dqlExpression;
@@ -366,8 +408,7 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
 
     @Override
     protected Object processGtExpression(final Expression expr) {
-        Object result = processExpression(expr, Expression.OP_LTEQ,
-                Expression.OP_GT);
+        Object result = processExpression(expr, Expression.OP_GT);
         if (result != null) {
             return result;
         }
@@ -376,8 +417,7 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
 
     @Override
     protected Object processLtExpression(final Expression expr) {
-        Object result = processExpression(expr, Expression.OP_GTEQ,
-                Expression.OP_LT);
+        Object result = processExpression(expr, Expression.OP_LT);
         if (result != null) {
             return result;
         }
@@ -386,8 +426,7 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
 
     @Override
     protected Object processGteqExpression(final Expression expr) {
-        Object result = processExpression(expr, Expression.OP_LT,
-                Expression.OP_GTEQ);
+        Object result = processExpression(expr, Expression.OP_GTEQ);
         if (result != null) {
             return result;
         }
@@ -396,8 +435,7 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
 
     @Override
     protected Object processLteqExpression(final Expression expr) {
-        Object result = processExpression(expr, Expression.OP_GT,
-                Expression.OP_LTEQ);
+        Object result = processExpression(expr, Expression.OP_LTEQ);
         if (result != null) {
             return result;
         }
@@ -406,11 +444,11 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
 
     @Override
     protected Object processNotExpression(final Expression expr) {
-        Object theExpr = popExpression();
-        if (theExpr instanceof DQLBooleanExpression) {
+        DQLExpression expression = popExpression();
+        if (DQLBooleanExpression.isBooleanExpression(expression)) {
             DQLExpression dqlBooleanExpression = DQLBooleanExpression
-                    .getInstance((DQLBooleanExpression) theExpr,
-                            Expression.OP_NOT);
+                    .getInstance(DQLBooleanExpression
+                            .asBooleanExpression(expression), Expression.OP_NOT);
             if (dqlBooleanExpression != null) {
                 pushExpression(dqlBooleanExpression);
                 return dqlBooleanExpression;
@@ -426,24 +464,28 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
     @Override
     protected Object processParameterExpression(final ParameterExpression expr) {
         Object paramValue = null;
+        if (_params == null || _params.isEmpty()) {
+            _precompilable = false;
+            throw new NucleusException("Parameter " + expr
+                    + " is not currently set, so cannot complete the _qc");
+        }
+
         boolean paramValueSet = false;
-        if (_params != null && !_params.isEmpty()) {
-            if (_params.containsKey(expr.getId())) {
-                paramValue = _params.get(expr.getId());
+        if (_params.containsKey(expr.getId())) {
+            paramValue = _params.get(expr.getId());
+            paramValueSet = true;
+        } else if (_params.containsKey(expr.getId())) {
+            paramValue = _params.get(expr.getId());
+            paramValueSet = true;
+        } else {
+            int position = _positionalParamNumber;
+            if (_positionalParamNumber < 0) {
+                position = 0;
+            }
+            if (_params.containsKey(position)) {
+                paramValue = _params.get(position);
                 paramValueSet = true;
-            } else if (_params.containsKey(expr.getId())) {
-                paramValue = _params.get(expr.getId());
-                paramValueSet = true;
-            } else {
-                int position = _positionalParamNumber;
-                if (_positionalParamNumber < 0) {
-                    position = 0;
-                }
-                if (_params.containsKey(position)) {
-                    paramValue = _params.get(position);
-                    paramValueSet = true;
-                    _positionalParamNumber = position + 1;
-                }
+                _positionalParamNumber = position + 1;
             }
         }
 

@@ -20,4 +20,8 @@ public class DQLFieldExpression extends DQLExpression {
         return _repeating;
     }
 
+    public static boolean isFieldExpression(final DQLExpression expression) {
+        return expression instanceof DQLFieldExpression;
+    }
+
 }
