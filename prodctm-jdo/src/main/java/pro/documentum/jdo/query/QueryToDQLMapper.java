@@ -24,6 +24,7 @@ import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.OrderExpression;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
+import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.store.query.Query;
 import org.datanucleus.store.schema.table.Table;
 import org.datanucleus.util.NucleusLogger;
@@ -36,8 +37,10 @@ import pro.documentum.jdo.query.expression.DQLExpression;
 import pro.documentum.jdo.query.expression.DQLFieldExpression;
 import pro.documentum.jdo.query.expression.functions.DQLDateExpression;
 import pro.documentum.jdo.query.expression.functions.DQLDateToStringExpression;
+import pro.documentum.jdo.query.expression.literals.DQLBooleanLiteral;
 import pro.documentum.jdo.query.expression.literals.DQLDateLiteral;
 import pro.documentum.jdo.query.expression.literals.DQLLiteral;
+import pro.documentum.jdo.query.expression.literals.DQLStringLiteral;
 import pro.documentum.jdo.util.DNMetaData;
 import pro.documentum.jdo.util.DNQueries;
 
@@ -323,10 +326,7 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
         Expression valueExpr = dateExprs.get(0);
         // date(now), date(today), ...
         if (DQLExpression.isVariable(valueExpr)) {
-            String value = DQLExpression.asVariable(valueExpr).getId();
-            DQLDateLiteral dateLiteral = new DQLDateLiteral(value);
-            pushExpression(dateLiteral);
-            return dateLiteral;
+            return valueExpr.evaluate(this);
         }
         DQLExpression dateExpression = processLiteralOfParameter(valueExpr);
         if (dateExpression == null) {
@@ -507,6 +507,24 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
                         + paramValue.getClass().getName());
 
         return super.processParameterExpression(expr);
+    }
+
+    @Override
+    protected Object processVariableExpression(final VariableExpression expr) {
+        String name = expr.getId();
+        DQLExpression expression = null;
+        if (DQLBooleanLiteral.isBooleanExpression(expr)) {
+            expression = DQLBooleanLiteral.getInstance(name);
+        } else if (DQLStringLiteral.isLiteralExpression(expr)) {
+            expression = DQLStringLiteral.getInstance(name, false);
+        } else if (DQLDateLiteral.isSpecialDateExpression(expr)) {
+            expression = DQLDateLiteral.getInstance(name);
+        }
+        if (expression != null) {
+            pushExpression(expression);
+            return expression;
+        }
+        return super.processVariableExpression(expr);
     }
 
     @Override

@@ -39,8 +39,4 @@ public abstract class DQLLiteral<T> extends DQLExpression {
         return null;
     }
 
-    public static boolean isLiteralExpression(final DQLExpression expression) {
-        return expression instanceof DQLLiteral;
-    }
-
 }

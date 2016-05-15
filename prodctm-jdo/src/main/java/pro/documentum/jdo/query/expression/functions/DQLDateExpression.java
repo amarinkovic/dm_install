@@ -1,29 +1,17 @@
 package pro.documentum.jdo.query.expression.functions;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.InvokeExpression;
-import org.datanucleus.query.expression.VariableExpression;
 
 import pro.documentum.jdo.query.expression.DQLExpression;
+import pro.documentum.jdo.query.expression.literals.DQLDateLiteral;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
 public class DQLDateExpression extends DQLExpression {
-
-    public static final Set<String> SPECIAL_DATES;
-
-    static {
-        SPECIAL_DATES = new HashSet<String>();
-        SPECIAL_DATES.add("NOW");
-        SPECIAL_DATES.add("TODAY");
-        SPECIAL_DATES.add("YESTERDAY");
-        SPECIAL_DATES.add("TOMORROW");
-    }
 
     public DQLDateExpression(final String text) {
         super(text);
@@ -66,8 +54,7 @@ public class DQLDateExpression extends DQLExpression {
         if (!isVariable(valueExpr)) {
             return false;
         }
-        VariableExpression expr = asVariable(valueExpr);
-        return SPECIAL_DATES.contains(expr.getId().toUpperCase());
+        return DQLDateLiteral.isSpecialDateExpression(asVariable(valueExpr));
     }
 
 }

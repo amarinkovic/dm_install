@@ -15,6 +15,12 @@ import pro.documentum.model.DmUser;
 public class StringDQLMapperTest extends AbstractDQLMapperTest {
 
     @Test
+    public void testUserKeyword() throws Exception {
+        String q = newQuery(DmUser.class, "userName == USER");
+        assertTrue(q.endsWith("WHERE this.user_name=USER"));
+    }
+
+    @Test
     public void testStringLiteralEq() throws Exception {
         String q = newQuery(DmUser.class, "userName == 'dmadmin'");
         assertTrue(q.endsWith("WHERE this.user_name='dmadmin'"));
