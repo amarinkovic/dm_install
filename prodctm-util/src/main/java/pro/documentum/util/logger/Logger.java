@@ -164,15 +164,28 @@ public final class Logger {
     }
 
     private static String getSource() {
-        StackTraceElement[] elements = Thread.currentThread().getStackTrace();
-        for (int i = 1, n = elements.length; i < n; i++) {
-            if (CLASS.equals(elements[i].getClassName())) {
+        Class[] stack = StackHelper.getClassContextEx();
+        for (int i = 3, n = stack.length; i < n; i++) {
+            if (CLASS.equals(stack[i].getName())) {
                 continue;
             }
-            return String.format("%s.%s", elements[i].getClassName(),
-                    elements[i].getMethodName());
+            return String.format("%s", stack[i].getName());
         }
         return null;
+    }
+
+    static class StackHelper extends SecurityManager {
+
+        private static final StackHelper INSTANCE = new StackHelper();
+
+        private StackHelper() {
+            super();
+        }
+
+        static Class[] getClassContextEx() {
+            return INSTANCE.getClassContext();
+        }
+
     }
 
 }
