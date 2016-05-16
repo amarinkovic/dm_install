@@ -3,6 +3,7 @@ package pro.documentum.jdo.query.expression.literals;
 import java.util.Date;
 
 import pro.documentum.jdo.query.expression.DQLExpression;
+import pro.documentum.jdo.query.expression.literals.nulls.DQLNullLiteral;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>

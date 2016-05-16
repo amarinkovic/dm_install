@@ -21,9 +21,9 @@ public class DQLBooleanExpression extends DQLExpression {
         }
         if (right.isNull()) {
             if (op == Expression.OP_EQ) {
-                builder.append(" IS NULL");
+                builder.append(" IS ").append(right.getText());
             } else if (op == Expression.OP_NOTEQ) {
-                builder.append(" IS NOT NULL");
+                builder.append(" IS NOT ").append(right.getText());
             } else {
                 return null;
             }

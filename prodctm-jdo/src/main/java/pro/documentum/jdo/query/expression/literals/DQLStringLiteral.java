@@ -1,5 +1,8 @@
 package pro.documentum.jdo.query.expression.literals;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.datanucleus.query.expression.VariableExpression;
 
 import com.documentum.fc.common.DfUtil;
@@ -8,6 +11,13 @@ import com.documentum.fc.common.DfUtil;
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
 public class DQLStringLiteral extends DQLLiteral<String> {
+
+    public static final Set<String> SPECIAL_STRINGS;
+
+    static {
+        SPECIAL_STRINGS = new HashSet<String>();
+        SPECIAL_STRINGS.add("USER");
+    }
 
     private DQLStringLiteral(final String value, final boolean quote) {
         super(value, toString(value, quote));
@@ -26,8 +36,7 @@ public class DQLStringLiteral extends DQLLiteral<String> {
 
     public static boolean isLiteralExpression(
             final VariableExpression expression) {
-        String name = expression.getId();
-        return "USER".equalsIgnoreCase(name);
+        return SPECIAL_STRINGS.contains(expression.getId().toUpperCase());
     }
 
     public static DQLStringLiteral getInstance(final String value,

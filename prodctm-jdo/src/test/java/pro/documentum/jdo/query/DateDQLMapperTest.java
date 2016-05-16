@@ -1,8 +1,5 @@
 package pro.documentum.jdo.query;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.TestCase.assertTrue;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +14,26 @@ import pro.documentum.model.DmUser;
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
 public class DateDQLMapperTest extends AbstractDQLMapperTest {
+
+    @Test
+    public void testNullDate1() throws Exception {
+        String q = newQuery(DmUser.class, "modifyDate == NULLDATE");
+        assertTrue(q.endsWith("WHERE this.r_modify_date IS NULLDATE"));
+    }
+
+    @Test
+    public void testNullDate2() throws Exception {
+        String q = newQuery(DmUser.class, "modifyDate == NULL");
+        assertTrue(q.endsWith("WHERE this.r_modify_date IS NULL"));
+    }
+
+    @Test
+    public void testNullDate3() throws Exception {
+        String q = newQuery(DmUser.class,
+                "modifyDate == NULL || modifyDate == NULLDATE");
+        assertTrue(q
+                .endsWith("WHERE (this.r_modify_date IS NULL) OR (this.r_modify_date IS NULLDATE)"));
+    }
 
     @Test
     public void testDateLiteral() throws Exception {

@@ -41,6 +41,7 @@ import pro.documentum.jdo.query.expression.literals.DQLBooleanLiteral;
 import pro.documentum.jdo.query.expression.literals.DQLDateLiteral;
 import pro.documentum.jdo.query.expression.literals.DQLLiteral;
 import pro.documentum.jdo.query.expression.literals.DQLStringLiteral;
+import pro.documentum.jdo.query.expression.literals.nulls.DQLNullLiteral;
 import pro.documentum.jdo.util.DNMetaData;
 import pro.documentum.jdo.util.DNQueries;
 
@@ -520,6 +521,8 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
             expression = DQLStringLiteral.getInstance(name, false);
         } else if (DQLDateLiteral.isSpecialDateExpression(expr)) {
             expression = DQLDateLiteral.getInstance(name);
+        } else if (DQLNullLiteral.isNullExpression(expr)) {
+            expression = DQLNullLiteral.getInstance(name);
         }
         if (expression != null) {
             pushExpression(expression);

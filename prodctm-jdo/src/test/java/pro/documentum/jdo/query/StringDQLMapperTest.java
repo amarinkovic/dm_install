@@ -21,6 +21,26 @@ public class StringDQLMapperTest extends AbstractDQLMapperTest {
     }
 
     @Test
+    public void testNullString1() throws Exception {
+        String q = newQuery(DmUser.class, "userName == NULLSTRING");
+        assertTrue(q.endsWith("WHERE this.user_name IS NULLSTRING"));
+    }
+
+    @Test
+    public void testNullString2() throws Exception {
+        String q = newQuery(DmUser.class, "userName == NULL");
+        assertTrue(q.endsWith("WHERE this.user_name IS NULL"));
+    }
+
+    @Test
+    public void testNullString3() throws Exception {
+        String q = newQuery(DmUser.class,
+                "userName == NULL || userName == NULLSTRING");
+        assertTrue(q
+                .endsWith("WHERE (this.user_name IS NULL) OR (this.user_name IS NULLSTRING)"));
+    }
+
+    @Test
     public void testUserKeyword() throws Exception {
         String q = newQuery(DmUser.class, "userName == USER");
         assertTrue(q.endsWith("WHERE this.user_name=USER"));
