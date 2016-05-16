@@ -241,8 +241,8 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
 
     private void compileQueryFull(final Map parameters,
             final AbstractClassMetaData candidateCmd) {
-        QueryToDQLMapper mapper = new QueryToDQLMapper(compilation, parameters,
-                candidateCmd, ec, this);
+        JDOQL2DQL mapper = new JDOQL2DQL(compilation, parameters, candidateCmd,
+                ec, this);
         mapper.compile(_datastoreCompilation);
     }
 

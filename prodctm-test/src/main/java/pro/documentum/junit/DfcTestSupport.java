@@ -35,6 +35,8 @@ public abstract class DfcTestSupport extends Assert {
     @Rule
     public final TestName _testName = new TestName();
 
+    private IDfLoginInfo _loginInfo;
+
     private IDfSession _session;
 
     public DfcTestSupport() {
@@ -60,12 +62,15 @@ public abstract class DfcTestSupport extends Assert {
         IDocumentumCredentials credentials = new PropertiesCredentialManager(
                 null).getCredentials(null, null);
         IDfSessionManager sessionManager = CLIENT.newSessionManager();
-        IDfLoginInfo loginInfo = new DfLoginInfo(credentials.getUserName(),
-                credentials.getPassword());
-        loginInfo.setDomain(credentials.getDomain());
-        sessionManager.setIdentity(credentials.getDocbaseName(), loginInfo);
+        _loginInfo = new DfLoginInfo(credentials.getUserName(), credentials
+                .getPassword());
+        sessionManager.setIdentity(credentials.getDocbaseName(), _loginInfo);
         _session = sessionManager.newSession(credentials.getDocbaseName());
         _session.beginTrans();
+    }
+
+    public IDfLoginInfo getLoginInfo() {
+        return _loginInfo;
     }
 
     protected void doPreSetup() throws Exception {
@@ -76,18 +81,27 @@ public abstract class DfcTestSupport extends Assert {
         // noop
     }
 
+    protected void doPreTearDown() throws Exception {
+        // noop
+    }
+
+    protected void doPostTearDown() throws Exception {
+        // noop
+    }
+
     @After
     public final void tearDown() throws Exception {
-        if (_session == null) {
-            return;
-        }
-        try {
-            if (_session.isTransactionActive()) {
-                _session.abortTrans();
+        doPreTearDown();
+        if (_session != null) {
+            try {
+                if (_session.isTransactionActive()) {
+                    _session.abortTrans();
+                }
+            } finally {
+                _session.disconnect();
             }
-        } finally {
-            _session.disconnect();
         }
+        doPostTearDown();
     }
 
 }

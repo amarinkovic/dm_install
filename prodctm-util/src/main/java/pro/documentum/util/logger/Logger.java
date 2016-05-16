@@ -174,7 +174,7 @@ public final class Logger {
         return null;
     }
 
-    static class StackHelper extends SecurityManager {
+    static final class StackHelper extends SecurityManager {
 
         private static final StackHelper INSTANCE = new StackHelper();
 

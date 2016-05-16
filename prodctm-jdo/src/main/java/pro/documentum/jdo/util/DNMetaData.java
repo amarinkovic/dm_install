@@ -12,12 +12,13 @@ import org.datanucleus.metadata.ArrayMetaData;
 import org.datanucleus.metadata.CollectionMetaData;
 import org.datanucleus.metadata.MetaDataManager;
 import org.datanucleus.store.StoreData;
-import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.schema.table.Table;
 
 import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfType;
 import com.documentum.fc.common.DfException;
+
+import pro.documentum.jdo.DocumentumStoreManager;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -30,10 +31,11 @@ public final class DNMetaData {
 
     public static StoreData getStoreData(final ExecutionContext ec,
             final String className) {
-        StoreManager storeMgr = ec.getStoreManager();
+        DocumentumStoreManager storeMgr = (DocumentumStoreManager) ec
+                .getStoreManager();
         StoreData sd = storeMgr.getStoreDataForClass(className);
         if (sd == null) {
-            storeMgr.manageClasses(ec.getClassLoaderResolver(), className);
+            storeMgr.manageClasses(ec, className);
             sd = storeMgr.getStoreDataForClass(className);
         }
         return sd;

@@ -44,7 +44,7 @@ import pro.documentum.jdo.query.expression.literals.DQLStringLiteral;
 import pro.documentum.jdo.util.DNMetaData;
 import pro.documentum.jdo.util.DNQueries;
 
-public class QueryToDQLMapper extends AbstractExpressionEvaluator {
+public class JDOQL2DQL extends AbstractExpressionEvaluator {
 
     private final ExecutionContext _ec;
 
@@ -76,9 +76,9 @@ public class QueryToDQLMapper extends AbstractExpressionEvaluator {
 
     private final Deque<DQLExpression> _exprs = new ArrayDeque<DQLExpression>();
 
-    public QueryToDQLMapper(final QueryCompilation compilation,
-            final Map params, final AbstractClassMetaData cmd,
-            final ExecutionContext ec, final Query q) {
+    public JDOQL2DQL(final QueryCompilation compilation, final Map params,
+            final AbstractClassMetaData cmd, final ExecutionContext ec,
+            final Query q) {
         _ec = ec;
         _q = q;
         _qc = compilation;

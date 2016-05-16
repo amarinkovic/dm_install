@@ -1,4 +1,4 @@
-package pro.documentum.jdo;
+package pro.documentum.jdo.model;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import com.documentum.fc.client.IDfSysObject;
 
+import pro.documentum.jdo.JDOTestSupport;
 import pro.documentum.model.DmSysobject;
 
 /**

@@ -6,34 +6,36 @@ import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Transaction;
 import javax.jdo.datastore.JDOConnection;
 
-import org.junit.After;
-import org.junit.Before;
-
 import com.documentum.fc.client.IDfSession;
+
+import pro.documentum.junit.DfcTestSupport;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public abstract class JDOTestSupport {
+public abstract class JDOTestSupport extends DfcTestSupport {
 
     private PersistenceManager _pm;
 
     private IDfSession _session;
 
-    @Before
-    public void setUp() throws Exception {
+    @Override
+    protected void doPostSetup() throws Exception {
         PersistenceManagerFactory pmf = JDOHelper
                 .getPersistenceManagerFactory("Testing");
-        _pm = pmf.getPersistenceManager();
+        _pm = pmf.getPersistenceManager(getLoginInfo().getUser(),
+                getLoginInfo().getPassword());
         Transaction tr = _pm.currentTransaction();
         tr.begin();
         JDOConnection connection = _pm.getDataStoreConnection();
+        // we need to create session within
+        // existing transaction and use it
         _session = ((IDfSession) connection.getNativeConnection());
         connection.close();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @Override
+    public void doPreTearDown() throws Exception {
         Transaction tr = _pm.currentTransaction();
         tr.rollback();
         _pm.close();
@@ -43,6 +45,7 @@ public abstract class JDOTestSupport {
         return _pm;
     }
 
+    @Override
     protected IDfSession getSession() {
         return _session;
     }

@@ -1,4 +1,4 @@
-package pro.documentum.jdo;
+package pro.documentum.jdo.model;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -13,6 +13,7 @@ import javax.jdo.Query;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 
+import pro.documentum.jdo.JDOTestSupport;
 import pro.documentum.model.DmUser;
 
 /**
