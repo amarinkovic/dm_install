@@ -20,7 +20,7 @@
         <slf4j.version>1.7.21</slf4j.version>
         <commons-lang.version>2.4</commons-lang.version>
         <commons-io.version>2.4</commons-io.version>
-        <dfc.version>7.2.0030.0070</dfc.version>
+        <dfc.version>7.2</dfc.version>
         <aspectj.version>1.8.2</aspectj.version>
         <jdo-api.version>3.1</jdo-api.version>
         <datanucleus-core.version>4.1.7</datanucleus-core.version>
@@ -31,18 +31,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>com.emc.documentum</groupId>
-                <artifactId>jsafeFIPS</artifactId>
-                <version>6.7.sp1</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.emc.documentum</groupId>
-                <artifactId>certjFIPS</artifactId>
-                <version>6.7.sp1</version>
-                <scope>provided</scope>
-            </dependency>
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
@@ -62,7 +50,7 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>com.emc.documentum</groupId>
+                <groupId>com.emc.documentum.dfc</groupId>
                 <artifactId>dfc</artifactId>
                 <version>${dfc.version}</version>
                 <scope>provided</scope>
