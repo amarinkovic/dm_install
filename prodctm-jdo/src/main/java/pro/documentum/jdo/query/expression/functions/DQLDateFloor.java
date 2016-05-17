@@ -7,15 +7,15 @@ import pro.documentum.jdo.query.expression.DQLExpression;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DQLDateToStringExpression extends DQLExpression {
+public class DQLDateFloor extends DQLExpression {
 
-    public DQLDateToStringExpression(final String text) {
+    public DQLDateFloor(final String text) {
         super(text);
     }
 
-    public static boolean isDateToString(final InvokeExpression invokeExpr) {
+    public static boolean isDateFloor(final InvokeExpression invokeExpr) {
         String op = invokeExpr.getOperation();
-        return "datetostring".equalsIgnoreCase(op);
+        return "datefloor".equalsIgnoreCase(op);
     }
 
 }

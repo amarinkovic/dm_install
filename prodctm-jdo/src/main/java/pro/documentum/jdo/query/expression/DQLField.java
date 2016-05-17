@@ -3,15 +3,15 @@ package pro.documentum.jdo.query.expression;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DQLFieldExpression extends DQLExpression {
+public class DQLField extends DQLExpression {
 
     private final boolean _repeating;
 
-    public DQLFieldExpression(final String fieldName) {
+    public DQLField(final String fieldName) {
         this(fieldName, false);
     }
 
-    public DQLFieldExpression(final String fieldName, final boolean repeating) {
+    public DQLField(final String fieldName, final boolean repeating) {
         super(fieldName);
         _repeating = repeating;
     }
@@ -21,7 +21,7 @@ public class DQLFieldExpression extends DQLExpression {
     }
 
     public static boolean isFieldExpression(final DQLExpression expression) {
-        return expression instanceof DQLFieldExpression;
+        return expression instanceof DQLField;
     }
 
 }

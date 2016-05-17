@@ -1,16 +1,14 @@
 package pro.documentum.jdo.query.expression.literals.nulls;
 
-import java.util.Date;
-
 import pro.documentum.jdo.query.expression.literals.DQLLiteral;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DQLNullDateLiteral extends DQLLiteral<Date> {
+public class DQLNullString extends DQLLiteral<String> {
 
-    DQLNullDateLiteral() {
-        super(null, "NULLDATE");
+    DQLNullString() {
+        super(null, "NULLSTRING");
     }
 
     @Override

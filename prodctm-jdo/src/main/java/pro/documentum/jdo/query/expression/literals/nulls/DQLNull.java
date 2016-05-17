@@ -10,7 +10,7 @@ import pro.documentum.jdo.query.expression.literals.DQLLiteral;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DQLNullLiteral extends DQLLiteral<Void> {
+public class DQLNull extends DQLLiteral<Void> {
 
     public static final Set<String> SPECIAL_NULLS;
 
@@ -21,7 +21,7 @@ public class DQLNullLiteral extends DQLLiteral<Void> {
         SPECIAL_NULLS.add("NULLSTRING");
     }
 
-    public DQLNullLiteral() {
+    public DQLNull() {
         super(null, "NULL");
     }
 
@@ -36,11 +36,11 @@ public class DQLNullLiteral extends DQLLiteral<Void> {
 
     public static DQLLiteral getInstance(final String value) {
         if ("NULL".equalsIgnoreCase(value)) {
-            return new DQLNullLiteral();
+            return new DQLNull();
         } else if ("NULLSTRING".equalsIgnoreCase(value)) {
-            return new DQLNullStringLiteral();
+            return new DQLNullString();
         } else if ("NULLDATE".equalsIgnoreCase(value)) {
-            return new DQLNullDateLiteral();
+            return new DQLNullDate();
         }
         return null;
     }

@@ -10,7 +10,7 @@ import com.documentum.fc.common.DfUtil;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DQLStringLiteral extends DQLLiteral<String> {
+public class DQLString extends DQLLiteral<String> {
 
     public static final Set<String> SPECIAL_STRINGS;
 
@@ -19,11 +19,11 @@ public class DQLStringLiteral extends DQLLiteral<String> {
         SPECIAL_STRINGS.add("USER");
     }
 
-    private DQLStringLiteral(final String value, final boolean quote) {
+    private DQLString(final String value, final boolean quote) {
         super(value, toString(value, quote));
     }
 
-    DQLStringLiteral(final String value) {
+    DQLString(final String value) {
         this(value, true);
     }
 
@@ -39,9 +39,8 @@ public class DQLStringLiteral extends DQLLiteral<String> {
         return SPECIAL_STRINGS.contains(expression.getId().toUpperCase());
     }
 
-    public static DQLStringLiteral getInstance(final String value,
-            final boolean quote) {
-        return new DQLStringLiteral(value, quote);
+    public static DQLString getInstance(final String value, final boolean quote) {
+        return new DQLString(value, quote);
     }
 
 }

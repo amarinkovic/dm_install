@@ -3,7 +3,7 @@ package pro.documentum.jdo.query.expression.literals;
 import java.util.Date;
 
 import pro.documentum.jdo.query.expression.DQLExpression;
-import pro.documentum.jdo.query.expression.literals.nulls.DQLNullLiteral;
+import pro.documentum.jdo.query.expression.literals.nulls.DQLNull;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -23,19 +23,19 @@ public abstract class DQLLiteral<T> extends DQLExpression {
 
     public static DQLLiteral getInstance(final Object object) {
         if (object == null) {
-            return new DQLNullLiteral();
+            return new DQLNull();
         }
         if (object instanceof String) {
-            return new DQLStringLiteral((String) object);
+            return new DQLString((String) object);
         }
         if (object instanceof Date) {
-            return new DQLDateLiteral((Date) object);
+            return new DQLDate((Date) object);
         }
         if (object instanceof Number) {
-            return new DQLNumberLiteral((Number) object);
+            return new DQLNumber((Number) object);
         }
         if (object instanceof Boolean) {
-            return new DQLBooleanLiteral((Boolean) object);
+            return new DQLBool((Boolean) object);
         }
         return null;
     }

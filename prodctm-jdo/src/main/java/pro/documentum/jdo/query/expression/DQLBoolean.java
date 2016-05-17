@@ -7,13 +7,13 @@ import pro.documentum.jdo.query.expression.literals.DQLLiteral;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DQLBooleanExpression extends DQLExpression {
+public class DQLBoolean extends DQLExpression {
 
-    public DQLBooleanExpression(final String text) {
+    public DQLBoolean(final String text) {
         super(text);
     }
 
-    public static DQLBooleanExpression getInstance(final DQLExpression left,
+    public static DQLBoolean getInstance(final DQLExpression left,
             final DQLExpression right, final Expression.Operator op) {
         StringBuilder builder = new StringBuilder();
         if (append(builder, left) == null) {
@@ -27,7 +27,7 @@ public class DQLBooleanExpression extends DQLExpression {
             } else {
                 return null;
             }
-            return new DQLBooleanExpression(builder.toString());
+            return new DQLBoolean(builder.toString());
         } else {
             if (append(builder, op) == null) {
                 return null;
@@ -36,12 +36,11 @@ public class DQLBooleanExpression extends DQLExpression {
         if (append(builder, right) == null) {
             return null;
         }
-        return new DQLBooleanExpression(builder.toString());
+        return new DQLBoolean(builder.toString());
     }
 
-    public static DQLBooleanExpression getInstance(
-            final DQLBooleanExpression left, final DQLBooleanExpression right,
-            final Expression.DyadicOperator op) {
+    public static DQLBoolean getInstance(final DQLBoolean left,
+            final DQLBoolean right, final Expression.DyadicOperator op) {
         StringBuilder builder = new StringBuilder();
         builder.append("(").append(left.getText()).append(")");
         if (op == Expression.OP_AND) {
@@ -52,21 +51,21 @@ public class DQLBooleanExpression extends DQLExpression {
             return null;
         }
         builder.append("(").append(right.getText()).append(")");
-        return new DQLBooleanExpression(builder.toString());
+        return new DQLBoolean(builder.toString());
     }
 
-    public static DQLBooleanExpression getInstance(
-            final DQLBooleanExpression expr, final Expression.MonadicOperator op) {
+    public static DQLBoolean getInstance(final DQLBoolean expr,
+            final Expression.MonadicOperator op) {
         if (op == Expression.OP_NOT) {
-            return new DQLBooleanExpression(" NOT (" + expr.getText() + ")");
+            return new DQLBoolean(" NOT (" + expr.getText() + ")");
         }
         return null;
     }
 
     private static StringBuilder append(final StringBuilder builder,
             final DQLExpression expression) {
-        if (expression instanceof DQLFieldExpression) {
-            DQLFieldExpression fieldExpression = (DQLFieldExpression) expression;
+        if (expression instanceof DQLField) {
+            DQLField fieldExpression = (DQLField) expression;
             if (fieldExpression.isRepeating()) {
                 builder.append("ANY ");
             }
@@ -101,12 +100,11 @@ public class DQLBooleanExpression extends DQLExpression {
     }
 
     public static boolean isBooleanExpression(final DQLExpression expression) {
-        return expression instanceof DQLBooleanExpression;
+        return expression instanceof DQLBoolean;
     }
 
-    public static DQLBooleanExpression asBooleanExpression(
-            final DQLExpression expression) {
-        return (DQLBooleanExpression) expression;
+    public static DQLBoolean asBooleanExpression(final DQLExpression expression) {
+        return (DQLBoolean) expression;
     }
 
 }

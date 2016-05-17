@@ -5,14 +5,14 @@ import org.datanucleus.query.expression.InvokeExpression;
 /**
  * Representation of an aggregate (MAX, MIN, AVG, SUM, COUNT) in DQL.
  */
-public class DQLAggregateExpression extends DQLExpression {
+public class DQLAggregate extends DQLExpression {
 
-    public DQLAggregateExpression(final String text) {
+    public DQLAggregate(final String text) {
         super(text);
     }
 
-    public static DQLAggregateExpression getInstance(
-            final String aggregateName, final DQLExpression fieldExpr) {
+    public static DQLAggregate getInstance(final String aggregateName,
+            final DQLExpression fieldExpr) {
         StringBuilder builder = new StringBuilder();
         if ("MAX".equalsIgnoreCase(aggregateName)) {
             builder.append("max");
@@ -28,7 +28,7 @@ public class DQLAggregateExpression extends DQLExpression {
             return null;
         }
         builder.append("(").append(fieldExpr.getText()).append(")");
-        return new DQLAggregateExpression(builder.toString());
+        return new DQLAggregate(builder.toString());
     }
 
     public static boolean isAggregateExpr(final InvokeExpression invokeExpr) {

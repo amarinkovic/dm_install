@@ -30,18 +30,17 @@ import org.datanucleus.store.schema.table.Table;
 import org.datanucleus.util.NucleusLogger;
 import org.datanucleus.util.StringUtils;
 
-import pro.documentum.jdo.query.expression.DQLAggregateExpression;
-import pro.documentum.jdo.query.expression.DQLAnyExpression;
-import pro.documentum.jdo.query.expression.DQLBooleanExpression;
+import pro.documentum.jdo.query.expression.DQLAggregate;
+import pro.documentum.jdo.query.expression.DQLAny;
+import pro.documentum.jdo.query.expression.DQLBoolean;
 import pro.documentum.jdo.query.expression.DQLExpression;
-import pro.documentum.jdo.query.expression.DQLFieldExpression;
-import pro.documentum.jdo.query.expression.functions.DQLDateExpression;
-import pro.documentum.jdo.query.expression.functions.DQLDateToStringExpression;
-import pro.documentum.jdo.query.expression.literals.DQLBooleanLiteral;
-import pro.documentum.jdo.query.expression.literals.DQLDateLiteral;
+import pro.documentum.jdo.query.expression.DQLField;
+import pro.documentum.jdo.query.expression.functions.DQLDateToString;
+import pro.documentum.jdo.query.expression.literals.DQLBool;
+import pro.documentum.jdo.query.expression.literals.DQLDate;
 import pro.documentum.jdo.query.expression.literals.DQLLiteral;
-import pro.documentum.jdo.query.expression.literals.DQLStringLiteral;
-import pro.documentum.jdo.query.expression.literals.nulls.DQLNullLiteral;
+import pro.documentum.jdo.query.expression.literals.DQLString;
+import pro.documentum.jdo.query.expression.literals.nulls.DQLNull;
 import pro.documentum.jdo.util.DNMetaData;
 import pro.documentum.jdo.util.DNQueries;
 
@@ -266,9 +265,9 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
         }
 
         DQLExpression aggrArgExpr = popExpression();
-        if (DQLAggregateExpression.isAggregateExpr(invokeExpr)) {
-            DQLExpression aggExpr = DQLAggregateExpression.getInstance(
-                    invokeExpr.getOperation(), aggrArgExpr);
+        if (DQLAggregate.isAggregateExpr(invokeExpr)) {
+            DQLExpression aggExpr = DQLAggregate.getInstance(invokeExpr
+                    .getOperation(), aggrArgExpr);
             // noinspection ConstantConditions
             builder.append(aggExpr.getText());
         } else {
@@ -279,10 +278,10 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
 
     @Override
     protected Object processAndExpression(final Expression expr) {
-        DQLBooleanExpression right = (DQLBooleanExpression) popExpression();
-        DQLBooleanExpression left = (DQLBooleanExpression) popExpression();
-        DQLBooleanExpression andExpr = DQLBooleanExpression.getInstance(left,
-                right, Expression.OP_AND);
+        DQLBoolean right = (DQLBoolean) popExpression();
+        DQLBoolean left = (DQLBoolean) popExpression();
+        DQLBoolean andExpr = DQLBoolean.getInstance(left, right,
+                Expression.OP_AND);
         if (andExpr != null) {
             pushExpression(andExpr);
             return andExpr;
@@ -292,10 +291,10 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
 
     @Override
     protected Object processOrExpression(final Expression expr) {
-        DQLBooleanExpression right = (DQLBooleanExpression) popExpression();
-        DQLBooleanExpression left = (DQLBooleanExpression) popExpression();
-        DQLBooleanExpression andExpr = DQLBooleanExpression.getInstance(left,
-                right, Expression.OP_OR);
+        DQLBoolean right = (DQLBoolean) popExpression();
+        DQLBoolean left = (DQLBoolean) popExpression();
+        DQLBoolean andExpr = DQLBoolean.getInstance(left, right,
+                Expression.OP_OR);
         if (andExpr != null) {
             pushExpression(andExpr);
             return andExpr;
@@ -305,13 +304,13 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
 
     @Override
     protected Object processInvokeExpression(final InvokeExpression invokeExpr) {
-        if (DQLAnyExpression.isAnyExpr(invokeExpr)) {
+        if (DQLAny.isAnyExpr(invokeExpr)) {
             return processAnyExpression(invokeExpr);
         }
-        if (DQLDateExpression.isDate(invokeExpr)) {
+        if (DQLDate.isDate(invokeExpr)) {
             return processDateExpression(invokeExpr);
         }
-        if (DQLDateToStringExpression.isDateToString(invokeExpr)) {
+        if (DQLDateToString.isDateToString(invokeExpr)) {
             return processDateToStringExpression(invokeExpr);
         }
         return super.processInvokeExpression(invokeExpr);
@@ -319,7 +318,21 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
 
     protected Object processDateToStringExpression(
             final InvokeExpression invokeExpr) {
-        return null;
+        List<Expression> dateExprs = invokeExpr.getArguments();
+        PrimaryExpression field = DQLExpression.asPrimary(dateExprs.get(0));
+        DQLExpression fieldExpression = (DQLExpression) processPrimaryExpression(field);
+        if (fieldExpression == null) {
+            return null;
+        }
+        Expression formatExpr = dateExprs.get(1);
+        DQLExpression formatExpression = processLiteralOfParameter(formatExpr);
+        if (formatExpression == null) {
+            return null;
+        }
+        DQLExpression dateToString = DQLDateToString.getInstance(
+                fieldExpression, formatExpression);
+        pushExpression(dateToString);
+        return dateToString;
     }
 
     protected Object processDateExpression(final InvokeExpression invokeExpr) {
@@ -338,7 +351,7 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
         if (formatExpression == null) {
             return null;
         }
-        DQLDateLiteral dateLiteral = DQLDateLiteral.getInstance(dateExpression,
+        DQLDate dateLiteral = DQLDate.getInstance(dateExpression,
                 formatExpression);
         pushExpression(dateLiteral);
         return dateLiteral;
@@ -365,10 +378,10 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
         Expression anyExpr = anyExprs.get(0);
         anyExpr.evaluate(this);
         DQLExpression expression = popExpression();
-        if (DQLFieldExpression.isFieldExpression(expression)) {
-            expression = new DQLFieldExpression(expression.getText(), true);
-        } else if (DQLBooleanExpression.isBooleanExpression(expression)) {
-            expression = new DQLAnyExpression(expression.getText());
+        if (DQLField.isFieldExpression(expression)) {
+            expression = new DQLField(expression.getText(), true);
+        } else if (DQLBoolean.isBooleanExpression(expression)) {
+            expression = new DQLAny(expression.getText());
         } else {
             return null;
         }
@@ -380,8 +393,7 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
             final Expression.DyadicOperator op) {
         DQLExpression right = popExpression();
         DQLExpression left = popExpression();
-        DQLBooleanExpression dqlExpression = DQLBooleanExpression.getInstance(
-                left, right, op);
+        DQLBoolean dqlExpression = DQLBoolean.getInstance(left, right, op);
         if (dqlExpression != null) {
             pushExpression(dqlExpression);
             return dqlExpression;
@@ -446,10 +458,10 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
     @Override
     protected Object processNotExpression(final Expression expr) {
         DQLExpression expression = popExpression();
-        if (DQLBooleanExpression.isBooleanExpression(expression)) {
-            DQLExpression dqlBooleanExpression = DQLBooleanExpression
-                    .getInstance(DQLBooleanExpression
-                            .asBooleanExpression(expression), Expression.OP_NOT);
+        if (DQLBoolean.isBooleanExpression(expression)) {
+            DQLExpression dqlBooleanExpression = DQLBoolean.getInstance(
+                    DQLBoolean.asBooleanExpression(expression),
+                    Expression.OP_NOT);
             if (dqlBooleanExpression != null) {
                 pushExpression(dqlBooleanExpression);
                 return dqlBooleanExpression;
@@ -515,14 +527,14 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
     protected Object processVariableExpression(final VariableExpression expr) {
         String name = expr.getId();
         DQLExpression expression = null;
-        if (DQLBooleanLiteral.isBooleanExpression(expr)) {
-            expression = DQLBooleanLiteral.getInstance(name);
-        } else if (DQLStringLiteral.isLiteralExpression(expr)) {
-            expression = DQLStringLiteral.getInstance(name, false);
-        } else if (DQLDateLiteral.isSpecialDateExpression(expr)) {
-            expression = DQLDateLiteral.getInstance(name);
-        } else if (DQLNullLiteral.isNullExpression(expr)) {
-            expression = DQLNullLiteral.getInstance(name);
+        if (DQLBool.isBooleanExpression(expr)) {
+            expression = DQLBool.getInstance(name);
+        } else if (DQLString.isLiteralExpression(expr)) {
+            expression = DQLString.getInstance(name, false);
+        } else if (DQLDate.isSpecialDateExpression(expr)) {
+            expression = DQLDate.getInstance(name);
+        } else if (DQLNull.isNullExpression(expr)) {
+            expression = DQLNull.getInstance(name);
         }
         if (expression != null) {
             pushExpression(expression);
@@ -539,17 +551,15 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
         }
 
         if (expr.getId().equals(_qc.getCandidateAlias())) {
-            DQLFieldExpression fieldExpr = new DQLFieldExpression(_qc
-                    .getCandidateAlias());
+            DQLField fieldExpr = new DQLField(_qc.getCandidateAlias());
             pushExpression(fieldExpr);
             return fieldExpr;
         }
 
         String fieldName = getFieldNameForPrimary(expr);
         if (fieldName != null) {
-            DQLFieldExpression fieldExpr = new DQLFieldExpression(_qc
-                    .getCandidateAlias()
-                    + "." + fieldName);
+            DQLField fieldExpr = new DQLField(_qc.getCandidateAlias() + "."
+                    + fieldName);
             pushExpression(fieldExpr);
             return fieldExpr;
         }

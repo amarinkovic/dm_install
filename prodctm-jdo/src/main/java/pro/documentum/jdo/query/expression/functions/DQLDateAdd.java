@@ -7,15 +7,15 @@ import pro.documentum.jdo.query.expression.DQLExpression;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DQLDateDiffExpression extends DQLExpression {
+public class DQLDateAdd extends DQLExpression {
 
-    public DQLDateDiffExpression(final String text) {
+    public DQLDateAdd(final String text) {
         super(text);
     }
 
-    public static boolean isDateDiff(final InvokeExpression invokeExpr) {
+    public static boolean isDateAdd(final InvokeExpression invokeExpr) {
         String op = invokeExpr.getOperation();
-        return "datetostring".equalsIgnoreCase(op);
+        return "dateadd".equalsIgnoreCase(op);
     }
 
 }
