@@ -16,18 +16,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.emc.documentum</groupId>
+            <groupId>com.emc.documentum.dfc</groupId>
             <artifactId>dfc</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.emc.documentum</groupId>
-            <artifactId>jsafeFIPS</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.emc.documentum</groupId>
-            <artifactId>certjFIPS</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>

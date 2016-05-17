@@ -18,7 +18,7 @@
             <version>0.1</version>
         </dependency>
         <dependency>
-            <groupId>com.emc.documentum</groupId>
+            <groupId>com.emc.documentum.dfc</groupId>
             <artifactId>dfc</artifactId>
         </dependency>
         <dependency>
