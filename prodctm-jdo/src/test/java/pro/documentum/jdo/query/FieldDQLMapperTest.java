@@ -1,7 +1,5 @@
 package pro.documentum.jdo.query;
 
-import static junit.framework.TestCase.assertTrue;
-
 import org.junit.Test;
 
 import pro.documentum.model.DmUser;

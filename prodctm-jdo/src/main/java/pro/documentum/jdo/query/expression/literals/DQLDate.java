@@ -98,8 +98,7 @@ public class DQLDate extends DQLLiteral<Date> {
         return builder.toString();
     }
 
-    public static boolean isSpecialDateExpression(
-            final VariableExpression expression) {
+    public static boolean isDateVar(final VariableExpression expression) {
         return SPECIAL_DATES.contains(expression.getId().toUpperCase());
     }
 
@@ -140,7 +139,7 @@ public class DQLDate extends DQLLiteral<Date> {
         if (!isVariable(valueExpr)) {
             return false;
         }
-        return isSpecialDateExpression(asVariable(valueExpr));
+        return isDateVar(asVariable(valueExpr));
     }
 
 }

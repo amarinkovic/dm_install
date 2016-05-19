@@ -8,7 +8,7 @@ import pro.documentum.jdo.query.expression.literals.DQLLiteral;
 public class DQLNullString extends DQLLiteral<String> {
 
     DQLNullString() {
-        super(null, "NULLSTRING");
+        super(null, DQLNull.NULLSTRING);
     }
 
     @Override

@@ -10,7 +10,7 @@ import pro.documentum.jdo.query.expression.literals.DQLLiteral;
 public class DQLNullDate extends DQLLiteral<Date> {
 
     DQLNullDate() {
-        super(null, "NULLDATE");
+        super(null, DQLNull.NULLDATE);
     }
 
     @Override

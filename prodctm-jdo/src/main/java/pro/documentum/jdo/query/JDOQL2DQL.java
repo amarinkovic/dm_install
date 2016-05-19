@@ -1,23 +1,13 @@
 package pro.documentum.jdo.query;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.ExecutionContext;
-import org.datanucleus.exceptions.NucleusException;
 import org.datanucleus.exceptions.NucleusUserException;
 import org.datanucleus.metadata.AbstractClassMetaData;
-import org.datanucleus.metadata.AbstractMemberMetaData;
-import org.datanucleus.metadata.MetaDataUtils;
-import org.datanucleus.metadata.RelationType;
 import org.datanucleus.query.compiler.CompilationComponent;
 import org.datanucleus.query.compiler.QueryCompilation;
-import org.datanucleus.query.evaluator.AbstractExpressionEvaluator;
 import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.InvokeExpression;
 import org.datanucleus.query.expression.Literal;
@@ -26,9 +16,7 @@ import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.store.query.Query;
-import org.datanucleus.store.schema.table.Table;
 import org.datanucleus.util.NucleusLogger;
-import org.datanucleus.util.StringUtils;
 
 import pro.documentum.jdo.query.expression.DQLAggregate;
 import pro.documentum.jdo.query.expression.DQLAny;
@@ -41,136 +29,21 @@ import pro.documentum.jdo.query.expression.literals.DQLDate;
 import pro.documentum.jdo.query.expression.literals.DQLLiteral;
 import pro.documentum.jdo.query.expression.literals.DQLString;
 import pro.documentum.jdo.query.expression.literals.nulls.DQLNull;
-import pro.documentum.jdo.util.DNMetaData;
-import pro.documentum.jdo.util.DNQueries;
 
-public class JDOQL2DQL extends AbstractExpressionEvaluator {
-
-    private final ExecutionContext _ec;
-
-    private final AbstractClassMetaData _cmd;
-
-    private final Query _q;
-
-    private final QueryCompilation _qc;
-
-    private final Map _params;
-
-    private int _positionalParamNumber = -1;
-
-    private CompilationComponent _cc;
-
-    private String _filterText;
-
-    private String _orderText;
-
-    private String _resultText;
-
-    private boolean _filterComplete = true;
-
-    private boolean _resultComplete = true;
-
-    private boolean _orderComplete = true;
-
-    private boolean _precompilable = true;
-
-    private final Deque<DQLExpression> _exprs = new ArrayDeque<DQLExpression>();
+public class JDOQL2DQL extends AbstractDQLEvaluator {
 
     public JDOQL2DQL(final QueryCompilation compilation, final Map params,
             final AbstractClassMetaData cmd, final ExecutionContext ec,
-            final Query q) {
-        _ec = ec;
-        _q = q;
-        _qc = compilation;
-        _params = params;
-        _cmd = cmd;
+            final Query query) {
+        super(compilation, params, cmd, ec, query);
     }
 
-    public void compile(final DQLQueryCompilation dqlCompilation) {
-        compileFilter();
-        compileResult();
-        compileOrder();
-
-        dqlCompilation.setPrecompilable(_precompilable);
-        dqlCompilation.setFilterComplete(_filterComplete);
-        dqlCompilation.setResultComplete(_resultComplete);
-        dqlCompilation.setOrderComplete(_orderComplete);
-
-        Long rangeFrom = null;
-        Long rangeTo = null;
-        if (_filterComplete && _orderComplete) {
-            if (_q.getRangeFromIncl() > 0) {
-                rangeFrom = _q.getRangeFromIncl();
-            } else {
-                rangeFrom = null;
-            }
-            if (_q.getRangeToExcl() != Long.MAX_VALUE) {
-                rangeTo = _q.getRangeToExcl();
-            } else {
-                rangeTo = null;
-            }
-            if (rangeFrom != null || rangeTo != null) {
-                dqlCompilation.setRangeComplete(true);
-            }
-        }
-
-        String resultText = null;
-        if (_resultComplete) {
-            resultText = _resultText;
-        }
-        String dqlText = DNQueries.getDqlTextForQuery(_ec, _cmd, _qc
-                .getCandidateAlias(), _q.isSubclasses(), _filterText,
-                resultText, _orderText, rangeFrom, rangeTo);
-        dqlCompilation.setDqlText(dqlText);
-    }
-
-    protected void compileFilter() {
-        if (_qc.getExprFilter() == null) {
-            return;
-        }
-
-        _cc = CompilationComponent.FILTER;
-
-        try {
-            _qc.getExprFilter().evaluate(this);
-            DQLExpression dqlExpr = popExpression();
-            _filterText = dqlExpr.getText();
-        } catch (Exception e) {
-            NucleusLogger.QUERY.error("Compilation of filter "
-                    + "to be evaluated completely "
-                    + "in-datastore was impossible : " + e.getMessage(), e);
-            _filterComplete = false;
-        }
-
-        _cc = null;
-    }
-
-    private DQLExpression popExpression() {
-        return _exprs.pop();
-    }
-
-    protected void compileOrder() {
-        if (_qc.getExprOrdering() == null) {
-            return;
-        }
-
-        _cc = CompilationComponent.ORDERING;
-
-        try {
-            doCompileOrder();
-        } catch (Exception e) {
-            NucleusLogger.QUERY.error("Compilation of ordering "
-                    + "to be evaluated completely in-datastore "
-                    + "was impossible : " + e.getMessage(), e);
-            _orderComplete = false;
-        }
-
-        _cc = null;
-    }
-
-    private void doCompileOrder() {
+    @Override
+    protected void doCompileOrder() {
+        // todo: actually in order to save positions of repeating attributes
+        // we need to sort by r_object_id, i_position
         StringBuilder orderStr = new StringBuilder();
-        Expression[] orderingExpr = _qc.getExprOrdering();
+        Expression[] orderingExpr = getExprOrdering();
         for (int i = 0; i < orderingExpr.length; i++) {
             OrderExpression orderExpr = (OrderExpression) orderingExpr[i];
             orderExpr.evaluate(this);
@@ -184,33 +57,13 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
                 orderStr.append(",");
             }
         }
-        _orderText = orderStr.toString();
+        setOrderText(orderStr.toString());
     }
 
-    protected void compileResult() {
-        if (_qc.getExprResult() == null) {
-            return;
-        }
-
-        _cc = CompilationComponent.RESULT;
-        _resultComplete = true;
-
-        try {
-            doCompileResult();
-        } catch (Exception e) {
-            NucleusLogger.GENERAL.info("Query result clause "
-                    + StringUtils.objectArrayToString(_qc.getExprResult())
-                    + " not totally supported via DQL "
-                    + "so will be processed in-memory");
-            _resultComplete = false;
-        }
-
-        _cc = null;
-    }
-
-    private void doCompileResult() {
+    @Override
+    protected void doCompileResult() {
         StringBuilder str = new StringBuilder();
-        Expression[] resultExprs = _qc.getExprResult();
+        Expression[] resultExprs = getExprResult();
         int i = 0;
         for (Expression expr : resultExprs) {
             DQLExpression dqlExpression = null;
@@ -232,7 +85,7 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
                 NucleusLogger.GENERAL.info("Query result expression " + expr
                         + " not supported via DQL "
                         + "so will be processed in-memory");
-                _resultComplete = false;
+                setResultComplete(false);
                 break;
             }
             if (i < resultExprs.length - 1) {
@@ -240,7 +93,7 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
             }
             i++;
         }
-        _resultText = str.toString();
+        setResultText(str.toString());
     }
 
     private void processInvokeExpression(final InvokeExpression invokeExpr,
@@ -276,14 +129,21 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
         }
     }
 
-    @Override
-    protected Object processAndExpression(final Expression expr) {
+    protected DQLExpression processAndOrExpression(final Expression expr,
+            final Expression.DyadicOperator op) {
         DQLBoolean right = (DQLBoolean) popExpression();
         DQLBoolean left = (DQLBoolean) popExpression();
-        DQLBoolean andExpr = DQLBoolean.getInstance(left, right,
-                Expression.OP_AND);
+        DQLBoolean andExpr = DQLBoolean.getInstance(left, right, op);
         if (andExpr != null) {
-            pushExpression(andExpr);
+            return pushExpression(andExpr);
+        }
+        return null;
+    }
+
+    @Override
+    protected Object processAndExpression(final Expression expr) {
+        DQLExpression andExpr = processAndOrExpression(expr, Expression.OP_AND);
+        if (andExpr != null) {
             return andExpr;
         }
         return super.processAndExpression(expr);
@@ -291,13 +151,9 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
 
     @Override
     protected Object processOrExpression(final Expression expr) {
-        DQLBoolean right = (DQLBoolean) popExpression();
-        DQLBoolean left = (DQLBoolean) popExpression();
-        DQLBoolean andExpr = DQLBoolean.getInstance(left, right,
-                Expression.OP_OR);
-        if (andExpr != null) {
-            pushExpression(andExpr);
-            return andExpr;
+        DQLExpression orExpr = processAndOrExpression(expr, Expression.OP_OR);
+        if (orExpr != null) {
+            return orExpr;
         }
         return super.processOrExpression(expr);
     }
@@ -325,14 +181,13 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
             return null;
         }
         Expression formatExpr = dateExprs.get(1);
-        DQLExpression formatExpression = processLiteralOfParameter(formatExpr);
+        DQLExpression formatExpression = processLiteralOrParameter(formatExpr);
         if (formatExpression == null) {
             return null;
         }
         DQLExpression dateToString = DQLDateToString.getInstance(
                 fieldExpression, formatExpression);
-        pushExpression(dateToString);
-        return dateToString;
+        return pushExpression(dateToString);
     }
 
     protected Object processDateExpression(final InvokeExpression invokeExpr) {
@@ -342,22 +197,21 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
         if (DQLExpression.isVariable(valueExpr)) {
             return valueExpr.evaluate(this);
         }
-        DQLExpression dateExpression = processLiteralOfParameter(valueExpr);
+        DQLExpression dateExpression = processLiteralOrParameter(valueExpr);
         if (dateExpression == null) {
             return null;
         }
         Expression formatExpr = dateExprs.get(1);
-        DQLExpression formatExpression = processLiteralOfParameter(formatExpr);
+        DQLExpression formatExpression = processLiteralOrParameter(formatExpr);
         if (formatExpression == null) {
             return null;
         }
         DQLDate dateLiteral = DQLDate.getInstance(dateExpression,
                 formatExpression);
-        pushExpression(dateLiteral);
-        return dateLiteral;
+        return pushExpression(dateLiteral);
     }
 
-    protected DQLExpression processLiteralOfParameter(
+    protected DQLExpression processLiteralOrParameter(
             final Expression expression) {
         if (DQLExpression.isLiteral(expression)) {
             processLiteral(DQLExpression.asLiteral(expression));
@@ -385,18 +239,19 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
         } else {
             return null;
         }
-        pushExpression(expression);
-        return expression;
+        return pushExpression(expression);
     }
 
     private Object processExpression(final Expression expr,
             final Expression.DyadicOperator op) {
         DQLExpression right = popExpression();
         DQLExpression left = popExpression();
-        DQLBoolean dqlExpression = DQLBoolean.getInstance(left, right, op);
+        DQLBoolean dqlExpression = DQLBoolean.getInvariant(left, right);
+        if (dqlExpression == null) {
+            dqlExpression = DQLBoolean.getInstance(left, right, op);
+        }
         if (dqlExpression != null) {
-            pushExpression(dqlExpression);
-            return dqlExpression;
+            return pushExpression(dqlExpression);
         }
         return null;
     }
@@ -416,7 +271,7 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
         if (result != null) {
             return result;
         }
-        return super.processEqExpression(expr);
+        return super.processNoteqExpression(expr);
     }
 
     @Override
@@ -425,7 +280,7 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
         if (result != null) {
             return result;
         }
-        return super.processEqExpression(expr);
+        return super.processGtExpression(expr);
     }
 
     @Override
@@ -434,7 +289,7 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
         if (result != null) {
             return result;
         }
-        return super.processEqExpression(expr);
+        return super.processLtExpression(expr);
     }
 
     @Override
@@ -443,7 +298,7 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
         if (result != null) {
             return result;
         }
-        return super.processEqExpression(expr);
+        return super.processGteqExpression(expr);
     }
 
     @Override
@@ -452,7 +307,7 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
         if (result != null) {
             return result;
         }
-        return super.processEqExpression(expr);
+        return super.processLteqExpression(expr);
     }
 
     @Override
@@ -463,57 +318,20 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
                     DQLBoolean.asBooleanExpression(expression),
                     Expression.OP_NOT);
             if (dqlBooleanExpression != null) {
-                pushExpression(dqlBooleanExpression);
-                return dqlBooleanExpression;
+                return pushExpression(dqlBooleanExpression);
             }
         }
         return super.processNotExpression(expr);
     }
 
-    private void pushExpression(final DQLExpression dqlExpression) {
-        _exprs.push(dqlExpression);
-    }
-
     @Override
     protected Object processParameterExpression(final ParameterExpression expr) {
-        Object paramValue = null;
-        if (_params == null || _params.isEmpty()) {
-            _precompilable = false;
-            throw new NucleusException("Parameter " + expr
-                    + " is not currently set, so cannot complete the _qc");
-        }
-
-        boolean paramValueSet = false;
-        if (_params.containsKey(expr.getId())) {
-            paramValue = _params.get(expr.getId());
-            paramValueSet = true;
-        } else if (_params.containsKey(expr.getId())) {
-            paramValue = _params.get(expr.getId());
-            paramValueSet = true;
-        } else {
-            int position = _positionalParamNumber;
-            if (_positionalParamNumber < 0) {
-                position = 0;
-            }
-            if (_params.containsKey(position)) {
-                paramValue = _params.get(position);
-                paramValueSet = true;
-                _positionalParamNumber = position + 1;
-            }
-        }
-
-        if (!paramValueSet) {
-            _precompilable = false;
-            throw new NucleusException("Parameter " + expr
-                    + " is not currently set, so cannot complete the _qc");
-        }
-
+        Object paramValue = getParameterValue(expr);
         // todo: do we need support collections?
         DQLLiteral literal = DQLLiteral.getInstance(paramValue);
         if (literal != null) {
-            pushExpression(literal);
-            _precompilable = false;
-            return literal;
+            setPrecompilable(false);
+            return pushExpression(literal);
         }
 
         NucleusLogger.QUERY
@@ -527,18 +345,17 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
     protected Object processVariableExpression(final VariableExpression expr) {
         String name = expr.getId();
         DQLExpression expression = null;
-        if (DQLBool.isBooleanExpression(expr)) {
+        if (DQLBool.isBooleanVar(expr)) {
             expression = DQLBool.getInstance(name);
-        } else if (DQLString.isLiteralExpression(expr)) {
+        } else if (DQLString.isLiteralVar(expr)) {
             expression = DQLString.getInstance(name, false);
-        } else if (DQLDate.isSpecialDateExpression(expr)) {
+        } else if (DQLDate.isDateVar(expr)) {
             expression = DQLDate.getInstance(name);
-        } else if (DQLNull.isNullExpression(expr)) {
+        } else if (DQLNull.isNullVar(expr)) {
             expression = DQLNull.getInstance(name);
         }
         if (expression != null) {
-            pushExpression(expression);
-            return expression;
+            return pushExpression(expression);
         }
         return super.processVariableExpression(expr);
     }
@@ -550,22 +367,20 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
             return super.processPrimaryExpression(expr);
         }
 
-        if (expr.getId().equals(_qc.getCandidateAlias())) {
-            DQLField fieldExpr = new DQLField(_qc.getCandidateAlias());
-            pushExpression(fieldExpr);
-            return fieldExpr;
+        if (expr.getId().equals(getCandidateAlias())) {
+            DQLField fieldExpr = new DQLField(getCandidateAlias());
+            return pushExpression(fieldExpr);
         }
 
         String fieldName = getFieldNameForPrimary(expr);
         if (fieldName != null) {
-            DQLField fieldExpr = new DQLField(_qc.getCandidateAlias() + "."
+            DQLField fieldExpr = new DQLField(getCandidateAlias() + "."
                     + fieldName);
-            pushExpression(fieldExpr);
-            return fieldExpr;
+            return pushExpression(fieldExpr);
         }
 
-        if (_cc == CompilationComponent.FILTER) {
-            _filterComplete = false;
+        if (getCompilcationComponent() == CompilationComponent.FILTER) {
+            setFilterComplete(false);
         }
 
         NucleusLogger.QUERY.debug(">> Primary " + expr
@@ -576,111 +391,52 @@ public class JDOQL2DQL extends AbstractExpressionEvaluator {
     }
 
     @Override
+    protected Object compileOrAndExpression(final Expression expr) {
+        try {
+            return super.compileOrAndExpression(expr);
+        } catch (Exception ex) {
+            Object result = transformToInvariant(expr);
+            if (result == null) {
+                NucleusLogger.QUERY.error("Compilation of filter "
+                        + "to be evaluated completely "
+                        + "in-datastore was impossible : " + ex.getMessage(),
+                        ex);
+                throw ex;
+            }
+            return result;
+        }
+    }
+
+    private Object transformToInvariant(final Expression expr) {
+        Expression parent = expr.getParent();
+        if (!DQLExpression.isDyadic(parent)) {
+            return null;
+        }
+        if (parent.getLeft() == null || parent.getRight() == null) {
+            return null;
+        }
+        setFilterComplete(false);
+        boolean parity = true;
+        while (true) {
+            parent = parent.getParent();
+            if (parent == null) {
+                break;
+            }
+            if (DQLExpression.isDyadicNot(parent)) {
+                parity = !parity;
+            }
+        }
+        return pushExpression(DQLBoolean.getInvariant(parity));
+    }
+
+    @Override
     protected Object processLiteral(final Literal expr) {
         Object litValue = expr.getLiteral();
         DQLLiteral literal = DQLLiteral.getInstance(litValue);
         if (literal != null) {
-            pushExpression(literal);
-            return literal;
+            return pushExpression(literal);
         }
         return super.processLiteral(expr);
-    }
-
-    protected String getFieldNameForPrimary(final PrimaryExpression expr) {
-        List<String> tuples = expr.getTuples();
-        if (tuples == null || tuples.isEmpty()) {
-            return null;
-        }
-
-        AbstractClassMetaData cmd = _cmd;
-        Table table = DNMetaData.getStoreData(_ec, cmd).getTable();
-        AbstractMemberMetaData embMmd = null;
-
-        List<AbstractMemberMetaData> embMmds = new ArrayList<AbstractMemberMetaData>();
-        boolean firstTuple = true;
-        Iterator<String> iter = tuples.iterator();
-        ClassLoaderResolver clr = _ec.getClassLoaderResolver();
-        while (iter.hasNext()) {
-            String name = iter.next();
-            if (firstTuple && name.equals(_qc.getCandidateAlias())) {
-                cmd = _cmd;
-                continue;
-            }
-
-            AbstractMemberMetaData mmd = cmd.getMetaDataForMember(name);
-            RelationType relationType = mmd.getRelationType(_ec
-                    .getClassLoaderResolver());
-            if (relationType == RelationType.NONE) {
-                if (iter.hasNext()) {
-                    throw new NucleusUserException("Query has reference to "
-                            + StringUtils.collectionToString(tuples) + " yet "
-                            + name + " is a non-relation field!");
-                }
-                if (embMmd != null) {
-                    embMmds.add(mmd);
-                    return table.getMemberColumnMappingForEmbeddedMember(
-                            embMmds).getColumn(0).getName();
-                }
-                return table.getMemberColumnMappingForMember(mmd).getColumn(0)
-                        .getName();
-            }
-
-            AbstractMemberMetaData emmd = null;
-            if (!embMmds.isEmpty()) {
-                emmd = embMmds.get(embMmds.size() - 1);
-            }
-
-            boolean embedded = MetaDataUtils.getInstance().isMemberEmbedded(
-                    _ec.getMetaDataManager(), clr, mmd, relationType, emmd);
-
-            if (embedded) {
-                if (RelationType.isRelationSingleValued(relationType)) {
-                    cmd = _ec.getMetaDataManager().getMetaDataForClass(
-                            mmd.getType(), _ec.getClassLoaderResolver());
-                    if (embMmd != null) {
-                        embMmd = embMmd.getEmbeddedMetaData()
-                                .getMemberMetaData()[mmd
-                                .getAbsoluteFieldNumber()];
-                    } else {
-                        embMmd = mmd;
-                    }
-                    embMmds.add(embMmd);
-                } else if (RelationType.isRelationMultiValued(relationType)) {
-                    throw new NucleusUserException(
-                            "Do not support the querying of embedded collection/map/array fields : "
-                                    + mmd.getFullFieldName());
-                }
-            } else {
-                embMmds.clear();
-                if (relationType == RelationType.ONE_TO_MANY_UNI
-                        || relationType == RelationType.ONE_TO_MANY_BI
-                        || relationType == RelationType.MANY_TO_ONE_UNI
-                        || relationType == RelationType.MANY_TO_ONE_BI) {
-                    if (!iter.hasNext()) {
-                        return name;
-                    }
-                    throw new NucleusUserException(
-                            "Do not support _query joining to related object at "
-                                    + mmd.getFullFieldName() + " in "
-                                    + StringUtils.collectionToString(tuples));
-                }
-
-                if (_cc == CompilationComponent.FILTER) {
-                    _filterComplete = false;
-                }
-
-                NucleusLogger.QUERY
-                        .debug("Query has reference to "
-                                + StringUtils.collectionToString(tuples)
-                                + " and "
-                                + mmd.getFullFieldName()
-                                + " is not persisted into this object, so unexecutable in the datastore");
-                return null;
-            }
-            firstTuple = false;
-        }
-
-        return null;
     }
 
 }

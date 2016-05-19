@@ -9,6 +9,10 @@ import pro.documentum.jdo.query.expression.literals.DQLLiteral;
  */
 public class DQLBoolean extends DQLExpression {
 
+    private static final DQLBoolean ALWAYS_TRUE = new DQLBoolean("1=1");
+
+    private static final DQLBoolean ALWAYS_FALSE = new DQLBoolean("1<>1");
+
     public DQLBoolean(final String text) {
         super(text);
     }
@@ -57,7 +61,7 @@ public class DQLBoolean extends DQLExpression {
     public static DQLBoolean getInstance(final DQLBoolean expr,
             final Expression.MonadicOperator op) {
         if (op == Expression.OP_NOT) {
-            return new DQLBoolean(" NOT (" + expr.getText() + ")");
+            return new DQLBoolean("NOT (" + expr.getText() + ")");
         }
         return null;
     }
@@ -105,6 +109,23 @@ public class DQLBoolean extends DQLExpression {
 
     public static DQLBoolean asBooleanExpression(final DQLExpression expression) {
         return (DQLBoolean) expression;
+    }
+
+    public static DQLBoolean getInvariant(final DQLExpression... exprs) {
+        for (DQLExpression expr : exprs) {
+            if (expr == ALWAYS_TRUE || expr == ALWAYS_FALSE) {
+                return (DQLBoolean) expr;
+            }
+        }
+        return null;
+    }
+
+    public static DQLBoolean getInvariant(final boolean value) {
+        if (value) {
+            return ALWAYS_TRUE;
+        } else {
+            return ALWAYS_FALSE;
+        }
     }
 
 }

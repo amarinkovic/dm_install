@@ -12,17 +12,23 @@ import pro.documentum.jdo.query.expression.literals.DQLLiteral;
  */
 public class DQLNull extends DQLLiteral<Void> {
 
+    public static final String NULL = "NULL";
+
+    public static final String NULLDATE = "NULLDATE";
+
+    public static final String NULLSTRING = "NULLSTRING";
+
     public static final Set<String> SPECIAL_NULLS;
 
     static {
         SPECIAL_NULLS = new HashSet<String>();
-        SPECIAL_NULLS.add("NULL");
-        SPECIAL_NULLS.add("NULLDATE");
-        SPECIAL_NULLS.add("NULLSTRING");
+        SPECIAL_NULLS.add(NULL);
+        SPECIAL_NULLS.add(NULLDATE);
+        SPECIAL_NULLS.add(NULLSTRING);
     }
 
     public DQLNull() {
-        super(null, "NULL");
+        super(null, NULL);
     }
 
     @Override
@@ -30,16 +36,16 @@ public class DQLNull extends DQLLiteral<Void> {
         return true;
     }
 
-    public static boolean isNullExpression(final VariableExpression expression) {
+    public static boolean isNullVar(final VariableExpression expression) {
         return SPECIAL_NULLS.contains(expression.getId().toUpperCase());
     }
 
     public static DQLLiteral getInstance(final String value) {
-        if ("NULL".equalsIgnoreCase(value)) {
+        if (NULL.equalsIgnoreCase(value)) {
             return new DQLNull();
-        } else if ("NULLSTRING".equalsIgnoreCase(value)) {
+        } else if (NULLSTRING.equalsIgnoreCase(value)) {
             return new DQLNullString();
-        } else if ("NULLDATE".equalsIgnoreCase(value)) {
+        } else if (NULLDATE.equalsIgnoreCase(value)) {
             return new DQLNullDate();
         }
         return null;

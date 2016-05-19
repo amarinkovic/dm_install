@@ -34,8 +34,7 @@ public class DQLString extends DQLLiteral<String> {
         return "'" + DfUtil.escapeQuotedString(value) + "'";
     }
 
-    public static boolean isLiteralExpression(
-            final VariableExpression expression) {
+    public static boolean isLiteralVar(final VariableExpression expression) {
         return SPECIAL_STRINGS.contains(expression.getId().toUpperCase());
     }
 
