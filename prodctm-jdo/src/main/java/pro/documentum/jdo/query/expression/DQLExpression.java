@@ -1,5 +1,7 @@
 package pro.documentum.jdo.query.expression;
 
+import java.util.List;
+
 import org.datanucleus.query.expression.DyadicExpression;
 import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.InvokeExpression;
@@ -78,6 +80,15 @@ public abstract class DQLExpression {
     public static boolean isDyadicNot(final Expression expression) {
         return isDyadic(expression)
                 && expression.getOperator() == Expression.OP_NOT;
+    }
+
+    public static boolean hasRequiredArgs(final List<Expression> argExprs,
+            final int num) {
+        if (num > 0) {
+            return argExprs != null && argExprs.size() == num;
+        } else {
+            return argExprs == null || argExprs.isEmpty();
+        }
     }
 
 }

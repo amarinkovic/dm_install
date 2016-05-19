@@ -325,7 +325,7 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
         return null;
     }
 
-    protected final DQLExpression popExpression() {
+    public final DQLExpression popExpression() {
         return _exprs.pop();
     }
 

@@ -14,6 +14,8 @@ import org.datanucleus.query.expression.VariableExpression;
 
 import com.documentum.fc.common.DfTime;
 
+import pro.documentum.jdo.query.IDQLEvaluator;
+import pro.documentum.jdo.query.IInvokeEvaluator;
 import pro.documentum.jdo.query.expression.DQLExpression;
 
 /**
@@ -102,44 +104,62 @@ public class DQLDate extends DQLLiteral<Date> {
         return SPECIAL_DATES.contains(expression.getId().toUpperCase());
     }
 
-    public static boolean isDate(final InvokeExpression invokeExpr) {
+    private static DQLExpression evaluate(final InvokeExpression invokeExpr,
+            final IDQLEvaluator evaluator) {
         String op = invokeExpr.getOperation();
         if (!FUNC.equalsIgnoreCase(op)) {
-            return false;
+            return null;
         }
 
         List<Expression> dateExprs = invokeExpr.getArguments();
-        if (dateExprs == null || dateExprs.isEmpty()) {
-            return false;
+        if (hasRequiredArgs(dateExprs, 1)) {
+            if (!isVariable(dateExprs.get(0))) {
+                return null;
+            }
+            VariableExpression varExpr = asVariable(dateExprs.get(0));
+            if (!isDateVar(varExpr)) {
+                return null;
+            }
+            if (varExpr.evaluate(evaluator) == null) {
+                return null;
+            }
+            return evaluator.popExpression();
         }
-        if (dateExprs.size() > 2) {
-            return false;
+
+        if (hasRequiredArgs(dateExprs, 2)) {
+            if (!isLiteralOrParameter(dateExprs.get(0))) {
+                return null;
+            }
+            if (!isLiteralOrParameter(dateExprs.get(1))) {
+                return null;
+            }
+
+            DQLExpression dateExpression = evaluator
+                    .processLiteralOrParameter(dateExprs.get(0));
+            if (dateExpression == null) {
+                return null;
+            }
+
+            DQLExpression formatExpression = evaluator
+                    .processLiteralOrParameter(dateExprs.get(1));
+            if (formatExpression == null) {
+                return null;
+            }
+
+            return getInstance(dateExpression, formatExpression);
         }
-        if (isSpecialDate(dateExprs)) {
-            return true;
-        }
-        return isDateWithFormat(dateExprs);
+
+        return null;
     }
 
-    private static boolean isDateWithFormat(final List<Expression> dateExprs) {
-        if (dateExprs.size() != 2) {
-            return false;
-        }
-        Expression valueExpr = dateExprs.get(0);
-        Expression formatExpr = dateExprs.get(1);
-        return isLiteralOrParameter(valueExpr)
-                && isLiteralOrParameter(formatExpr);
-    }
-
-    private static boolean isSpecialDate(final List<Expression> dateExprs) {
-        if (dateExprs.size() > 1) {
-            return false;
-        }
-        Expression valueExpr = dateExprs.get(0);
-        if (!isVariable(valueExpr)) {
-            return false;
-        }
-        return isDateVar(asVariable(valueExpr));
+    public static IInvokeEvaluator getInvokeEvaluator() {
+        return new IInvokeEvaluator() {
+            @Override
+            public DQLExpression evaluate(final InvokeExpression expression,
+                    final IDQLEvaluator evaluator) {
+                return DQLDate.evaluate(expression, evaluator);
+            }
+        };
     }
 
 }

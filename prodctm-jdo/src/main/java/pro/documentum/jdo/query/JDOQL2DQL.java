@@ -1,5 +1,6 @@
 package pro.documentum.jdo.query;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,13 +25,26 @@ import pro.documentum.jdo.query.expression.DQLBoolean;
 import pro.documentum.jdo.query.expression.DQLExpression;
 import pro.documentum.jdo.query.expression.DQLField;
 import pro.documentum.jdo.query.expression.functions.DQLDateToString;
+import pro.documentum.jdo.query.expression.functions.DQLLower;
+import pro.documentum.jdo.query.expression.functions.DQLUpper;
 import pro.documentum.jdo.query.expression.literals.DQLBool;
 import pro.documentum.jdo.query.expression.literals.DQLDate;
 import pro.documentum.jdo.query.expression.literals.DQLLiteral;
 import pro.documentum.jdo.query.expression.literals.DQLString;
 import pro.documentum.jdo.query.expression.literals.nulls.DQLNull;
 
-public class JDOQL2DQL extends AbstractDQLEvaluator {
+public class JDOQL2DQL extends AbstractDQLEvaluator implements IDQLEvaluator {
+
+    private static final List<IInvokeEvaluator> INVOKE_EVALUATORS;
+
+    static {
+        INVOKE_EVALUATORS = new ArrayList<IInvokeEvaluator>();
+        INVOKE_EVALUATORS.add(DQLDate.getInvokeEvaluator());
+        INVOKE_EVALUATORS.add(DQLAny.getInvokeEvaluator());
+        INVOKE_EVALUATORS.add(DQLDateToString.getInvokeEvaluator());
+        INVOKE_EVALUATORS.add(DQLUpper.getInvokeEvaluator());
+        INVOKE_EVALUATORS.add(DQLLower.getInvokeEvaluator());
+    }
 
     public JDOQL2DQL(final QueryCompilation compilation, final Map params,
             final AbstractClassMetaData cmd, final ExecutionContext ec,
@@ -160,59 +174,17 @@ public class JDOQL2DQL extends AbstractDQLEvaluator {
 
     @Override
     protected Object processInvokeExpression(final InvokeExpression invokeExpr) {
-        if (DQLAny.isAnyExpr(invokeExpr)) {
-            return processAnyExpression(invokeExpr);
-        }
-        if (DQLDate.isDate(invokeExpr)) {
-            return processDateExpression(invokeExpr);
-        }
-        if (DQLDateToString.isDateToString(invokeExpr)) {
-            return processDateToStringExpression(invokeExpr);
+        DQLExpression expression;
+        for (IInvokeEvaluator evaluator : INVOKE_EVALUATORS) {
+            expression = evaluator.evaluate(invokeExpr, this);
+            if (expression != null) {
+                return pushExpression(expression);
+            }
         }
         return super.processInvokeExpression(invokeExpr);
     }
 
-    protected Object processDateToStringExpression(
-            final InvokeExpression invokeExpr) {
-        List<Expression> dateExprs = invokeExpr.getArguments();
-        PrimaryExpression field = DQLExpression.asPrimary(dateExprs.get(0));
-        DQLExpression fieldExpression = (DQLExpression) processPrimaryExpression(field);
-        if (fieldExpression == null) {
-            return null;
-        }
-        Expression formatExpr = dateExprs.get(1);
-        DQLExpression formatExpression = processLiteralOrParameter(formatExpr);
-        if (formatExpression == null) {
-            return null;
-        }
-        DQLExpression dateToString = DQLDateToString.getInstance(
-                fieldExpression, formatExpression);
-        return pushExpression(dateToString);
-    }
-
-    protected Object processDateExpression(final InvokeExpression invokeExpr) {
-        List<Expression> dateExprs = invokeExpr.getArguments();
-        Expression valueExpr = dateExprs.get(0);
-        // date(now), date(today), ...
-        if (DQLExpression.isVariable(valueExpr)) {
-            return valueExpr.evaluate(this);
-        }
-        DQLExpression dateExpression = processLiteralOrParameter(valueExpr);
-        if (dateExpression == null) {
-            return null;
-        }
-        Expression formatExpr = dateExprs.get(1);
-        DQLExpression formatExpression = processLiteralOrParameter(formatExpr);
-        if (formatExpression == null) {
-            return null;
-        }
-        DQLDate dateLiteral = DQLDate.getInstance(dateExpression,
-                formatExpression);
-        return pushExpression(dateLiteral);
-    }
-
-    protected DQLExpression processLiteralOrParameter(
-            final Expression expression) {
+    public DQLExpression processLiteralOrParameter(final Expression expression) {
         if (DQLExpression.isLiteral(expression)) {
             processLiteral(DQLExpression.asLiteral(expression));
         } else if (DQLExpression.isParameter(expression)) {
@@ -221,25 +193,6 @@ public class JDOQL2DQL extends AbstractDQLEvaluator {
             return null;
         }
         return popExpression();
-    }
-
-    protected Object processAnyExpression(final InvokeExpression invokeExpr) {
-        List<Expression> anyExprs = invokeExpr.getArguments();
-        if (anyExprs == null || anyExprs.size() != 1) {
-            throw new NucleusUserException(
-                    "Invalid number of arguments for any expression");
-        }
-        Expression anyExpr = anyExprs.get(0);
-        anyExpr.evaluate(this);
-        DQLExpression expression = popExpression();
-        if (DQLField.isFieldExpression(expression)) {
-            expression = new DQLField(expression.getText(), true);
-        } else if (DQLBoolean.isBooleanExpression(expression)) {
-            expression = new DQLAny(expression.getText());
-        } else {
-            return null;
-        }
-        return pushExpression(expression);
     }
 
     private Object processExpression(final Expression expr,
@@ -361,7 +314,7 @@ public class JDOQL2DQL extends AbstractDQLEvaluator {
     }
 
     @Override
-    protected Object processPrimaryExpression(final PrimaryExpression expr) {
+    public Object processPrimaryExpression(final PrimaryExpression expr) {
         Expression left = expr.getLeft();
         if (left != null) {
             return super.processPrimaryExpression(expr);
