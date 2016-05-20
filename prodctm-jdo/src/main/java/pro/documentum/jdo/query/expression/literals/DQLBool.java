@@ -2,6 +2,10 @@ package pro.documentum.jdo.query.expression.literals;
 
 import org.datanucleus.query.expression.VariableExpression;
 
+import pro.documentum.jdo.query.IDQLEvaluator;
+import pro.documentum.jdo.query.IVariableEvaluator;
+import pro.documentum.jdo.query.expression.DQLExpression;
+
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
@@ -15,13 +19,27 @@ public class DQLBool extends DQLLiteral<Boolean> {
         super(value, String.valueOf(value).toUpperCase());
     }
 
-    public static boolean isBooleanVar(final VariableExpression expression) {
+    private static DQLBool evaluate(final VariableExpression expression,
+            final IDQLEvaluator evaluator) {
         String name = expression.getId();
-        return TRUE.equalsIgnoreCase(name) || FALSE.equalsIgnoreCase(name);
+        if (!TRUE.equalsIgnoreCase(name) && !FALSE.equalsIgnoreCase(name)) {
+            return null;
+        }
+        return getInstance(name.toUpperCase());
     }
 
-    public static DQLBool getInstance(final String value) {
+    private static DQLBool getInstance(final String value) {
         return new DQLBool(TRUE.equalsIgnoreCase(value));
+    }
+
+    public static IVariableEvaluator getVariableEvaluator() {
+        return new IVariableEvaluator() {
+            @Override
+            public DQLExpression evaluate(final VariableExpression expression,
+                    final IDQLEvaluator evaluator) {
+                return DQLBool.evaluate(expression, evaluator);
+            }
+        };
     }
 
 }

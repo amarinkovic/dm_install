@@ -46,6 +46,16 @@ public class JDOQL2DQL extends AbstractDQLEvaluator implements IDQLEvaluator {
         INVOKE_EVALUATORS.add(DQLLower.getInvokeEvaluator());
     }
 
+    private static final List<IVariableEvaluator> VARIABLE_EVALUATORS;
+
+    static {
+        VARIABLE_EVALUATORS = new ArrayList<IVariableEvaluator>();
+        VARIABLE_EVALUATORS.add(DQLDate.getVariableEvaluator());
+        VARIABLE_EVALUATORS.add(DQLString.getVariableEvaluator());
+        VARIABLE_EVALUATORS.add(DQLNull.getVariableEvaluator());
+        VARIABLE_EVALUATORS.add(DQLBool.getVariableEvaluator());
+    }
+
     public JDOQL2DQL(final QueryCompilation compilation, final Map params,
             final AbstractClassMetaData cmd, final ExecutionContext ec,
             final Query query) {
@@ -296,19 +306,12 @@ public class JDOQL2DQL extends AbstractDQLEvaluator implements IDQLEvaluator {
 
     @Override
     protected Object processVariableExpression(final VariableExpression expr) {
-        String name = expr.getId();
-        DQLExpression expression = null;
-        if (DQLBool.isBooleanVar(expr)) {
-            expression = DQLBool.getInstance(name);
-        } else if (DQLString.isLiteralVar(expr)) {
-            expression = DQLString.getInstance(name, false);
-        } else if (DQLDate.isDateVar(expr)) {
-            expression = DQLDate.getInstance(name);
-        } else if (DQLNull.isNullVar(expr)) {
-            expression = DQLNull.getInstance(name);
-        }
-        if (expression != null) {
-            return pushExpression(expression);
+        DQLExpression expression;
+        for (IVariableEvaluator evaluator : VARIABLE_EVALUATORS) {
+            expression = evaluator.evaluate(expr, this);
+            if (expression != null) {
+                return pushExpression(expression);
+            }
         }
         return super.processVariableExpression(expr);
     }

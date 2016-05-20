@@ -5,6 +5,9 @@ import java.util.Set;
 
 import org.datanucleus.query.expression.VariableExpression;
 
+import pro.documentum.jdo.query.IDQLEvaluator;
+import pro.documentum.jdo.query.IVariableEvaluator;
+import pro.documentum.jdo.query.expression.DQLExpression;
 import pro.documentum.jdo.query.expression.literals.DQLLiteral;
 
 /**
@@ -36,11 +39,16 @@ public class DQLNull extends DQLLiteral<Void> {
         return true;
     }
 
-    public static boolean isNullVar(final VariableExpression expression) {
-        return SPECIAL_NULLS.contains(expression.getId().toUpperCase());
+    private static DQLExpression evaluate(final VariableExpression expression,
+            final IDQLEvaluator evaluator) {
+        String name = expression.getId();
+        if (!SPECIAL_NULLS.contains(name.toUpperCase())) {
+            return null;
+        }
+        return getInstance(name);
     }
 
-    public static DQLLiteral getInstance(final String value) {
+    private static DQLLiteral getInstance(final String value) {
         if (NULL.equalsIgnoreCase(value)) {
             return new DQLNull();
         } else if (NULLSTRING.equalsIgnoreCase(value)) {
@@ -49,6 +57,16 @@ public class DQLNull extends DQLLiteral<Void> {
             return new DQLNullDate();
         }
         return null;
+    }
+
+    public static IVariableEvaluator getVariableEvaluator() {
+        return new IVariableEvaluator() {
+            @Override
+            public DQLExpression evaluate(final VariableExpression expression,
+                    final IDQLEvaluator evaluator) {
+                return DQLNull.evaluate(expression, evaluator);
+            }
+        };
     }
 
 }

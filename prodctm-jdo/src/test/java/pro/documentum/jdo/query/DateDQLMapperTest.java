@@ -57,25 +57,25 @@ public class DateDQLMapperTest extends AbstractDQLMapperTest {
     @Test
     public void testDateLiteralSpecial1() throws Exception {
         String q = newQuery(DmUser.class, "modifyDate == DATE(now)");
-        assertTrue(q.endsWith("WHERE this.r_modify_date=DATE(now)"));
+        assertTrue(q.endsWith("WHERE this.r_modify_date=DATE(NOW)"));
     }
 
     @Test
     public void testDateLiteralSpecial2() throws Exception {
         String q = newQuery(DmUser.class, "modifyDate == DATE(today)");
-        assertTrue(q.endsWith("WHERE this.r_modify_date=DATE(today)"));
+        assertTrue(q.endsWith("WHERE this.r_modify_date=DATE(TODAY)"));
     }
 
     @Test
     public void testDateLiteralSpecial3() throws Exception {
         String q = newQuery(DmUser.class, "modifyDate == DATE(yesterday)");
-        assertTrue(q.endsWith("WHERE this.r_modify_date=DATE(yesterday)"));
+        assertTrue(q.endsWith("WHERE this.r_modify_date=DATE(YESTERDAY)"));
     }
 
     @Test
     public void testDateLiteralSpecial4() throws Exception {
         String q = newQuery(DmUser.class, "modifyDate == DATE(tomorrow)");
-        assertTrue(q.endsWith("WHERE this.r_modify_date=DATE(tomorrow)"));
+        assertTrue(q.endsWith("WHERE this.r_modify_date=DATE(TOMORROW)"));
     }
 
     @Test

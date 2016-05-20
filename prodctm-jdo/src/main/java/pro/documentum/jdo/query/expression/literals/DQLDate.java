@@ -16,6 +16,7 @@ import com.documentum.fc.common.DfTime;
 
 import pro.documentum.jdo.query.IDQLEvaluator;
 import pro.documentum.jdo.query.IInvokeEvaluator;
+import pro.documentum.jdo.query.IVariableEvaluator;
 import pro.documentum.jdo.query.expression.DQLExpression;
 
 /**
@@ -100,8 +101,16 @@ public class DQLDate extends DQLLiteral<Date> {
         return builder.toString();
     }
 
-    public static boolean isDateVar(final VariableExpression expression) {
+    private static boolean isDateVar(final VariableExpression expression) {
         return SPECIAL_DATES.contains(expression.getId().toUpperCase());
+    }
+
+    private static DQLExpression evaluate(final VariableExpression expression,
+            final IDQLEvaluator evaluator) {
+        if (!isDateVar(expression)) {
+            return null;
+        }
+        return DQLDate.getInstance(expression.getId().toUpperCase());
     }
 
     private static DQLExpression evaluate(final InvokeExpression invokeExpr,
@@ -156,6 +165,16 @@ public class DQLDate extends DQLLiteral<Date> {
         return new IInvokeEvaluator() {
             @Override
             public DQLExpression evaluate(final InvokeExpression expression,
+                    final IDQLEvaluator evaluator) {
+                return DQLDate.evaluate(expression, evaluator);
+            }
+        };
+    }
+
+    public static IVariableEvaluator getVariableEvaluator() {
+        return new IVariableEvaluator() {
+            @Override
+            public DQLExpression evaluate(final VariableExpression expression,
                     final IDQLEvaluator evaluator) {
                 return DQLDate.evaluate(expression, evaluator);
             }
