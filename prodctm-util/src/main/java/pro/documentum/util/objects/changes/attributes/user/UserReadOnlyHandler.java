@@ -16,7 +16,7 @@ public final class UserReadOnlyHandler extends AbstractUserAttributeHandler {
     public static final Set<String> READONLY_ATTRS;
 
     static {
-        READONLY_ATTRS = new HashSet<String>();
+        READONLY_ATTRS = new HashSet<>();
         READONLY_ATTRS.add(DfDocbaseConstants.R_OBJECT_ID);
         READONLY_ATTRS.add(DfDocbaseConstants.I_VSTAMP);
         READONLY_ATTRS.add("r_modify_date");

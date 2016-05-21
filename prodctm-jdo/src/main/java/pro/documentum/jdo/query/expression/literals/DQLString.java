@@ -19,7 +19,7 @@ public class DQLString extends DQLLiteral<String> {
     public static final Set<String> SPECIAL_STRINGS;
 
     static {
-        SPECIAL_STRINGS = new HashSet<String>();
+        SPECIAL_STRINGS = new HashSet<>();
         SPECIAL_STRINGS.add("USER");
     }
 

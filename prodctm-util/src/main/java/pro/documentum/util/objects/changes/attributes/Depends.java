@@ -12,6 +12,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Depends {
 
-    Class<? extends IAttributeHandler>[] on() default {};
+    Class<? extends IAttributeHandler<?>>[] on() default {};
 
 }

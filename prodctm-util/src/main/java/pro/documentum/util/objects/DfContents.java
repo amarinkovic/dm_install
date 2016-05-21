@@ -99,8 +99,9 @@ public final class DfContents {
         IContentSaver saver = content.getContentSaver();
         IStorageApi storageApi = StorageApiFactory.getInstance();
         IContentDataRelatedIds relatedContentIds = storageApi
-                .newContentDataRelatedIds(content.getObjectId(), content
-                        .getFormatId(), content.getStore().getObjectId(), -1);
+                .newContentDataRelatedIds(content.getObjectId(),
+                        content.getFormatId(),
+                        content.getStore().getObjectId(), -1);
         IContentSaveResult result = saver.save(content.getObjectSession(),
                 relatedContentIds, extraData, true);
         content.recordStoreResult(result.getStoreResult(), null);
@@ -110,15 +111,15 @@ public final class DfContents {
     private static IContentSaver fileSaver(final IDfSession dfSession,
             final String path) throws DfException {
         ContentSaverFactory factory = ContentSaverFactory.getInstance();
-        return factory.newDirectContentSaver(path, null, Sessions
-                .getHostName(dfSession), path);
+        return factory.newDirectContentSaver(path, null,
+                Sessions.getHostName(dfSession), path);
     }
 
     private static IContentSaver streamSaver(final IDfSession dfSession,
             final InputStream stream) throws DfException {
         ContentSaverFactory factory = ContentSaverFactory.getInstance();
-        return factory.newDirectContentSaver(stream, 0, null, -1, Sessions
-                .getHostName(dfSession), null);
+        return factory.newDirectContentSaver(stream, 0, null, -1,
+                Sessions.getHostName(dfSession), null);
     }
 
 }

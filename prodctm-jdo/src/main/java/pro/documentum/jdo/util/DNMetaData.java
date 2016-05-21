@@ -41,7 +41,7 @@ public final class DNMetaData {
         return sd;
     }
 
-    public static AbstractClassMetaData getCollectionElementMetadata(
+    public static AbstractClassMetaData getElementMetadata(
             final ExecutionContext ec, final AbstractMemberMetaData mmd) {
         ClassLoaderResolver clr = ec.getClassLoaderResolver();
         MetaDataManager mdm = ec.getMetaDataManager();
@@ -59,8 +59,20 @@ public final class DNMetaData {
         return null;
     }
 
+    public static String getElementClassName(final ExecutionContext ec,
+            final AbstractMemberMetaData mmd) {
+        if (mmd.hasCollection()) {
+            CollectionMetaData collmd = mmd.getCollection();
+            return collmd.getElementType();
+        } else if (mmd.hasArray()) {
+            ArrayMetaData amd = mmd.getArray();
+            return amd.getElementType();
+        }
+        return null;
+    }
+
     public static Map<String, String> getKnownTables(final ExecutionContext ec) {
-        Map<String, String> tables = new HashMap<String, String>();
+        Map<String, String> tables = new HashMap<>();
         for (String className : ec.getMetaDataManager()
                 .getClassesWithMetaData()) {
             StoreData storeData = getStoreData(ec, className);

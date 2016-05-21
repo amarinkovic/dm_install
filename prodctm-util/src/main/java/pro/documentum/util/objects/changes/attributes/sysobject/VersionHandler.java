@@ -22,7 +22,7 @@ public class VersionHandler extends AbstractSysObjectAttributeHandler {
     public static final Set<String> VERSION_ATTRIBUTES;
 
     static {
-        VERSION_ATTRIBUTES = new HashSet<String>();
+        VERSION_ATTRIBUTES = new HashSet<>();
         VERSION_ATTRIBUTES.add("r_lock_owner");
         VERSION_ATTRIBUTES.add("r_version_label");
     }
@@ -50,8 +50,8 @@ public class VersionHandler extends AbstractSysObjectAttributeHandler {
                         object.getObjectId());
                 return true;
             }
-            Logger.debug("Performing check in operation for object {0}", object
-                    .getObjectId());
+            Logger.debug("Performing check in operation for object {0}",
+                    object.getObjectId());
             object.checkin(!isEmptyLockOwner, getVersionLabels(object, values));
             removeKey(values, VERSION_ATTRIBUTES);
             return false;

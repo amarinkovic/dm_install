@@ -60,6 +60,7 @@ public class DocumentumConnectionFactory extends AbstractConnectionFactory {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public ManagedConnection createManagedConnection(
             final ExecutionContext executionContext, final Map map) {
         IDfLoginInfo loginInfo = (IDfLoginInfo) map
@@ -69,9 +70,8 @@ public class DocumentumConnectionFactory extends AbstractConnectionFactory {
 
     public class ManagedConnectionImpl extends AbstractManagedConnection {
 
-        private XAResource _xaRes;
-
         private final IDfLoginInfo _loginInfo;
+        private XAResource _xaRes;
 
         public ManagedConnectionImpl(final IDfLoginInfo loginInfo) {
             super();
@@ -91,8 +91,8 @@ public class DocumentumConnectionFactory extends AbstractConnectionFactory {
                 IDfSession session = (IDfSession) conn;
                 Logger.debug("Acquired existing session {0} for user {1}, "
                         + "docbase {2}", Sessions.getSessionId(session),
-                        Sessions.getLoginUserName(session), Sessions
-                                .getDocbaseName(session));
+                        Sessions.getLoginUserName(session),
+                        Sessions.getDocbaseName(session));
             }
             return conn;
         }
@@ -113,8 +113,8 @@ public class DocumentumConnectionFactory extends AbstractConnectionFactory {
                     Sessions.disableServerTimeout(session);
                     Logger.debug("Acquired new session {0} for user {1}, "
                             + "docbase {2}", Sessions.getSessionId(session),
-                            Sessions.getLoginUserName(session), Sessions
-                                    .getDocbaseName(session));
+                            Sessions.getLoginUserName(session),
+                            Sessions.getDocbaseName(session));
                 }
             } catch (DfException ex) {
                 throw DfExceptions.dataStoreException(ex);
@@ -137,8 +137,8 @@ public class DocumentumConnectionFactory extends AbstractConnectionFactory {
             try {
                 Logger.debug("Releasing session {0} for user {1}, "
                         + "docbase {2}", Sessions.getSessionId(session),
-                        Sessions.getLoginUserName(session), Sessions
-                                .getDocbaseName(session));
+                        Sessions.getLoginUserName(session),
+                        Sessions.getDocbaseName(session));
                 Sessions.enableServerTimeout((IDfSession) conn);
                 Sessions.release((IDfSession) conn);
             } catch (DfException ex) {

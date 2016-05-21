@@ -37,6 +37,7 @@ public class DocumentumPersistenceHandler extends AbstractPersistenceHandler {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public void insertObject(final ObjectProvider op) {
         assertReadOnlyForUpdateOfObject(op);
         AbstractClassMetaData cmd = op.getClassMetaData();
@@ -58,6 +59,7 @@ public class DocumentumPersistenceHandler extends AbstractPersistenceHandler {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public void updateObject(final ObjectProvider op, final int[] ints) {
         assertReadOnlyForUpdateOfObject(op);
         AbstractClassMetaData cmd = op.getClassMetaData();
@@ -78,18 +80,20 @@ public class DocumentumPersistenceHandler extends AbstractPersistenceHandler {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public void deleteObject(final ObjectProvider objectProvider) {
 
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public void fetchObject(final ObjectProvider op, final int[] ints) {
         ExecutionContext ec = op.getExecutionContext();
         ManagedConnection mconn = storeMgr.getConnection(ec);
         try {
             IDfSession session = (IDfSession) mconn.getConnection();
-            IDfPersistentObject dbObject = Nucleus.getObject(session, op
-                    .getExternalObjectId());
+            IDfPersistentObject dbObject = Nucleus.getObject(session,
+                    op.getExternalObjectId());
             DNValues.loadNonRelationalFields(op, dbObject, ints);
         } finally {
             mconn.release();
@@ -98,6 +102,7 @@ public class DocumentumPersistenceHandler extends AbstractPersistenceHandler {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public void locateObject(final ObjectProvider objectProvider) {
 
     }

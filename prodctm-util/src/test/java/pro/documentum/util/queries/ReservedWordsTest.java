@@ -15,6 +15,7 @@ import com.documentum.fc.common.DfDocbaseConstants;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
+@SuppressWarnings("unchecked")
 public class ReservedWordsTest {
 
     @Test
@@ -81,6 +82,10 @@ public class ReservedWordsTest {
             super();
         }
 
+        public static Matcher<String> isReserved() {
+            return new ReservedWordMatcher();
+        }
+
         @Override
         public void describeTo(final Description description) {
             description.appendText("is reserved");
@@ -89,10 +94,6 @@ public class ReservedWordsTest {
         @Override
         public boolean matchesSafely(final String string) {
             return ReservedWords.isReserved(string);
-        }
-
-        public static Matcher isReserved() {
-            return new ReservedWordMatcher();
         }
 
     }

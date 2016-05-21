@@ -37,7 +37,7 @@ public final class DNQueries {
     }
 
     public static List<String> getSelectColumns(final Column column) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         MemberColumnMapping mcm = column.getMemberColumnMapping();
         if (mcm == null) {
             result.add(column.getName());
@@ -72,7 +72,7 @@ public final class DNQueries {
             final String resultText, final String orderText,
             final Long rangeFromIncl, final Long rangeToExcl) {
         StoreData sd = DNMetaData.getStoreData(ec, cmd);
-        Set<String> selectColumns = new LinkedHashSet<String>();
+        Set<String> selectColumns = new LinkedHashSet<>();
         Table table = sd.getTable();
         List<Column> columns = table.getColumns();
         for (Column column : columns) {
@@ -106,15 +106,16 @@ public final class DNQueries {
         return queryBuilder.toString();
     }
 
-    public static List executeDqlQuery(final Query query,
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    public static List<?> executeDqlQuery(final Query<?> query,
             final IDfSession session, final String dqlText,
             final AbstractClassMetaData candidateCmd) {
         boolean processed = false;
-        List<IDfCollection> collections = new ArrayList<IDfCollection>();
+        List<IDfCollection> collections = new ArrayList<>();
         try {
-            DQLQueryResult result = new DQLQueryResult(query);
-            int[] members = query.getFetchPlan().getFetchPlanForClass(
-                    candidateCmd).getMemberNumbers();
+            DQLQueryResult<?> result = new DQLQueryResult(query);
+            int[] members = query.getFetchPlan()
+                    .getFetchPlanForClass(candidateCmd).getMemberNumbers();
             IDfCollection collection = new DfQuery(dqlText).execute(session,
                     IDfQuery.DF_EXEC_QUERY);
             collections.add(collection);

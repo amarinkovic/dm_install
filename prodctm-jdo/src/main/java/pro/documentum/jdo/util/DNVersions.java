@@ -14,7 +14,7 @@ public final class DNVersions {
         super();
     }
 
-    private static int getVersionPosition(final ObjectProvider op) {
+    private static int getVersionPosition(final ObjectProvider<?> op) {
         AbstractClassMetaData cmd = op.getClassMetaData();
         if (!cmd.isVersioned()) {
             return -1;
@@ -27,7 +27,7 @@ public final class DNVersions {
         return -1;
     }
 
-    public static void processVersion(final ObjectProvider op) {
+    public static void processVersion(final ObjectProvider<?> op) {
         int versionPosition = getVersionPosition(op);
         if (versionPosition > -1) {
             Object version = op.provideField(versionPosition);

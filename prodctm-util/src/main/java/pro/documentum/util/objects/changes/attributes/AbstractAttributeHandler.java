@@ -1,5 +1,6 @@
 package pro.documentum.util.objects.changes.attributes;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,37 +13,44 @@ import com.documentum.fc.client.IDfPersistentObject;
 public abstract class AbstractAttributeHandler<T extends IDfPersistentObject>
         implements IAttributeHandler<T> {
 
-    private List<Class<? extends IAttributeHandler>> _dependencies;
+    private List<Class<? extends IAttributeHandler<?>>> _dependencies;
 
     @Override
-    public List<Class<? extends IAttributeHandler>> getDependencies() {
+    public List<Class<? extends IAttributeHandler<?>>> getDependencies() {
         if (isReadOnly()) {
             return Collections.emptyList();
         }
-        if (_dependencies != null) {
-            return Collections.unmodifiableList(_dependencies);
+        if (_dependencies == null) {
+            _dependencies = buildDependencies(getClass());
         }
-        _dependencies = buildDependencies(getClass());
-        _dependencies.remove(getClass());
-        return _dependencies;
+        return Collections.unmodifiableList(_dependencies);
     }
 
-    private List<Class<? extends IAttributeHandler>> buildDependencies(
-            final Class cls) {
-        List<Class<? extends IAttributeHandler>> result = new ArrayList<Class<? extends IAttributeHandler>>();
-        Class current = null;
+    private List<Class<? extends IAttributeHandler<?>>> buildDependencies(
+            final Class<?> cls) {
+        List<Class<? extends IAttributeHandler<?>>> result = new ArrayList<>();
+        Class<?> current = null;
         do {
             if (current == null) {
                 current = cls;
             } else {
                 current = current.getSuperclass();
             }
-            Depends depends = (Depends) current.getAnnotation(Depends.class);
+            Depends depends = null;
+            for (Annotation annotation : current.getDeclaredAnnotations()) {
+                if (annotation instanceof Depends) {
+                    depends = (Depends) annotation;
+                    break;
+                }
+            }
             if (depends == null) {
                 continue;
             }
-            for (Class<? extends IAttributeHandler> dep : depends.on()) {
+            for (Class<? extends IAttributeHandler<?>> dep : depends.on()) {
                 if (result.contains(dep)) {
+                    continue;
+                }
+                if (dep == getClass()) {
                     continue;
                 }
                 result.add(dep);

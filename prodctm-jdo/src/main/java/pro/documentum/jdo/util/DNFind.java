@@ -85,8 +85,8 @@ public final class DNFind {
         Object idKey = DNValues.getObjectId(dbObject);
         Table table = DNMetaData.getStoreData(ec, cmd).getTable();
         FetchFieldManager fm = new FetchFieldManager(ec, dbObject, cmd, table);
-        Object id = ec.getNucleusContext().getIdentityManager().getDatastoreId(
-                cmd.getFullClassName(), idKey);
+        Object id = ec.getNucleusContext().getIdentityManager()
+                .getDatastoreId(cmd.getFullClassName(), idKey);
         Class<T> type = ec.getClassLoaderResolver().classForName(
                 cmd.getFullClassName());
         T pc = findObject(ec, ignoreCache, fpMembers, fm, id, type);

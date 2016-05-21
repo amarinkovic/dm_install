@@ -10,10 +10,6 @@
 
     <artifactId>prodctm-model</artifactId>
 
-    <properties>
-        <datanucleus-maven-plugin.version>4.0.1</datanucleus-maven-plugin.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>javax.jdo</groupId>
@@ -81,19 +77,6 @@
                     <plugin>
                         <groupId>org.datanucleus</groupId>
                         <artifactId>datanucleus-maven-plugin</artifactId>
-                        <version>${datanucleus-maven-plugin.version}</version>
-                        <configuration>
-                            <fork>false</fork>
-                            <verbose>true</verbose>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>process-classes</phase>
-                                <goals>
-                                    <goal>enhance</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>

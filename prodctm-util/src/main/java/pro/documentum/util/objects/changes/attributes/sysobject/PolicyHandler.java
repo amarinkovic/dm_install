@@ -17,7 +17,7 @@ public class PolicyHandler extends AbstractSysObjectAttributeHandler {
     private static final List<String> POLICY_ATTRIBUTES;
 
     static {
-        POLICY_ATTRIBUTES = new ArrayList<String>();
+        POLICY_ATTRIBUTES = new ArrayList<>();
         POLICY_ATTRIBUTES.add("r_policy_id");
         POLICY_ATTRIBUTES.add("r_current_state");
     }

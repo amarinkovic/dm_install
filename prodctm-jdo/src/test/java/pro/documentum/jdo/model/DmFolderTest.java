@@ -1,9 +1,5 @@
 package pro.documentum.jdo.model;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +14,7 @@ import pro.documentum.model.DmFolder;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
+@SuppressWarnings("unchecked")
 public class DmFolderTest extends JDOTestSupport {
 
     @Test
@@ -37,7 +34,7 @@ public class DmFolderTest extends JDOTestSupport {
         String path = "/System/Modules";
         Query query = getPersistenceManager().newQuery(DmFolder.class,
                 "ANY(folderPaths == :path)");
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("path", path);
         List<DmFolder> results = (List<DmFolder>) query.executeWithMap(params);
         assertNotNull(results);
@@ -45,5 +42,4 @@ public class DmFolderTest extends JDOTestSupport {
         DmFolder folder = results.get(0);
         assertTrue(folder.getFolderPaths().contains(path));
     }
-
 }

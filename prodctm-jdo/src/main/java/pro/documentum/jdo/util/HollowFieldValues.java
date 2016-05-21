@@ -20,10 +20,14 @@ public class HollowFieldValues implements FieldValues {
         _fm = fm;
     }
 
+    @Override
+    @SuppressWarnings("rawtypes")
     public void fetchFields(final ObjectProvider op) {
         op.replaceFields(_fpMembers, _fm);
     }
 
+    @Override
+    @SuppressWarnings("rawtypes")
     public void fetchNonLoadedFields(final ObjectProvider op) {
         op.replaceNonLoadedFields(_fpMembers, _fm);
     }

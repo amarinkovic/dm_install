@@ -24,7 +24,7 @@ public class DQLNull extends DQLLiteral<Void> {
     public static final Set<String> SPECIAL_NULLS;
 
     static {
-        SPECIAL_NULLS = new HashSet<String>();
+        SPECIAL_NULLS = new HashSet<>();
         SPECIAL_NULLS.add(NULL);
         SPECIAL_NULLS.add(NULLDATE);
         SPECIAL_NULLS.add(NULLSTRING);
@@ -32,11 +32,6 @@ public class DQLNull extends DQLLiteral<Void> {
 
     public DQLNull() {
         super(null, NULL);
-    }
-
-    @Override
-    public boolean isNull() {
-        return true;
     }
 
     private static DQLExpression evaluate(final VariableExpression expression,
@@ -48,7 +43,7 @@ public class DQLNull extends DQLLiteral<Void> {
         return getInstance(name);
     }
 
-    private static DQLLiteral getInstance(final String value) {
+    private static DQLLiteral<?> getInstance(final String value) {
         if (NULL.equalsIgnoreCase(value)) {
             return new DQLNull();
         } else if (NULLSTRING.equalsIgnoreCase(value)) {
@@ -67,6 +62,11 @@ public class DQLNull extends DQLLiteral<Void> {
                 return DQLNull.evaluate(expression, evaluator);
             }
         };
+    }
+
+    @Override
+    public boolean isNull() {
+        return true;
     }
 
 }

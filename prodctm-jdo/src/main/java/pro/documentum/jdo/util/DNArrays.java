@@ -38,7 +38,8 @@ public final class DNArrays {
         return Arrays.copyOf(result, i);
     }
 
-    public static int[] getDirtyFields(final ObjectProvider op, final int[] ints) {
+    public static int[] getDirtyFields(final ObjectProvider<?> op,
+            final int[] ints) {
         return filter(ints, op.getDirtyFieldNumbers());
     }
 

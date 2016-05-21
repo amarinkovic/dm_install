@@ -1,4 +1,4 @@
-package pro.documentum.util.convert.impl;
+package pro.documentum.util.convert.datastore;
 
 import java.text.ParseException;
 import java.util.HashMap;
@@ -14,9 +14,11 @@ import pro.documentum.util.convert.IConverter;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class BooleanConverter extends AbstractConverter<Object, Boolean> {
+public class BooleanDataStoreConverter<F> extends
+        AbstractDataStoreConverter<F, Boolean> {
 
-    private static final Set<String> TRUE_VALUES = new HashSet<String>();
+    private static final Set<String> TRUE_VALUES = new HashSet<>();
+    private static final Map<Class<?>, IConverter<?, Boolean>> CONVERTERS;
 
     static {
         TRUE_VALUES.add("t");
@@ -27,41 +29,39 @@ public class BooleanConverter extends AbstractConverter<Object, Boolean> {
         TRUE_VALUES.add("1.0");
     }
 
-    private static final Map<Class, IConverter<?, Boolean>> CONVERTERS = new HashMap<Class, IConverter<?, Boolean>>();
-
     static {
+        CONVERTERS = new HashMap<>();
         CONVERTERS.put(String.class, new StringToBoolean());
         CONVERTERS.put(IDfValue.class, new IDfValueToBoolean());
         CONVERTERS.put(DfValue.class, CONVERTERS.get(IDfValue.class));
         CONVERTERS.put(Boolean.class, new BooleanToBoolean());
         CONVERTERS.put(boolean.class, CONVERTERS.get(Boolean.class));
+        CONVERTERS.put(Integer.class, new IntegerToBoolean());
+        CONVERTERS.put(int.class, CONVERTERS.get(Integer.class));
     }
 
-    public BooleanConverter() {
+    public BooleanDataStoreConverter() {
         super();
     }
 
-    public static Boolean defaultValue() {
-        return Boolean.FALSE;
+    @Override
+    public int getDataStoreType() {
+        return IDfValue.DF_BOOLEAN;
     }
 
     @Override
-    protected Map<Class, IConverter<?, Boolean>> getConverters() {
+    protected Map<Class<?>, IConverter<?, Boolean>> getConverters() {
         return CONVERTERS;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Boolean convert(final Object value) throws ParseException {
-        if (value == null) {
-            return defaultValue();
-        }
-        IConverter converter = getConverter(value);
+    protected Boolean doConvert(final F value) throws ParseException {
+        IConverter<F, Boolean> converter = getConverter(value);
         if (converter == null) {
             throw new ParseException("Unable to convert " + value
                     + " to boolean", 0);
         }
-        return (Boolean) converter.convert(value);
+        return converter.convert(value);
     }
 
     static class BooleanToBoolean implements IConverter<Boolean, Boolean> {
@@ -99,6 +99,19 @@ public class BooleanConverter extends AbstractConverter<Object, Boolean> {
         @Override
         public Boolean convert(final String value) {
             return TRUE_VALUES.contains(value);
+        }
+
+    }
+
+    static class IntegerToBoolean implements IConverter<Integer, Boolean> {
+
+        IntegerToBoolean() {
+            super();
+        }
+
+        @Override
+        public Boolean convert(final Integer value) {
+            return value == 1;
         }
 
     }

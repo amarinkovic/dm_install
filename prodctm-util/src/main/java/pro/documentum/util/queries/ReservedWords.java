@@ -15,7 +15,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public final class ReservedWords {
 
-    private static final Set<String> RESERVED = new HashSet<String>();
+    private static final Set<String> RESERVED = new HashSet<>();
 
     static {
         try {
@@ -30,8 +30,8 @@ public final class ReservedWords {
     }
 
     public static boolean isReserved(final String attrName) {
-        return RESERVED
-                .contains(Objects.requireNonNull(attrName).toUpperCase());
+        String ucAttrName = Objects.requireNonNull(attrName).toUpperCase();
+        return RESERVED.contains(ucAttrName);
     }
 
     public static String makeProjection(final Iterator<String> attrs) {

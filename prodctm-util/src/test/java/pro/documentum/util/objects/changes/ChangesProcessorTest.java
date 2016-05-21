@@ -40,8 +40,8 @@ public class ChangesProcessorTest extends DfcTestSupport {
     public void testRepeatingString() throws Exception {
         IDfSession session = getSession();
         IDfSysObject object = (IDfSysObject) session.newObject("dm_document");
-        Map<String, Object> data = new HashMap<String, Object>();
-        List<String> authors = new ArrayList<String>();
+        Map<String, Object> data = new HashMap<>();
+        List<String> authors = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             authors.add(RandomStringUtils.randomAlphabetic(48));
         }
@@ -55,7 +55,7 @@ public class ChangesProcessorTest extends DfcTestSupport {
         IDfSession session = getSession();
         IDfSysObject object = (IDfSysObject) session.newObject("dm_document");
         object.save();
-        Map<String, Object> data = new HashMap<String, Object>();
+        Map<String, Object> data = new HashMap<>();
         data.put("r_lock_owner", session.getLoginUserName());
         ChangesProcessor.process(object, data);
         assertTrue(object.isCheckedOutBy(null));
@@ -71,7 +71,7 @@ public class ChangesProcessorTest extends DfcTestSupport {
         IDfSession session = getSession();
         IDfSysObject object = (IDfSysObject) session.newObject("dm_document");
         object.save();
-        Map<String, Object> data = new HashMap<String, Object>();
+        Map<String, Object> data = new HashMap<>();
         data.put("r_lock_owner", session.getLoginUserName());
         ChangesProcessor.process(object, data);
         assertTrue(object.isCheckedOutBy(null));
@@ -90,7 +90,7 @@ public class ChangesProcessorTest extends DfcTestSupport {
         IDfSession session = getSession();
         IDfSysObject object = (IDfSysObject) session.newObject("dm_document");
         object.save();
-        Map<String, Object> data = new HashMap<String, Object>();
+        Map<String, Object> data = new HashMap<>();
         data.put("r_lock_owner", session.getLoginUserName());
         ChangesProcessor.process(object, data);
         assertTrue(object.isCheckedOutBy(null));
@@ -117,7 +117,7 @@ public class ChangesProcessorTest extends DfcTestSupport {
         IDfSession session = getSession();
         IDfSysObject object = (IDfSysObject) session.newObject("dm_document");
         object.save();
-        Map<String, Object> data = new HashMap<String, Object>();
+        Map<String, Object> data = new HashMap<>();
         data.put("r_lock_owner", session.getLoginUserName());
         ChangesProcessor.process(object, data);
         assertTrue(object.isCheckedOutBy(null));
@@ -144,8 +144,8 @@ public class ChangesProcessorTest extends DfcTestSupport {
         IDfSession session = getSession();
         IDfSysObject object = (IDfSysObject) session.newObject("dm_document");
         object.save();
-        Map<String, Object> data = new HashMap<String, Object>();
-        List<String> authors = new ArrayList<String>();
+        Map<String, Object> data = new HashMap<>();
+        List<String> authors = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             authors.add(RandomStringUtils.randomAlphabetic(48));
         }
@@ -162,7 +162,7 @@ public class ChangesProcessorTest extends DfcTestSupport {
         IDfFolder temp = session.getFolderByPath("/Temp");
         IDfFolder folder1 = (IDfFolder) session.newObject("dm_folder");
         assertFalse(DfObjects.isLinkedToFolder(folder1, "/Temp"));
-        Map<String, Object> changes = new HashMap<String, Object>();
+        Map<String, Object> changes = new HashMap<>();
         String name1 = RandomStringUtils.randomAlphabetic(48);
         changes.put("object_name", name1);
         changes.put("i_folder_id", Arrays.asList(temp.getObjectId().getId()));
@@ -179,7 +179,7 @@ public class ChangesProcessorTest extends DfcTestSupport {
         IDfSession session = getSession();
         IDfSysObject object = (IDfSysObject) session.newObject("dm_document");
         Date date = new Date();
-        Map<String, Object> changes = new HashMap<String, Object>();
+        Map<String, Object> changes = new HashMap<>();
         changes.put("r_creation_date", date);
         changes.put("r_modify_date", date);
         ChangesProcessor.process(object, changes);
@@ -192,7 +192,7 @@ public class ChangesProcessorTest extends DfcTestSupport {
         IDfSession session = getSession();
         String userName = RandomStringUtils.randomAlphabetic(48);
         IDfUser object = (IDfUser) session.newObject("dm_user");
-        Map<String, Object> changes = new HashMap<String, Object>();
+        Map<String, Object> changes = new HashMap<>();
         changes.put("owner_def_permit", 0);
         changes.put("group_def_permit", 0);
         changes.put("world_def_permit", 0);
@@ -201,5 +201,4 @@ public class ChangesProcessorTest extends DfcTestSupport {
         ChangesProcessor.process(object, changes);
         object.save();
     }
-
 }

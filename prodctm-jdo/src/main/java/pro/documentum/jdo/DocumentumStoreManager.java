@@ -51,7 +51,7 @@ public class DocumentumStoreManager extends AbstractStoreManager {
         ConnectionFactory connectionFactory = connectionMgr
                 .lookupConnectionFactory(primaryConnectionFactoryName);
         ExecutionContext connectionContext = executionContext;
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put(DocumentumPersistenceManager.OPTION_LOGININFO,
                 DocumentumPersistenceManager.getLoginInfo(executionContext));
         Transaction transaction = null;
@@ -78,7 +78,7 @@ public class DocumentumStoreManager extends AbstractStoreManager {
 
     @Override
     public Collection<String> getSupportedOptions() {
-        Set<String> result = new HashSet<String>();
+        Set<String> result = new HashSet<>();
         result.add(StoreManager.OPTION_DATASTORE_ID);
         return result;
     }

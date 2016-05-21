@@ -1,10 +1,5 @@
 package pro.documentum.jdo.model;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +17,7 @@ import pro.documentum.model.DmSysobject;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
+@SuppressWarnings("unchecked")
 public class DmSysobjectTest extends JDOTestSupport {
 
     @Test
@@ -34,7 +30,7 @@ public class DmSysobjectTest extends JDOTestSupport {
         String objectId = object.getObjectId().getId();
         Query query = getPersistenceManager().newQuery(DmSysobject.class,
                 "objectName == :objectName && objectId == :objectId");
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("objectName", objectName);
         params.put("objectId", object.getObjectId().getId());
         List<DmSysobject> results = (List<DmSysobject>) query
@@ -64,5 +60,4 @@ public class DmSysobjectTest extends JDOTestSupport {
         assertFalse(object.isCheckedOut());
         assertEquals(objectName, object.getObjectName());
     }
-
 }

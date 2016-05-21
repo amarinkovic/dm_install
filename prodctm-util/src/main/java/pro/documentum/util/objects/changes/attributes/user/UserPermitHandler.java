@@ -15,7 +15,7 @@ public final class UserPermitHandler extends AbstractUserAttributeHandler {
     public static final Set<String> PERMIT_ATTRS;
 
     static {
-        PERMIT_ATTRS = new HashSet<String>();
+        PERMIT_ATTRS = new HashSet<>();
         PERMIT_ATTRS.add("owner_def_permit");
         PERMIT_ATTRS.add("group_def_permit");
         PERMIT_ATTRS.add("world_def_permit");

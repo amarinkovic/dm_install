@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>pro.documentum</groupId>
@@ -23,10 +23,11 @@
         <dfc.version>7.2</dfc.version>
         <aspectj.version>1.8.2</aspectj.version>
         <jdo-api.version>3.1</jdo-api.version>
-        <datanucleus-core.version>4.1.7</datanucleus-core.version>
+        <datanucleus-core.version>4.1.10</datanucleus-core.version>
         <datanucleus-api-jdo.version>4.1.1</datanucleus-api-jdo.version>
         <datanucleus-jdo-query.version>4.0.5</datanucleus-jdo-query.version>
         <lombok.version>1.16.8</lombok.version>
+        <datanucleus-maven-plugin.version>4.0.1</datanucleus-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -246,6 +247,9 @@
                     <configuration>
                         <source>${project.target}</source>
                         <target>${project.target}</target>
+                        <compilerArgument>-Xlint:all</compilerArgument>
+                        <showWarnings>true</showWarnings>
+                        <showDeprecation>true</showDeprecation>
                     </configuration>
                     <executions>
                         <execution>
@@ -289,11 +293,14 @@
                 </plugin>
 
                 <plugin>
-                    <groupId>com.googlecode.maven-java-formatter-plugin</groupId>
-                    <artifactId>maven-java-formatter-plugin</artifactId>
-                    <version>0.3.1</version>
+                    <groupId>net.revelc.code</groupId>
+                    <artifactId>formatter-maven-plugin</artifactId>
+                    <version>0.5.2</version>
                     <configuration>
                         <configFile>${project.basedir}/../prodctm-base/src/main/resources/format-java.xml</configFile>
+                        <compilerSource>${project.target}</compilerSource>
+                        <compilerCompliance>${project.target}</compilerCompliance>
+                        <compilerTargetPlatform>${project.target}</compilerTargetPlatform>
                         <excludes>
                             <exclude>**/generated/**/*.java</exclude>
                             <exclude>**/*.xml</exclude>
@@ -303,14 +310,7 @@
                             <exclude>**/*.css</exclude>
                         </excludes>
                     </configuration>
-                    <executions>
-                        <execution>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>format</goal>
-                            </goals>
-                        </execution>
-                    </executions>
+                    <executions />
                 </plugin>
 
                 <plugin>
@@ -406,6 +406,24 @@
                             <version>${aspectj.version}</version>
                         </dependency>
                     </dependencies>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.datanucleus</groupId>
+                    <artifactId>datanucleus-maven-plugin</artifactId>
+                    <version>${datanucleus-maven-plugin.version}</version>
+                    <configuration>
+                        <fork>false</fork>
+                        <verbose>true</verbose>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>process-classes</phase>
+                            <goals>
+                                <goal>enhance</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>

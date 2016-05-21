@@ -16,7 +16,7 @@ public final class SysObjectReadOnlyHandler extends
     public static final Set<String> READONLY_ATTRS;
 
     static {
-        READONLY_ATTRS = new HashSet<String>();
+        READONLY_ATTRS = new HashSet<>();
         READONLY_ATTRS.add("r_creation_date");
         READONLY_ATTRS.add("r_creator_name");
         READONLY_ATTRS.add("r_modify_date");

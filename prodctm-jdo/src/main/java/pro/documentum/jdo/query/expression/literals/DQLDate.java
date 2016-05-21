@@ -29,7 +29,7 @@ public class DQLDate extends DQLLiteral<Date> {
     public static final Set<String> SPECIAL_DATES;
 
     static {
-        SPECIAL_DATES = new HashSet<String>();
+        SPECIAL_DATES = new HashSet<>();
         SPECIAL_DATES.add("NOW");
         SPECIAL_DATES.add("TODAY");
         SPECIAL_DATES.add("YESTERDAY");

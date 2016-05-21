@@ -12,16 +12,18 @@ import org.datanucleus.metadata.PersistenceUnitMetaData;
 public class DocumentumPersistenceManagerFactory extends
         JDOPersistenceManagerFactory {
 
+    private static final long serialVersionUID = 1947522885236246186L;
+
     public DocumentumPersistenceManagerFactory() {
         super();
     }
 
     public DocumentumPersistenceManagerFactory(
-            final PersistenceUnitMetaData pumd, final Map overrideProps) {
+            final PersistenceUnitMetaData pumd, final Map<?, ?> overrideProps) {
         super(pumd, overrideProps);
     }
 
-    public DocumentumPersistenceManagerFactory(final Map props) {
+    public DocumentumPersistenceManagerFactory(final Map<?, ?> props) {
         super(props);
     }
 

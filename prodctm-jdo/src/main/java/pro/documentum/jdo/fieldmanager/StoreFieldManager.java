@@ -18,7 +18,7 @@ public class StoreFieldManager extends AbstractStoreFieldManager {
 
     private final Table _table;
 
-    private final Map<String, Object> _values = new HashMap<String, Object>();
+    private final Map<String, Object> _values = new HashMap<>();
 
     public StoreFieldManager(final ExecutionContext ec,
             final AbstractClassMetaData cmd, final boolean insert,
@@ -27,7 +27,7 @@ public class StoreFieldManager extends AbstractStoreFieldManager {
         _table = table;
     }
 
-    public StoreFieldManager(final ObjectProvider op, final boolean insert,
+    public StoreFieldManager(final ObjectProvider<?> op, final boolean insert,
             final Table table) {
         super(op, insert);
         _table = table;
@@ -38,8 +38,8 @@ public class StoreFieldManager extends AbstractStoreFieldManager {
     }
 
     protected MemberColumnMapping getColumnMapping(final int fieldNumber) {
-        return _table.getMemberColumnMappingForMember(cmd
-                .getMetaDataForManagedMemberAtAbsolutePosition(fieldNumber));
+        AbstractMemberMetaData mmd = getMemberMetadata(fieldNumber);
+        return _table.getMemberColumnMappingForMember(mmd);
     }
 
     protected AbstractMemberMetaData getMemberMetadata(final int fieldNumber) {

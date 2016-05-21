@@ -15,7 +15,7 @@ public class ContentReadOnlyHandler extends AbstractContentAttributeHandler {
     public static final Set<String> READONLY_ATTRS;
 
     static {
-        READONLY_ATTRS = new HashSet<String>();
+        READONLY_ATTRS = new HashSet<>();
         READONLY_ATTRS.add("data_ticket");
         READONLY_ATTRS.add("other_ticket");
         READONLY_ATTRS.add("content_size");

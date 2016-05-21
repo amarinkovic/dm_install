@@ -36,8 +36,8 @@ public final class DeleteFileTransactionObserver extends
                 file);
         // check the session is not null
         if (session instanceof ISession) {
-            ((ISession) session).getTransaction().getObservable().addObserver(
-                    observer);
+            ((ISession) session).getTransaction().getObservable()
+                    .addObserver(observer);
         }
         return observer;
     }
@@ -56,9 +56,7 @@ public final class DeleteFileTransactionObserver extends
 
     private void cleanup() {
         try {
-            Files
-                    .walkFileTree(Paths.get(_file.toURI()),
-                            new DirectoryCleaner());
+            Files.walkFileTree(Paths.get(_file.toURI()), new DirectoryCleaner());
         } catch (IOException ex) {
             Logger.error(ex);
         }

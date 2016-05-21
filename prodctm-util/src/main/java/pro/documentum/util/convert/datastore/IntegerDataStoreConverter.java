@@ -1,4 +1,4 @@
-package pro.documentum.util.convert.impl;
+package pro.documentum.util.convert.datastore;
 
 import java.text.ParseException;
 import java.util.HashMap;
@@ -14,11 +14,13 @@ import pro.documentum.util.convert.IConverter;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class IntegerConverter extends AbstractConverter<Object, Integer> {
+public class IntegerDataStoreConverter<F> extends
+        AbstractDataStoreConverter<F, Integer> {
 
-    private static final Map<Class, IConverter<?, Integer>> CONVERTERS = new HashMap<Class, IConverter<?, Integer>>();
+    private static final Map<Class<?>, IConverter<?, Integer>> CONVERTERS;
 
     static {
+        CONVERTERS = new HashMap<>();
         CONVERTERS.put(String.class, new StringToInteger());
         CONVERTERS.put(IDfValue.class, new IDfValueToInteger());
         CONVERTERS.put(DfValue.class, CONVERTERS.get(IDfValue.class));
@@ -26,31 +28,28 @@ public class IntegerConverter extends AbstractConverter<Object, Integer> {
         CONVERTERS.put(int.class, CONVERTERS.get(Integer.class));
     }
 
-    public IntegerConverter() {
+    public IntegerDataStoreConverter() {
         super();
     }
 
-    public static Integer defaultValue() {
-        return 0;
+    @Override
+    public int getDataStoreType() {
+        return IDfValue.DF_INTEGER;
     }
 
     @Override
-    protected Map<Class, IConverter<?, Integer>> getConverters() {
+    protected Map<Class<?>, IConverter<?, Integer>> getConverters() {
         return CONVERTERS;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Integer convert(final Object value) throws ParseException {
-        if (value == null) {
-            return defaultValue();
-        }
-        IConverter converter = getConverter(value);
+    protected Integer doConvert(final F value) throws ParseException {
+        IConverter<F, Integer> converter = getConverter(value);
         if (converter == null) {
             throw new ParseException("Unable to convert " + value
                     + " to integer", 0);
         }
-        return (Integer) converter.convert(value);
+        return converter.convert(value);
     }
 
     static class IntegerToInteger implements IConverter<Integer, Integer> {
@@ -83,6 +82,10 @@ public class IntegerConverter extends AbstractConverter<Object, Integer> {
 
         StringToInteger() {
             super();
+        }
+
+        static Integer defaultValue() {
+            return 0;
         }
 
         @Override

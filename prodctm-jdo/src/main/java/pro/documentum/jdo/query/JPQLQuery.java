@@ -11,6 +11,8 @@ import org.datanucleus.store.query.AbstractJPQLQuery;
  */
 public class JPQLQuery extends AbstractJPQLQuery {
 
+    private static final long serialVersionUID = 8844314390625762269L;
+
     public JPQLQuery(final StoreManager storeMgr, final ExecutionContext ec) {
         super(storeMgr, ec);
     }
@@ -26,6 +28,7 @@ public class JPQLQuery extends AbstractJPQLQuery {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     protected Object performExecute(final Map map) {
         return null;
     }

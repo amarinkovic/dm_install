@@ -36,6 +36,18 @@ import pro.documentum.jdo.util.DNQueries;
  */
 public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
 
+    private final Deque<DQLExpression> _exprs = new ArrayDeque<>();
+
+    private final Query<?> _query;
+
+    private final ExecutionContext _executionContext;
+
+    private final AbstractClassMetaData _classMetaData;
+
+    private final QueryCompilation _queryCompilation;
+
+    private final Map<?, ?> _params;
+
     private String _filterText;
 
     private String _orderText;
@@ -52,23 +64,11 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
 
     private CompilationComponent _compilationComponent;
 
-    private final Deque<DQLExpression> _exprs = new ArrayDeque<DQLExpression>();
-
-    private final Query _query;
-
-    private final ExecutionContext _executionContext;
-
-    private final AbstractClassMetaData _classMetaData;
-
-    private final QueryCompilation _queryCompilation;
-
-    private final Map _params;
-
     private int _positionalParamNumber = -1;
 
     public AbstractDQLEvaluator(final QueryCompilation compilation,
-            final Map params, final AbstractClassMetaData classMetaData,
-            final ExecutionContext executionContext, final Query query) {
+            final Map<?, ?> params, final AbstractClassMetaData classMetaData,
+            final ExecutionContext executionContext, final Query<?> query) {
         _queryCompilation = compilation;
         _params = params;
         _executionContext = executionContext;
@@ -238,7 +238,7 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
                 .getTable();
         AbstractMemberMetaData embMmd = null;
 
-        List<AbstractMemberMetaData> embMmds = new ArrayList<AbstractMemberMetaData>();
+        List<AbstractMemberMetaData> embMmds = new ArrayList<>();
         boolean firstTuple = true;
         Iterator<String> iter = tuples.iterator();
         ClassLoaderResolver clr = getClassLoaderResolver();
@@ -260,8 +260,9 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
                 }
                 if (embMmd != null) {
                     embMmds.add(mmd);
-                    return table.getMemberColumnMappingForEmbeddedMember(
-                            embMmds).getColumn(0).getName();
+                    return table
+                            .getMemberColumnMappingForEmbeddedMember(embMmds)
+                            .getColumn(0).getName();
                 }
                 return table.getMemberColumnMappingForMember(mmd).getColumn(0)
                         .getName();
@@ -335,60 +336,60 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
         return dqlExpression;
     }
 
-    protected void setFilterText(final String filterText) {
-        _filterText = filterText;
+    protected String getOrderText() {
+        return _orderText;
     }
 
     protected void setOrderText(final String orderText) {
         _orderText = orderText;
     }
 
-    protected void setResultText(final String resultText) {
-        _resultText = resultText;
-    }
-
-    protected void setFilterComplete(final boolean filterComplete) {
-        _filterComplete = filterComplete;
-    }
-
-    protected void setResultComplete(final boolean resultComplete) {
-        _resultComplete = resultComplete;
-    }
-
-    protected void setOrderComplete(final boolean orderComplete) {
-        _orderComplete = orderComplete;
-    }
-
-    protected void setPrecompilable(final boolean precompilable) {
-        _precompilable = precompilable;
-    }
-
-    protected String getOrderText() {
-        return _orderText;
-    }
-
     protected String getFilterText() {
         return _filterText;
+    }
+
+    protected void setFilterText(final String filterText) {
+        _filterText = filterText;
     }
 
     protected String getResultText() {
         return _resultText;
     }
 
+    protected void setResultText(final String resultText) {
+        _resultText = resultText;
+    }
+
     protected boolean isOrderComplete() {
         return _orderComplete;
+    }
+
+    protected void setOrderComplete(final boolean orderComplete) {
+        _orderComplete = orderComplete;
     }
 
     protected boolean isResultComplete() {
         return _resultComplete;
     }
 
+    protected void setResultComplete(final boolean resultComplete) {
+        _resultComplete = resultComplete;
+    }
+
     protected boolean isFilterComplete() {
         return _filterComplete;
     }
 
+    protected void setFilterComplete(final boolean filterComplete) {
+        _filterComplete = filterComplete;
+    }
+
     protected boolean isPrecompilable() {
         return _precompilable;
+    }
+
+    protected void setPrecompilable(final boolean precompilable) {
+        _precompilable = precompilable;
     }
 
     protected CompilationComponent getCompilcationComponent() {

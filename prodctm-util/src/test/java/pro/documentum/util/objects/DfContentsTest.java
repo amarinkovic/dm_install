@@ -50,8 +50,8 @@ public class DfContentsTest extends DfcTestSupport {
         assertTrue(object.isDirty());
         object.save();
         assertEquals(bytes.length, object.getContentSize());
-        ByteArrayInputStream obais = object.getContentEx2(content
-                .getFullFormat(), 0, null);
+        ByteArrayInputStream obais = object.getContentEx2(
+                content.getFullFormat(), 0, null);
         ByteArrayOutputStream obaos = new ByteArrayOutputStream();
         IOUtils.copy(obais, obaos);
         assertArrayEquals(bytes, obaos.toByteArray());

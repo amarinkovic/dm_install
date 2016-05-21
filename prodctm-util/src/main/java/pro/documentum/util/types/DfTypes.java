@@ -18,12 +18,11 @@ import com.documentum.fc.common.IDfAttr;
 public final class DfTypes {
 
     public static final String I_POSITION;
+    public static final List<String> SPECIAL_ATTRS = new ArrayList<>();
 
     static {
         I_POSITION = "i_position";
     }
-
-    public static final List<String> SPECIAL_ATTRS = new ArrayList<String>();
 
     static {
         SPECIAL_ATTRS.add(DfDocbaseConstants.R_OBJECT_ID);
@@ -43,8 +42,7 @@ public final class DfTypes {
     public static List<String> getAttributes(final IDfType type)
         throws DfException {
         final int attrCount = type.getTypeAttrCount();
-        List<String> result = new ArrayList<String>(attrCount
-                + SPECIAL_ATTRS.size());
+        List<String> result = new ArrayList<>(attrCount + SPECIAL_ATTRS.size());
         result.addAll(SPECIAL_ATTRS);
         boolean hasRepeating = false;
         for (int i = 0; i < attrCount; i++) {

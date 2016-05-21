@@ -19,7 +19,7 @@ public class ParentIdHandler extends AbstractContentAttributeHandler {
     public static final Set<String> PARENT_ATTRS;
 
     static {
-        PARENT_ATTRS = new HashSet<String>();
+        PARENT_ATTRS = new HashSet<>();
         PARENT_ATTRS.add("parent_id");
         PARENT_ATTRS.add("page");
         PARENT_ATTRS.add("page_modifier");

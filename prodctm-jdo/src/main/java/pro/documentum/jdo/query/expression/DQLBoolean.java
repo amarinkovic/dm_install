@@ -75,7 +75,7 @@ public class DQLBoolean extends DQLExpression {
             }
             builder.append(fieldExpression.getText());
         } else if (expression instanceof DQLLiteral) {
-            DQLLiteral literal = (DQLLiteral) expression;
+            DQLLiteral<?> literal = (DQLLiteral<?>) expression;
             builder.append(literal.getText());
         } else {
             return null;

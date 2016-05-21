@@ -15,7 +15,7 @@ public class ContentHandler extends AbstractSysObjectAttributeHandler {
     public static final Set<String> PRIMARY_CONTENT_ATTRS;
 
     static {
-        PRIMARY_CONTENT_ATTRS = new HashSet<String>();
+        PRIMARY_CONTENT_ATTRS = new HashSet<>();
         PRIMARY_CONTENT_ATTRS.add("i_contents_id");
         PRIMARY_CONTENT_ATTRS.add("r_content_size");
         PRIMARY_CONTENT_ATTRS.add("r_full_content_size");

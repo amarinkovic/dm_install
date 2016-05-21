@@ -1,4 +1,4 @@
-package pro.documentum.util.convert.impl;
+package pro.documentum.util.convert.datastore;
 
 import java.text.ParseException;
 import java.text.ParsePosition;
@@ -28,11 +28,14 @@ import pro.documentum.util.logger.Logger;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class IDfTimeConverter extends AbstractConverter<Object, IDfTime> {
+public class IDfTimeDataStoreConverter<F> extends
+        AbstractDataStoreConverter<F, IDfTime> {
 
     private static final Locale LOCALE;
 
     private static final TimeZone TIME_ZONE;
+    private static final Map<Class<?>, IConverter<?, IDfTime>> CONVERTERS;
+    private static List<SimpleDateFormat> simpleDateFormats;
 
     static {
         DfPreferences preferences = DfPreferences.getInstance();
@@ -40,9 +43,8 @@ public class IDfTimeConverter extends AbstractConverter<Object, IDfTime> {
         TIME_ZONE = TimeZone.getTimeZone(preferences.getTimeZone());
     }
 
-    private static final Map<Class, IConverter<?, IDfTime>> CONVERTERS = new HashMap<Class, IConverter<?, IDfTime>>();
-
     static {
+        CONVERTERS = new HashMap<>();
         CONVERTERS.put(String.class, new StringToIDfTime());
         CONVERTERS.put(IDfValue.class, new IDfValueToIDfTime());
         CONVERTERS.put(DfValue.class, CONVERTERS.get(IDfValue.class));
@@ -55,33 +57,8 @@ public class IDfTimeConverter extends AbstractConverter<Object, IDfTime> {
         CONVERTERS.put(GregorianCalendar.class, CONVERTERS.get(Calendar.class));
     }
 
-    private static List<SimpleDateFormat> simpleDateFormats;
-
-    public IDfTimeConverter() {
+    public IDfTimeDataStoreConverter() {
         super();
-    }
-
-    public static IDfTime defaultValue() {
-        return DfTime.DF_NULLDATE;
-    }
-
-    @Override
-    protected Map<Class, IConverter<?, IDfTime>> getConverters() {
-        return CONVERTERS;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public IDfTime convert(final Object value) throws ParseException {
-        if (value == null) {
-            return defaultValue();
-        }
-        IConverter converter = getConverter(value);
-        if (converter == null) {
-            throw new ParseException("Unable to convert " + value
-                    + " to IDfTime", 0);
-        }
-        return (IDfTime) converter.convert(value);
     }
 
     private static SimpleDateFormat newSimpleDateFormat(final String pattern,
@@ -170,7 +147,7 @@ public class IDfTimeConverter extends AbstractConverter<Object, IDfTime> {
         if (simpleDateFormats != null) {
             return simpleDateFormats;
         }
-        simpleDateFormats = new ArrayList<SimpleDateFormat>();
+        simpleDateFormats = new ArrayList<>();
 
         final String pattern = DfPreferences.getInstance().getDateFormat();
         final String patternWithoutTime = DateFormatUtil.removeTime(pattern);
@@ -206,6 +183,26 @@ public class IDfTimeConverter extends AbstractConverter<Object, IDfTime> {
         simpleDateFormats.add(newSimpleDateFormat("MMM dd HH:mm:ss yyyy",
                 Locale.US));
         return simpleDateFormats;
+    }
+
+    @Override
+    public int getDataStoreType() {
+        return IDfValue.DF_TIME;
+    }
+
+    @Override
+    protected Map<Class<?>, IConverter<?, IDfTime>> getConverters() {
+        return CONVERTERS;
+    }
+
+    @Override
+    protected IDfTime doConvert(final F value) throws ParseException {
+        IConverter<F, IDfTime> converter = getConverter(value);
+        if (converter == null) {
+            throw new ParseException("Unable to convert " + value
+                    + " to IDfTime", 0);
+        }
+        return converter.convert(value);
     }
 
     static class IDfValueToIDfTime implements IConverter<IDfValue, IDfTime> {

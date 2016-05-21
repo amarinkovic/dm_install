@@ -17,7 +17,7 @@ public final class DfConstants {
         private static final Set<String> NONSUBTYPABLE;
 
         static {
-            NONSUBTYPABLE = new HashSet<String>();
+            NONSUBTYPABLE = new HashSet<>();
         }
 
         private Types() {

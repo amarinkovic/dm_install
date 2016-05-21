@@ -1,4 +1,4 @@
-package pro.documentum.util.convert.impl;
+package pro.documentum.util.convert.datastore;
 
 import java.text.ParseException;
 import java.util.HashMap;
@@ -14,11 +14,13 @@ import pro.documentum.util.convert.IConverter;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class IDfIdConverter extends AbstractConverter<Object, IDfId> {
+public class IDfIdDataStoreConverter<F> extends
+        AbstractDataStoreConverter<F, IDfId> {
 
-    private static final Map<Class, IConverter<?, IDfId>> CONVERTERS = new HashMap<Class, IConverter<?, IDfId>>();
+    private static final Map<Class<?>, IConverter<?, IDfId>> CONVERTERS;
 
     static {
+        CONVERTERS = new HashMap<>();
         CONVERTERS.put(String.class, new StringToIDfId());
         CONVERTERS.put(IDfValue.class, new IDfValueToIDfId());
         CONVERTERS.put(DfValue.class, CONVERTERS.get(IDfValue.class));
@@ -26,31 +28,29 @@ public class IDfIdConverter extends AbstractConverter<Object, IDfId> {
         CONVERTERS.put(DfId.class, CONVERTERS.get(IDfId.class));
     }
 
-    public IDfIdConverter() {
+    public IDfIdDataStoreConverter() {
         super();
     }
 
-    public static IDfId defaultValue() {
-        return DfId.DF_NULLID;
+    @Override
+    public int getDataStoreType() {
+        return IDfValue.DF_ID;
     }
 
     @Override
-    protected Map<Class, IConverter<?, IDfId>> getConverters() {
+    protected Map<Class<?>, IConverter<?, IDfId>> getConverters() {
         return CONVERTERS;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public IDfId convert(final Object value) throws ParseException {
-        if (value == null) {
-            return defaultValue();
-        }
-        IConverter converter = getConverter(value);
+    protected IDfId doConvert(final F value) throws ParseException {
+        IConverter<F, IDfId> converter = getConverter(value);
         if (converter == null) {
             throw new ParseException(
                     "Unable to convert " + value + " to IDfId", 0);
         }
-        return (IDfId) converter.convert(value);
+        return converter.convert(value);
     }
 
     static class StringToIDfId implements IConverter<String, IDfId> {

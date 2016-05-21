@@ -16,10 +16,11 @@ import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfId;
 
-import pro.documentum.aspects.DfTransactional;
+import pro.documentum.util.IDfSessionInvoker;
 import pro.documentum.util.ids.DfIdUtil;
 import pro.documentum.util.logger.Logger;
 import pro.documentum.util.objects.DfObjects;
+import pro.documentum.util.sessions.Sessions;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -34,13 +35,19 @@ public final class Nucleus {
             final Object id, final AbstractClassMetaData cmd,
             final StoreManager storeMgr) {
         try {
-            return doNewObject(session, id, cmd, storeMgr);
+            return Sessions.inTransaction(session,
+                    new IDfSessionInvoker<IDfPersistentObject>() {
+                        @Override
+                        public IDfPersistentObject invoke(
+                                final IDfSession session) throws DfException {
+                            return doNewObject(session, id, cmd, storeMgr);
+                        }
+                    });
         } catch (DfException ex) {
             throw DfExceptions.dataStoreException(ex);
         }
     }
 
-    @DfTransactional
     private static IDfPersistentObject doNewObject(final IDfSession session,
             final Object id, final AbstractClassMetaData cmd,
             final StoreManager storeMgr) throws DfException {
@@ -53,19 +60,26 @@ public final class Nucleus {
 
     public static void save(final IDfPersistentObject object) {
         try {
-            doSave(object);
+            Sessions.inTransaction(object.getSession(),
+                    new IDfSessionInvoker<Void>() {
+                        @Override
+                        public Void invoke(final IDfSession session)
+                            throws DfException {
+                            doSave(object);
+                            return null;
+                        }
+                    });
         } catch (DfException ex) {
             throw DfExceptions.dataStoreException(ex);
         }
     }
 
-    @DfTransactional
     private static void doSave(final IDfPersistentObject object)
         throws DfException {
         Logger.debug("Trying to save object {0}", object.getObjectId());
         if (!object.isDirty()) {
-            Logger.debug("Object {0} is not dirty, skipping", object
-                    .getObjectId());
+            Logger.debug("Object {0} is not dirty, skipping",
+                    object.getObjectId());
             return;
         }
         if (object instanceof IDfSysObject) {
@@ -111,9 +125,9 @@ public final class Nucleus {
         }
     }
 
-    public static Object newArray(final Class arrayType,
+    public static Object newArray(final Class<?> arrayType,
             final Collection<?> values) {
-        Class componentClass = arrayType;
+        Class<?> componentClass = arrayType;
         if (componentClass.isArray()) {
             componentClass = arrayType.getComponentType();
         }

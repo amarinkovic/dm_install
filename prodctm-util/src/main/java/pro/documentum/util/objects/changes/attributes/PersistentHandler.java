@@ -26,7 +26,7 @@ public class PersistentHandler implements
     public static final Set<String> IGNORE_ATTRIBUTES;
 
     static {
-        IGNORE_ATTRIBUTES = new HashSet<String>();
+        IGNORE_ATTRIBUTES = new HashSet<>();
         IGNORE_ATTRIBUTES.addAll(VersionHandler.VERSION_ATTRIBUTES);
     }
 
@@ -35,14 +35,14 @@ public class PersistentHandler implements
     }
 
     @Override
-    public List<Class<? extends IAttributeHandler>> getDependencies() {
+    public List<Class<? extends IAttributeHandler<?>>> getDependencies() {
         return Collections.emptyList();
     }
 
     @Override
     public boolean apply(final IDfPersistentObject object,
             final Map<String, ?> values) throws DfException {
-        List<String> toRemove = new ArrayList<String>();
+        List<String> toRemove = new ArrayList<>();
         for (String attrName : values.keySet()) {
             if (ignore(attrName)) {
                 continue;

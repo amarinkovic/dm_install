@@ -29,7 +29,7 @@ public class DfIdGenerator extends AbstractDatastoreGenerator<String> {
         String typeName = table.getName();
         try {
             ManagedConnection conn = connectionProvider.retrieveConnection();
-            return new ValueGenerationBlock<String>(DfObjects.makeIds(
+            return new ValueGenerationBlock<>(DfObjects.makeIds(
                     (IDfSession) conn.getConnection(), typeName, (int) size));
         } catch (DfException ex) {
             throw new NucleusDataStoreException(ex.getMessage(), ex);

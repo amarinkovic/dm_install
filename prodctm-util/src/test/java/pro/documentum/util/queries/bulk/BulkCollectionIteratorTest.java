@@ -27,8 +27,8 @@ public class BulkCollectionIteratorTest extends DfcTestSupport {
         object.save();
         List<String> ids = Collections.singletonList(object.getObjectId()
                 .getId());
-        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<IDfSysObject>(
-                session, "dm_document", ids);
+        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<>(session,
+                "dm_document", ids);
         assertTrue(iterator.hasNext());
         assertEquals(object, iterator.next());
         assertFalse(iterator.hasNext());
@@ -42,8 +42,8 @@ public class BulkCollectionIteratorTest extends DfcTestSupport {
         session.flushObject(object.getObjectId());
         List<String> ids = Collections.singletonList(object.getObjectId()
                 .getId());
-        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<IDfSysObject>(
-                session, "dm_document", ids);
+        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<>(session,
+                "dm_document", ids);
         assertTrue(iterator.hasNext());
         assertNotEquals(object, iterator.next());
         assertFalse(iterator.hasNext());
@@ -57,8 +57,8 @@ public class BulkCollectionIteratorTest extends DfcTestSupport {
         session.flushObject(object.getObjectId());
         List<String> ids = Collections.singletonList(object.getObjectId()
                 .getId());
-        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<IDfSysObject>(
-                session, "dm_document", ids);
+        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<>(session,
+                "dm_document", ids);
         object = (IDfSysObject) session.getObject(object.getObjectId());
         object.setObjectName("test");
         assertTrue(iterator.hasNext());
@@ -73,15 +73,15 @@ public class BulkCollectionIteratorTest extends DfcTestSupport {
         object.save();
         List<String> ids = Collections.singletonList(object.getObjectId()
                 .getId());
-        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<IDfSysObject>(
-                session, "dm_document", ids);
+        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<>(session,
+                "dm_document", ids);
         object.destroy();
         assertFalse(iterator.hasNext());
     }
 
     @Test
     public void testSingleSysObjectRepeatings() throws Exception {
-        List<String> authors = new ArrayList<String>();
+        List<String> authors = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             authors.add(RandomStringUtils.randomAlphabetic(48));
         }
@@ -94,14 +94,14 @@ public class BulkCollectionIteratorTest extends DfcTestSupport {
         session.flushObject(object.getObjectId());
         List<String> ids = Collections.singletonList(object.getObjectId()
                 .getId());
-        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<IDfSysObject>(
-                session, "dm_document", ids);
+        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<>(session,
+                "dm_document", ids);
         assertTrue(iterator.hasNext());
         object = iterator.next();
         assertEquals(authors.size(), object.getValueCount("authors"));
         for (int i = 0, n = object.getValueCount("authors"); i < n; i++) {
-            assertEquals(authors.get(i), object
-                    .getRepeatingString("authors", i));
+            assertEquals(authors.get(i),
+                    object.getRepeatingString("authors", i));
         }
         assertFalse(iterator.hasNext());
     }
@@ -115,8 +115,8 @@ public class BulkCollectionIteratorTest extends DfcTestSupport {
                 0, false, null, null);
         IDfQueueItem queueItem = (IDfQueueItem) session.getObject(queueItemId);
         List<String> ids = Collections.singletonList(queueItemId.getId());
-        Iterator<IDfQueueItem> iterator = new BulkCollectionIterator<IDfQueueItem>(
-                session, "dmi_queue_item", ids);
+        Iterator<IDfQueueItem> iterator = new BulkCollectionIterator<>(session,
+                "dmi_queue_item", ids);
         assertTrue(iterator.hasNext());
         assertEquals(queueItem, iterator.next());
         assertFalse(iterator.hasNext());
@@ -125,20 +125,19 @@ public class BulkCollectionIteratorTest extends DfcTestSupport {
     @Test
     public void testMultipleSysObjects() throws Exception {
         IDfSession session = getSession();
-        List<String> ids = new ArrayList<String>();
+        List<String> ids = new ArrayList<>();
         for (int i = 0; i < 500; i++) {
             IDfSysObject object = (IDfSysObject) session
                     .newObject("dm_document");
             object.save();
             ids.add(object.getObjectId().getId());
         }
-        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<IDfSysObject>(
-                session, "dm_document", ids);
+        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<>(session,
+                "dm_document", ids);
         for (int i = 0; i < 500; i++) {
             assertTrue(iterator.hasNext());
             assertTrue(ids.remove(iterator.next().getObjectId().getId()));
         }
         assertTrue(ids.isEmpty());
     }
-
 }

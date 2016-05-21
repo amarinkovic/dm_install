@@ -37,13 +37,10 @@ import pro.documentum.util.sessions.Sessions;
  */
 public final class ChangesProcessor {
 
-    private static final Map<Class<? extends IAttributeHandler>, IAttributeHandler> REGISTRY;
+    private static final Map<Class<? extends IAttributeHandler<?>>, IAttributeHandler<?>> REGISTRY;
 
     static {
-        REGISTRY = new HashMap<Class<? extends IAttributeHandler>, IAttributeHandler>();
-    }
-
-    static {
+        REGISTRY = new HashMap<>();
         // aspects
         addAttributeHandler(AspectNameHandler.class);
         // workitems
@@ -58,7 +55,6 @@ public final class ChangesProcessor {
         addAttributeHandler(PolicyHandler.class);
         // users
         addAttributeHandler(UserPermitHandler.class);
-        addAttributeHandler(PersistentHandler.class);
         // content
         addAttributeHandler(ParentIdHandler.class);
         // read-only
@@ -66,31 +62,34 @@ public final class ChangesProcessor {
         addAttributeHandler(UserReadOnlyHandler.class);
         addAttributeHandler(SysObjectReadOnlyHandler.class);
         addAttributeHandler(ContentReadOnlyHandler.class);
+        // wildcard
+        addAttributeHandler(PersistentHandler.class);
     }
 
     private ChangesProcessor() {
         super();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     public static void process(final IDfPersistentObject object,
             final Map<String, ?> values) throws DfException {
-        Map<String, Object> data = prepare(object, values);
-        Queue<IAttributeHandler> handlers = getHandlers(object, data);
+        Map<String, ?> data = prepare(object, values);
+        Queue<IAttributeHandler<?>> handlers = getHandlers(object, data);
         if (handlers == null) {
             Logger.debug("Nothing to do for object ", object.getObjectId());
             return;
         }
-        Logger.debug("Using following handlers for object {0}: {1}", object
-                .getObjectId(), handlers);
+        Logger.debug("Using following handlers for object {0}: {1}",
+                object.getObjectId(), handlers);
         Sessions.inTransaction(object.getObjectSession(),
                 new TransactionalChanges(object, data, handlers));
     }
 
-    private static Queue<IAttributeHandler> getHandlers(
-            final IDfPersistentObject object, final Map<String, Object> data)
+    private static Queue<IAttributeHandler<?>> getHandlers(
+            final IDfPersistentObject object, final Map<String, ?> data)
         throws DfException {
-        Queue<IAttributeHandler> handlers = new ArrayDeque<IAttributeHandler>();
-        for (IAttributeHandler handler : REGISTRY.values()) {
+        Queue<IAttributeHandler<?>> handlers = new ArrayDeque<>();
+        for (IAttributeHandler<?> handler : REGISTRY.values()) {
             if (!handler.accept(object, data.keySet())) {
                 continue;
             }
@@ -106,14 +105,14 @@ public final class ChangesProcessor {
         throws DfException {
         try {
             Converter converter = Converter.getInstance();
-            Map<String, Object> result = new HashMap<String, Object>();
+            Map<String, Object> result = new HashMap<>();
             for (String attrName : values.keySet()) {
                 if (!object.hasAttr(attrName)) {
                     continue;
                 }
                 int dataType = object.getAttrDataType(attrName);
-                Object value = converter
-                        .convert(values.get(attrName), dataType);
+                Object value = converter.toDataStore(values.get(attrName),
+                        dataType);
                 result.put(attrName, value);
             }
             return result;
@@ -122,17 +121,18 @@ public final class ChangesProcessor {
         }
     }
 
-    private static Queue<IAttributeHandler> buildDependencies(
+    private static Queue<IAttributeHandler<?>> buildDependencies(
             final IAttributeHandler<?> handler,
-            final Queue<IAttributeHandler> handlers) {
-        Queue<IAttributeHandler> dependencies = handlers;
+            final Queue<IAttributeHandler<?>> handlers) {
+        Queue<IAttributeHandler<?>> dependencies = handlers;
         if (dependencies == null) {
-            dependencies = new ArrayDeque<IAttributeHandler>();
+            dependencies = new ArrayDeque<>();
         }
         if (dependencies.contains(handler)) {
             return dependencies;
         }
-        for (Class<? extends IAttributeHandler> cls : handler.getDependencies()) {
+        for (Class<? extends IAttributeHandler<?>> cls : handler
+                .getDependencies()) {
             if (cls == handler.getClass()) {
                 continue;
             }
@@ -145,13 +145,13 @@ public final class ChangesProcessor {
         return dependencies;
     }
 
-    private static IAttributeHandler getAttributeHandler(
-            final Class<? extends IAttributeHandler> cls) {
+    private static IAttributeHandler<?> getAttributeHandler(
+            final Class<? extends IAttributeHandler<?>> cls) {
         return REGISTRY.get(cls);
     }
 
     private static void addAttributeHandler(
-            final Class<? extends IAttributeHandler> cls) {
+            final Class<? extends IAttributeHandler<?>> cls) {
         if (REGISTRY.containsKey(cls)) {
             return;
         }
@@ -159,7 +159,7 @@ public final class ChangesProcessor {
         try {
             IAttributeHandler<?> handler = cls.newInstance();
             REGISTRY.put(cls, handler);
-            for (Class<? extends IAttributeHandler> req : handler
+            for (Class<? extends IAttributeHandler<?>> req : handler
                     .getDependencies()) {
                 addAttributeHandler(req);
             }
@@ -170,17 +170,17 @@ public final class ChangesProcessor {
         }
     }
 
-    static class TransactionalChanges implements IDfSessionInvoker<Void> {
+    static class TransactionalChanges<T extends IDfPersistentObject> implements
+            IDfSessionInvoker<Void> {
 
-        private final IDfPersistentObject _object;
+        private final T _object;
 
         private final Map<String, ?> _data;
 
-        private final Queue<IAttributeHandler> _handlers;
+        private final Queue<IAttributeHandler<T>> _handlers;
 
-        TransactionalChanges(final IDfPersistentObject object,
-                final Map<String, ?> data,
-                final Queue<IAttributeHandler> handlers) {
+        TransactionalChanges(final T object, final Map<String, ?> data,
+                final Queue<IAttributeHandler<T>> handlers) {
             _object = object;
             _data = data;
             _handlers = handlers;
@@ -190,13 +190,11 @@ public final class ChangesProcessor {
         @SuppressWarnings("unchecked")
         public Void invoke(final IDfSession session) throws DfException {
             while (!_handlers.isEmpty()) {
-                IAttributeHandler handler = _handlers.remove();
+                IAttributeHandler<T> handler = _handlers.remove();
                 if (handler.apply(_object, _data)) {
                     _handlers.offer(handler);
                 }
             }
-            IAttributeHandler handler = getAttributeHandler(PersistentHandler.class);
-            handler.apply(_object, _data);
             return null;
         }
 

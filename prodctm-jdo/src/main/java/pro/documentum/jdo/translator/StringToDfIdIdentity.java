@@ -11,6 +11,8 @@ import pro.documentum.util.ids.DfIdUtil;
  */
 public final class StringToDfIdIdentity implements IdentityStringTranslator {
 
+    private static final long serialVersionUID = -7554656133749293146L;
+
     public StringToDfIdIdentity() {
         super();
     }

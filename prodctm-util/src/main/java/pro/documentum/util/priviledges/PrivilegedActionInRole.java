@@ -28,8 +28,8 @@ public class PrivilegedActionInRole<T> implements PrivilegedAction<T> {
     public static <T, E extends Throwable> T privilegedRequest(
             final ISessionInvoker<T, Void, E> invoker,
             final List<String> groupNames) throws E {
-        return privilegedRequest(invoker, groupNames
-                .toArray(new String[groupNames.size()]));
+        return privilegedRequest(invoker,
+                groupNames.toArray(new String[groupNames.size()]));
     }
 
     public static <T, E extends Throwable> T privilegedRequest(

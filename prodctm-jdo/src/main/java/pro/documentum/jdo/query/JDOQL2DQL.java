@@ -36,9 +36,10 @@ import pro.documentum.jdo.query.expression.literals.nulls.DQLNull;
 public class JDOQL2DQL extends AbstractDQLEvaluator implements IDQLEvaluator {
 
     private static final List<IInvokeEvaluator> INVOKE_EVALUATORS;
+    private static final List<IVariableEvaluator> VARIABLE_EVALUATORS;
 
     static {
-        INVOKE_EVALUATORS = new ArrayList<IInvokeEvaluator>();
+        INVOKE_EVALUATORS = new ArrayList<>();
         INVOKE_EVALUATORS.add(DQLDate.getInvokeEvaluator());
         INVOKE_EVALUATORS.add(DQLAny.getInvokeEvaluator());
         INVOKE_EVALUATORS.add(DQLDateToString.getInvokeEvaluator());
@@ -46,19 +47,17 @@ public class JDOQL2DQL extends AbstractDQLEvaluator implements IDQLEvaluator {
         INVOKE_EVALUATORS.add(DQLLower.getInvokeEvaluator());
     }
 
-    private static final List<IVariableEvaluator> VARIABLE_EVALUATORS;
-
     static {
-        VARIABLE_EVALUATORS = new ArrayList<IVariableEvaluator>();
+        VARIABLE_EVALUATORS = new ArrayList<>();
         VARIABLE_EVALUATORS.add(DQLDate.getVariableEvaluator());
         VARIABLE_EVALUATORS.add(DQLString.getVariableEvaluator());
         VARIABLE_EVALUATORS.add(DQLNull.getVariableEvaluator());
         VARIABLE_EVALUATORS.add(DQLBool.getVariableEvaluator());
     }
 
-    public JDOQL2DQL(final QueryCompilation compilation, final Map params,
-            final AbstractClassMetaData cmd, final ExecutionContext ec,
-            final Query query) {
+    public JDOQL2DQL(final QueryCompilation compilation,
+            final Map<?, ?> params, final AbstractClassMetaData cmd,
+            final ExecutionContext ec, final Query<?> query) {
         super(compilation, params, cmd, ec, query);
     }
 
@@ -143,8 +142,8 @@ public class JDOQL2DQL extends AbstractDQLEvaluator implements IDQLEvaluator {
 
         DQLExpression aggrArgExpr = popExpression();
         if (DQLAggregate.isAggregateExpr(invokeExpr)) {
-            DQLExpression aggExpr = DQLAggregate.getInstance(invokeExpr
-                    .getOperation(), aggrArgExpr);
+            DQLExpression aggExpr = DQLAggregate.getInstance(
+                    invokeExpr.getOperation(), aggrArgExpr);
             // noinspection ConstantConditions
             builder.append(aggExpr.getText());
         } else {
@@ -291,7 +290,7 @@ public class JDOQL2DQL extends AbstractDQLEvaluator implements IDQLEvaluator {
     protected Object processParameterExpression(final ParameterExpression expr) {
         Object paramValue = getParameterValue(expr);
         // todo: do we need support collections?
-        DQLLiteral literal = DQLLiteral.getInstance(paramValue);
+        DQLLiteral<?> literal = DQLLiteral.getInstance(paramValue);
         if (literal != null) {
             setPrecompilable(false);
             return pushExpression(literal);
@@ -388,7 +387,7 @@ public class JDOQL2DQL extends AbstractDQLEvaluator implements IDQLEvaluator {
     @Override
     protected Object processLiteral(final Literal expr) {
         Object litValue = expr.getLiteral();
-        DQLLiteral literal = DQLLiteral.getInstance(litValue);
+        DQLLiteral<?> literal = DQLLiteral.getInstance(litValue);
         if (literal != null) {
             return pushExpression(literal);
         }

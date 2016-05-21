@@ -54,7 +54,7 @@ public final class Queries {
         }
         StringBuilder stringBuilder = new StringBuilder(values.size() * 16);
         stringBuilder.append("( ").append(attrName).append(" IN (");
-        Collection<String> resultValues = new HashSet<String>(values);
+        Collection<String> resultValues = new HashSet<>(values);
         int iterations = 0;
         for (Iterator<String> iter = resultValues.iterator(); iter.hasNext();) {
             if (quoted) {
@@ -66,8 +66,8 @@ public final class Queries {
             }
             if (iter.hasNext()) {
                 if (iterations > 0 && 0 == iterations % maxItems) {
-                    stringBuilder.append(") OR ").append(attrName).append(
-                            " IN (");
+                    stringBuilder.append(") OR ").append(attrName)
+                            .append(" IN (");
                 } else {
                     stringBuilder.append(", ");
                 }

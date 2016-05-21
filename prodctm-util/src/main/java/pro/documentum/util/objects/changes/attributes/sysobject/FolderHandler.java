@@ -19,7 +19,7 @@ public class FolderHandler extends AbstractSysObjectAttributeHandler {
     private static final Set<String> FOLDER_ATTRIBUTES;
 
     static {
-        FOLDER_ATTRIBUTES = new HashSet<String>();
+        FOLDER_ATTRIBUTES = new HashSet<>();
         FOLDER_ATTRIBUTES.add("i_folder_id");
         FOLDER_ATTRIBUTES.add("r_folder_path");
     }

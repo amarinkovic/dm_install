@@ -21,7 +21,7 @@ final class QueryIterator implements Iterator<String>, Closeable {
     QueryIterator(final IQueryBuilder<List<String>> queryBuilder,
             final Iterator<String> keys) {
         _queryBuilder = queryBuilder;
-        _iterator = new SubIterator<String>(keys, MAX_OBJECTS_IN_QUERY);
+        _iterator = new SubIterator<>(keys, MAX_OBJECTS_IN_QUERY);
     }
 
     @Override

@@ -39,7 +39,7 @@ import pro.documentum.util.types.DfTypes;
  */
 public final class DfObjects {
 
-    public static final List<String> MANDATORY_ATTRIBUTES = new ArrayList<String>();
+    public static final List<String> MANDATORY_ATTRIBUTES = new ArrayList<>();
 
     static {
         MANDATORY_ATTRIBUTES.add(DfDocbaseConstants.I_IS_REFERENCE);
@@ -197,8 +197,8 @@ public final class DfObjects {
             return true;
         }
         if (!current.getAttr(current.findAttrIndex(attrName)).isRepeating()) {
-            return !Objects.equals(current.getValue(attrName), unCached
-                    .getValue(attrName));
+            return !Objects.equals(current.getValue(attrName),
+                    unCached.getValue(attrName));
         }
         if (current.getValueCount(attrName) != unCached.getValueCount(attrName)) {
             return true;

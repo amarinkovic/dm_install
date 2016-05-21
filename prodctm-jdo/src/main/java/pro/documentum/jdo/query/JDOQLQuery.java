@@ -29,6 +29,8 @@ import pro.documentum.jdo.util.DNQueries;
  */
 public class JDOQLQuery extends AbstractJDOQLQuery {
 
+    private static final long serialVersionUID = 7280457567657230093L;
+
     private transient DQLQueryCompilation _datastoreCompilation;
 
     public JDOQLQuery(final StoreManager storeMgr, final ExecutionContext ec) {
@@ -84,6 +86,8 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
         return getBooleanExtensionProperty(EXTENSION_EVALUATE_IN_MEMORY, false);
     }
 
+    @Override
+    @SuppressWarnings("rawtypes")
     protected synchronized void compileInternal(final Map parameterValues) {
         if (isCompiled()) {
             return;
@@ -133,6 +137,8 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
         }
     }
 
+    @Override
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Object performExecute(final Map parameters) {
         ManagedConnection mconn = getStoreManager().getConnection(ec);
         try {
@@ -187,8 +193,8 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
 
                 // Evaluate result/filter/grouping/having/ordering in-memory
                 JavaQueryEvaluator resultMapper = new JDOQLEvaluator(this,
-                        results, compilation, parameters, ec
-                                .getClassLoaderResolver());
+                        results, compilation, parameters,
+                        ec.getClassLoaderResolver());
                 results = resultMapper.execute(filterInMemory, orderInMemory,
                         resultInMemory, true, rangeInMemory);
             }
@@ -205,11 +211,11 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
     }
 
     private Object addListeners(final ManagedConnection mconn,
-            final Collection results) {
-        if (!(results instanceof QueryResult)) {
+            final Collection<?> results) {
+        if (!(results instanceof QueryResult<?>)) {
             return results;
         }
-        QueryResult queryResult = (QueryResult) results;
+        QueryResult<?> queryResult = (QueryResult<?>) results;
         ManagedConnectionResourceListener listener = new QueryResultResourceListener(
                 queryResult, mconn);
         mconn.addListener(listener);
@@ -239,7 +245,7 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
         return _datastoreCompilation.isFilterComplete();
     }
 
-    private void compileQueryFull(final Map parameters,
+    private void compileQueryFull(final Map<?, ?> parameters,
             final AbstractClassMetaData candidateCmd) {
         JDOQL2DQL mapper = new JDOQL2DQL(compilation, parameters, candidateCmd,
                 ec, this);
@@ -255,6 +261,7 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     protected void checkParameterTypesAgainstCompilation(
             final Map parameterValues) {
         // todo perform checks
@@ -263,11 +270,11 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
     private class QueryResultResourceListener implements
             ManagedConnectionResourceListener {
 
-        private final QueryResult _queryResult;
+        private final QueryResult<?> _queryResult;
 
         private final ManagedConnection _mconn;
 
-        QueryResultResourceListener(final QueryResult queryResult,
+        QueryResultResourceListener(final QueryResult<?> queryResult,
                 final ManagedConnection mconn) {
             _queryResult = queryResult;
             _mconn = mconn;
@@ -278,6 +285,8 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
         }
 
         public void transactionPreClose() {
+            // todo: need to figure out whether
+            // we need to fetch all results or no
             _queryResult.disconnect();
         }
 

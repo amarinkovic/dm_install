@@ -13,9 +13,8 @@ import org.apache.commons.io.IOUtils;
  */
 final class SubIterator<T> implements Iterator<List<T>>, Closeable {
 
-    private Iterator<T> _iterator;
-
     private final int _limit;
+    private Iterator<T> _iterator;
 
     SubIterator(final Iterator<T> collection, final int limit) {
         _iterator = collection;
@@ -45,7 +44,7 @@ final class SubIterator<T> implements Iterator<List<T>>, Closeable {
 
     @Override
     public List<T> next() {
-        List<T> result = new ArrayList<T>();
+        List<T> result = new ArrayList<>();
         for (int i = 0; i < _limit && hasNext(); i++) {
             result.add(_iterator.next());
         }

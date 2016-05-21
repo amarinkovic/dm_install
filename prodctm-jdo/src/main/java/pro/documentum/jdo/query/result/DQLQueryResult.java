@@ -23,19 +23,22 @@ import org.datanucleus.util.WeakValueMap;
 
 import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfTypedObject;
+import com.documentum.fc.common.DfException;
 
 import pro.documentum.jdo.util.DNFind;
 
 public class DQLQueryResult<E> extends AbstractQueryResult<E> {
 
-    private final ExecutionContext _ec;
+    private static final long serialVersionUID = -8682935620558424082L;
 
-    private List<CandidateClassResult> _results = new ArrayList<CandidateClassResult>();
+    private final ExecutionContext _ec;
 
     private final Map<Integer, E> _itemsByIndex;
 
+    private List<CandidateClassResult> _results = new ArrayList<>();
+
     @SuppressWarnings("unchecked")
-    public DQLQueryResult(final Query query) {
+    public DQLQueryResult(final Query<?> query) {
         super(query);
         _ec = query.getExecutionContext();
 
@@ -54,7 +57,7 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
             _itemsByIndex = new WeakValueMap();
             break;
         case "strong":
-            _itemsByIndex = new HashMap<Integer, E>();
+            _itemsByIndex = new HashMap<>();
             break;
         case "none":
             _itemsByIndex = null;
@@ -65,7 +68,8 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
     }
 
     public void addCandidateResult(final AbstractClassMetaData cmd,
-            final IDfCollection cursor, final int[] fpMembers) {
+            final IDfCollection cursor, final int[] fpMembers)
+        throws DfException {
         _results.add(new CandidateClassResult(cmd, cursor, fpMembers));
     }
 
@@ -134,6 +138,7 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
 
         while (true) {
             E nextPojo = getNextObject();
+            // noinspection ConstantConditions
             if (_itemsByIndex.size() == (index + 1)) {
                 return nextPojo;
             }
@@ -182,9 +187,9 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
 
     private E getPojoForCandidate(final CandidateClassResult result,
             final IDfTypedObject dbObject) {
-        return DNFind.getPojoForDBObjectForCandidate(dbObject, _ec, result
-                .getClassMetaData(), result.getMembers(), query
-                .getIgnoreCache());
+        return DNFind.getPojoForDBObjectForCandidate(dbObject, _ec,
+                result.getClassMetaData(), result.getMembers(),
+                query.getIgnoreCache());
     }
 
     private void addObject(final E pojo) {
@@ -198,6 +203,7 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public boolean containsAll(final Collection c) {
         loadRemainingResults();
         for (Object o : c) {
@@ -224,7 +230,7 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
             return false;
         }
 
-        DQLQueryResult other = (DQLQueryResult) o;
+        DQLQueryResult<?> other = (DQLQueryResult) o;
         if (_results != null) {
             return other._results.equals(_results);
         } else if (query != null) {
@@ -241,7 +247,7 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
 
     protected List<E> writeReplace() throws ObjectStreamException {
         disconnect();
-        List<E> list = new ArrayList<E>();
+        List<E> list = new ArrayList<>();
         for (int i = 0; i < _itemsByIndex.size(); i++) {
             list.add(_itemsByIndex.get(i));
         }

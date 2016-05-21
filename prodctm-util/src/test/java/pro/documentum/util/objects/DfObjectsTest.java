@@ -24,7 +24,7 @@ public class DfObjectsTest extends DfcTestSupport {
         IDfSession session = getSession();
         String[] ids = DfObjects.makeIds(session, "dmi_queue_item", 100);
         assertEquals(100, ids.length);
-        assertEquals(100, new HashSet<String>(Arrays.asList(ids)).size());
+        assertEquals(100, new HashSet<>(Arrays.asList(ids)).size());
         for (String id : ids) {
             assertEquals(IDfId.DM_QUEUE_ITEM, DfId.valueOf(id).getTypePart());
             assertEquals(Long.valueOf(session.getDocbaseId()).longValue(), DfId

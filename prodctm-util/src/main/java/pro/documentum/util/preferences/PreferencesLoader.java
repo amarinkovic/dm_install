@@ -20,9 +20,10 @@ import pro.documentum.util.logger.Logger;
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
 public class PreferencesLoader {
-    private final Map _persistentProperties;
 
-    public PreferencesLoader(final Map persistentProperties) {
+    private final Map<String, ?> _persistentProperties;
+
+    public PreferencesLoader(final Map<String, ?> persistentProperties) {
         _persistentProperties = persistentProperties;
     }
 
@@ -38,7 +39,7 @@ public class PreferencesLoader {
         DfPreferences.getInstance().loadProperties(filtered, initial);
     }
 
-    private Properties filterKnownProperties(final Map properties) {
+    private Properties filterKnownProperties(final Map<String, ?> properties) {
         Properties filtered = new Properties();
         for (Field field : DfPreferences.class.getDeclaredFields()) {
             if (!field.isAnnotationPresent(Preference.class)) {
@@ -50,7 +51,7 @@ public class PreferencesLoader {
     }
 
     private void filterKnownProperties(final Field field,
-            final Properties output, final Map input) {
+            final Properties output, final Map<String, ?> input) {
         String preferenceName = null;
         try {
             Object preference = field.get(null);
@@ -90,11 +91,11 @@ public class PreferencesLoader {
 
     private void filterRepeatingProperty(final Field field,
             final String preferenceName, final Properties output,
-            final Map input) {
+            final Map<String, ?> input) {
         Object preferenceValue = input.get(preferenceName);
         String[] values;
         if (preferenceValue instanceof List) {
-            List preferences = (List) preferenceValue;
+            List<?> preferences = (List<?>) preferenceValue;
             if (preferences.isEmpty()) {
                 return;
             }
@@ -118,7 +119,7 @@ public class PreferencesLoader {
 
     private void filterSingleProperty(final Field field,
             final String preferenceName, final Properties output,
-            final Map input) {
+            final Map<String, ?> input) {
         Object preferenceValue = input.get(preferenceName);
         if (isCorrectValue(field, preferenceValue)) {
             output.put(preferenceName, preferenceValue);
@@ -127,7 +128,7 @@ public class PreferencesLoader {
 
     private String[] convertToStringArray(final Object object) {
         if (object instanceof List) {
-            List list = (List) object;
+            List<?> list = (List<?>) object;
             String[] result = new String[list.size()];
             for (int i = 0, n = result.length; i < n; i++) {
                 result[i] = convertToString(list.get(i));
@@ -167,6 +168,7 @@ public class PreferencesLoader {
                 return false;
             }
             try {
+                // noinspection ResultOfMethodCallIgnored
                 Integer.parseInt((String) preferenceValue);
                 return true;
             } catch (NumberFormatException ex) {
@@ -175,6 +177,7 @@ public class PreferencesLoader {
             return false;
         }
 
+        // noinspection SimplifiableIfStatement
         if (field.isAnnotationPresent(BooleanConstraint.class)) {
             return preferenceValue instanceof Boolean
                     || preferenceValue instanceof String;

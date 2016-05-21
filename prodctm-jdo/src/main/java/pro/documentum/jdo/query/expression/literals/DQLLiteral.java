@@ -17,11 +17,7 @@ public abstract class DQLLiteral<T> extends DQLExpression {
         _value = value;
     }
 
-    public T getValue() {
-        return _value;
-    }
-
-    public static DQLLiteral getInstance(final Object object) {
+    public static DQLLiteral<?> getInstance(final Object object) {
         if (object == null) {
             return new DQLNull();
         }
@@ -38,6 +34,10 @@ public abstract class DQLLiteral<T> extends DQLExpression {
             return new DQLBool((Boolean) object);
         }
         return null;
+    }
+
+    public T getValue() {
+        return _value;
     }
 
 }

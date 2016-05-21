@@ -24,7 +24,7 @@ public aspect PrivilegedActionAspect {
         if (roles == null || roles.length == 0) {
             roles = new String[]{PrivilegedRoles.DM_SUPERUSERS_DYNAMIC};
         }
-        Stack<DfRoleSpec> specs = new Stack<DfRoleSpec>();
+        Stack<DfRoleSpec> specs = new Stack<>();
         try {
             for (String role : roles) {
                 specs.push(PrivilegedActionInRole.startPrivilegedRequest(role));

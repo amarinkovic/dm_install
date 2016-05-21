@@ -1,8 +1,5 @@
 package pro.documentum.jdo.model;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +16,7 @@ import pro.documentum.model.DmUser;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
+@SuppressWarnings("unchecked")
 public class DmUserTest extends JDOTestSupport {
 
     @Test
@@ -27,7 +25,7 @@ public class DmUserTest extends JDOTestSupport {
         String description = RandomStringUtils.randomAlphabetic(32);
         Query query = getPersistenceManager().newQuery(DmUser.class,
                 "(userName == :user_name || userLoginName == :user_name)");
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         params.put("user_name", userName);
         List<DmUser> results = (List<DmUser>) query.executeWithMap(params);
         assertNotNull(results);
@@ -52,7 +50,7 @@ public class DmUserTest extends JDOTestSupport {
         String description = RandomStringUtils.randomAlphabetic(32);
         Query query = getPersistenceManager().newQuery(DmUser.class,
                 "(userName == :user_name || userLoginName == :user_name)");
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         params.put("user_name", userName);
         List<DmUser> results = (List<DmUser>) query.executeWithMap(params);
         assertNotNull(results);

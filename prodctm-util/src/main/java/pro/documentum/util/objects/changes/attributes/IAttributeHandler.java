@@ -12,7 +12,7 @@ import com.documentum.fc.common.DfException;
  */
 public interface IAttributeHandler<T extends IDfPersistentObject> {
 
-    List<Class<? extends IAttributeHandler>> getDependencies();
+    List<Class<? extends IAttributeHandler<?>>> getDependencies();
 
     boolean apply(T object, Map<String, ?> values) throws DfException;
 

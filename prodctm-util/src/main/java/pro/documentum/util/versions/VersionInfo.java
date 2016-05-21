@@ -31,11 +31,11 @@ public class VersionInfo implements Comparable<VersionInfo> {
     }
 
     public static VersionInfo of(final IDfTypedObject row) throws DfException {
-        return new VersionInfo(row
-                .getString(DfDocbaseConstants.R_VERSION_LABEL), row
-                .getString(DfDocbaseConstants.R_OBJECT_ID), row
-                .getString(DfDocbaseConstants.I_CHRONICLE_ID), row
-                .getString("i_antecedent_id"));
+        return new VersionInfo(
+                row.getString(DfDocbaseConstants.R_VERSION_LABEL),
+                row.getString(DfDocbaseConstants.R_OBJECT_ID),
+                row.getString(DfDocbaseConstants.I_CHRONICLE_ID),
+                row.getString("i_antecedent_id"));
     }
 
     public static VersionInfo getInitial(final String objectId) {
@@ -86,8 +86,9 @@ public class VersionInfo implements Comparable<VersionInfo> {
 
     @Override
     public int compareTo(final VersionInfo o) {
-        return new CompareToBuilder().append(_version, o._version).append(
-                _objectId, o._objectId).append(_chronicleId, o._chronicleId)
+        return new CompareToBuilder().append(_version, o._version)
+                .append(_objectId, o._objectId)
+                .append(_chronicleId, o._chronicleId)
                 .append(_antecedentId, o._antecedentId).toComparison();
     }
 

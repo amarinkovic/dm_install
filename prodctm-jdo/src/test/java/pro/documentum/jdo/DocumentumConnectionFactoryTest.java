@@ -22,8 +22,8 @@ public class DocumentumConnectionFactoryTest extends JDOTestSupport {
     public void testWrongLogin() throws Exception {
         PersistenceManagerFactory pmf = JDOHelper
                 .getPersistenceManagerFactory("Testing");
-        PersistenceManager pm1 = pmf.getPersistenceManager(RandomStringUtils
-                .randomAlphabetic(100), null);
+        PersistenceManager pm1 = pmf.getPersistenceManager(
+                RandomStringUtils.randomAlphabetic(100), null);
         pm1.getDataStoreConnection().getNativeConnection();
     }
 
