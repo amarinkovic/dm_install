@@ -48,6 +48,8 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
 
     private final Map<?, ?> _params;
 
+    private final Map<String, Query.SubqueryDefinition> _subqueries;
+
     private String _filterText;
 
     private String _orderText;
@@ -67,10 +69,13 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
     private int _positionalParamNumber = -1;
 
     public AbstractDQLEvaluator(final QueryCompilation compilation,
-            final Map<?, ?> params, final AbstractClassMetaData classMetaData,
+            final Map<?, ?> params,
+            final Map<String, Query.SubqueryDefinition> subqueries,
+            final AbstractClassMetaData classMetaData,
             final ExecutionContext executionContext, final Query<?> query) {
         _queryCompilation = compilation;
         _params = params;
+        _subqueries = subqueries;
         _executionContext = executionContext;
         _classMetaData = classMetaData;
         _query = query;
@@ -423,6 +428,14 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
 
     protected MetaDataManager getMetaDataManager() {
         return _executionContext.getMetaDataManager();
+    }
+
+    public boolean hasSubQuery(final String name) {
+        return _subqueries.containsKey(name);
+    }
+
+    public Query.SubqueryDefinition getSubQuery(final String name) {
+        return _subqueries.get(name);
     }
 
 }

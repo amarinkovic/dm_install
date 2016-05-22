@@ -11,17 +11,17 @@ import org.apache.commons.io.IOUtils;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-final class SubIterator<T> implements Iterator<List<T>>, Closeable {
+public final class SubIterator<T> implements Iterator<List<T>>, Closeable {
 
     private final int _limit;
     private Iterator<T> _iterator;
 
-    SubIterator(final Iterator<T> collection, final int limit) {
+    public SubIterator(final Iterator<T> collection, final int limit) {
         _iterator = collection;
         _limit = limit;
     }
 
-    SubIterator(final Iterable<T> collection, final int limit) {
+    public SubIterator(final Iterable<T> collection, final int limit) {
         this(collection.iterator(), limit);
     }
 

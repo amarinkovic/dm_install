@@ -24,6 +24,8 @@ import pro.documentum.jdo.query.expression.DQLAny;
 import pro.documentum.jdo.query.expression.DQLBoolean;
 import pro.documentum.jdo.query.expression.DQLExpression;
 import pro.documentum.jdo.query.expression.DQLField;
+import pro.documentum.jdo.query.expression.DQLIN;
+import pro.documentum.jdo.query.expression.DQLSubQuery;
 import pro.documentum.jdo.query.expression.functions.DQLDateToString;
 import pro.documentum.jdo.query.expression.functions.DQLLower;
 import pro.documentum.jdo.query.expression.functions.DQLUpper;
@@ -45,6 +47,7 @@ public class JDOQL2DQL extends AbstractDQLEvaluator implements IDQLEvaluator {
         INVOKE_EVALUATORS.add(DQLDateToString.getInvokeEvaluator());
         INVOKE_EVALUATORS.add(DQLUpper.getInvokeEvaluator());
         INVOKE_EVALUATORS.add(DQLLower.getInvokeEvaluator());
+        INVOKE_EVALUATORS.add(DQLIN.getInvokeEvaluator());
     }
 
     static {
@@ -53,12 +56,15 @@ public class JDOQL2DQL extends AbstractDQLEvaluator implements IDQLEvaluator {
         VARIABLE_EVALUATORS.add(DQLString.getVariableEvaluator());
         VARIABLE_EVALUATORS.add(DQLNull.getVariableEvaluator());
         VARIABLE_EVALUATORS.add(DQLBool.getVariableEvaluator());
+        VARIABLE_EVALUATORS.add(DQLSubQuery.getVariableEvaluator());
     }
 
     public JDOQL2DQL(final QueryCompilation compilation,
-            final Map<?, ?> params, final AbstractClassMetaData cmd,
-            final ExecutionContext ec, final Query<?> query) {
-        super(compilation, params, cmd, ec, query);
+            final Map<?, ?> params,
+            final Map<String, Query.SubqueryDefinition> subqueries,
+            final AbstractClassMetaData cmd, final ExecutionContext ec,
+            final Query<?> query) {
+        super(compilation, params, subqueries, cmd, ec, query);
     }
 
     @Override
@@ -289,7 +295,6 @@ public class JDOQL2DQL extends AbstractDQLEvaluator implements IDQLEvaluator {
     @Override
     protected Object processParameterExpression(final ParameterExpression expr) {
         Object paramValue = getParameterValue(expr);
-        // todo: do we need support collections?
         DQLLiteral<?> literal = DQLLiteral.getInstance(paramValue);
         if (literal != null) {
             setPrecompilable(false);

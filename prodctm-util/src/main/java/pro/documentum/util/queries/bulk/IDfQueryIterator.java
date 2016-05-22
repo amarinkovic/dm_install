@@ -12,7 +12,7 @@ import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
 
-import pro.documentum.util.queries.IDfCollectionIterator;
+import pro.documentum.util.queries.DfIterator;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -20,12 +20,12 @@ import pro.documentum.util.queries.IDfCollectionIterator;
 public final class IDfQueryIterator implements Iterator<IDfTypedObject>,
         Closeable {
 
-    private IDfCollectionIterator _iterator;
+    private DfIterator _iterator;
 
     public IDfQueryIterator(final IDfSession session, final String query) {
         try {
-            _iterator = new IDfCollectionIterator(getQuery(query).execute(
-                    session, IDfQuery.DF_EXEC_QUERY));
+            _iterator = new DfIterator(getQuery(query).execute(session,
+                    IDfQuery.DF_EXEC_QUERY));
         } catch (DfException ex) {
             throw new RuntimeException(ex);
         }

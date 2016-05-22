@@ -1,6 +1,7 @@
 package pro.documentum.jdo.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,13 +18,11 @@ import org.datanucleus.store.schema.table.Column;
 import org.datanucleus.store.schema.table.MemberColumnMapping;
 import org.datanucleus.store.schema.table.Table;
 
-import com.documentum.fc.client.DfQuery;
-import com.documentum.fc.client.IDfCollection;
-import com.documentum.fc.client.IDfQuery;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfException;
 
 import pro.documentum.jdo.query.result.DQLQueryResult;
+import pro.documentum.util.queries.DfIterator;
 import pro.documentum.util.queries.Queries;
 import pro.documentum.util.queries.ReservedWords;
 
@@ -71,18 +70,23 @@ public final class DNQueries {
             final boolean subclasses, final String filterText,
             final String resultText, final String orderText,
             final Long rangeFromIncl, final Long rangeToExcl) {
+
         StoreData sd = DNMetaData.getStoreData(ec, cmd);
-        Set<String> selectColumns = new LinkedHashSet<>();
         Table table = sd.getTable();
-        List<Column> columns = table.getColumns();
-        for (Column column : columns) {
-            selectColumns.addAll(getSelectColumns(column));
+
+        String projection = resultText;
+        if (StringUtils.isBlank(projection)) {
+            Set<String> selectColumns = new LinkedHashSet<>();
+            List<Column> columns = table.getColumns();
+            for (Column column : columns) {
+                selectColumns.addAll(getSelectColumns(column));
+            }
+            projection = ReservedWords.makeProjection(selectColumns);
         }
 
-        StringBuilder queryBuilder = new StringBuilder(
-                selectColumns.size() * 16);
+        StringBuilder queryBuilder = new StringBuilder(projection.length());
         queryBuilder.append("SELECT ");
-        queryBuilder.append(ReservedWords.makeProjection(selectColumns));
+        queryBuilder.append(projection);
         queryBuilder.append(" FROM ");
         if (StringUtils.isNotBlank(table.getSchemaName())) {
             queryBuilder.append(table.getSchemaName()).append(".");
@@ -111,26 +115,46 @@ public final class DNQueries {
             final IDfSession session, final String dqlText,
             final AbstractClassMetaData candidateCmd) {
         boolean processed = false;
-        List<IDfCollection> collections = new ArrayList<>();
+        List<DfIterator> collections = new ArrayList<>();
         try {
             DQLQueryResult<?> result = new DQLQueryResult(query);
             int[] members = query.getFetchPlan()
                     .getFetchPlanForClass(candidateCmd).getMemberNumbers();
-            IDfCollection collection = new DfQuery(dqlText).execute(session,
-                    IDfQuery.DF_EXEC_QUERY);
-            collections.add(collection);
-            result.addCandidateResult(candidateCmd, collection, members);
+            DfIterator cursor = Queries.execute(session, dqlText);
+            members = getPresentMembers(members, candidateCmd, cursor);
+            collections.add(cursor);
+            result.addCandidateResult(candidateCmd, cursor, members);
             processed = true;
             return result;
         } catch (DfException ex) {
             throw DfExceptions.dataStoreException(ex);
         } finally {
             if (!processed) {
-                for (IDfCollection collection : collections) {
+                for (DfIterator collection : collections) {
                     Queries.close(collection);
                 }
             }
         }
+    }
+
+    private static int[] getPresentMembers(final int[] members,
+            final AbstractClassMetaData cmd, final DfIterator cursor)
+        throws DfException {
+        int[] result = new int[members.length];
+        int i = 0;
+        outer: for (int position : members) {
+            AbstractMemberMetaData mmd = cmd
+                    .getMetaDataForManagedMemberAtAbsolutePosition(position);
+            for (ColumnMetaData md : mmd.getColumnMetaData()) {
+                String column = md.getName();
+                if (!cursor.hasAttr(column)) {
+                    continue outer;
+                }
+            }
+            result[i] = position;
+            i++;
+        }
+        return Arrays.copyOf(result, i);
     }
 
 }

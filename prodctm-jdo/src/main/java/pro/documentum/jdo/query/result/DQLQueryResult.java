@@ -21,11 +21,11 @@ import org.datanucleus.util.SoftValueMap;
 import org.datanucleus.util.StringUtils;
 import org.datanucleus.util.WeakValueMap;
 
-import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
 
 import pro.documentum.jdo.util.DNFind;
+import pro.documentum.util.queries.DfIterator;
 
 public class DQLQueryResult<E> extends AbstractQueryResult<E> {
 
@@ -68,8 +68,7 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
     }
 
     public void addCandidateResult(final AbstractClassMetaData cmd,
-            final IDfCollection cursor, final int[] fpMembers)
-        throws DfException {
+            final DfIterator cursor, final int[] fpMembers) throws DfException {
         _results.add(new CandidateClassResult(cmd, cursor, fpMembers));
     }
 

@@ -13,6 +13,7 @@ import pro.documentum.model.AbstractPersistent;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
+@SuppressWarnings("rawtypes")
 public class AbstractQueryTest extends JDOTestSupport {
 
     protected DQLQuery dql(Class<? extends AbstractPersistent> cls, String query) {

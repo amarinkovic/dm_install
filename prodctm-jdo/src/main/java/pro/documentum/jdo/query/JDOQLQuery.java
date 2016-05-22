@@ -123,7 +123,7 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
         _datastoreCompilation = new DQLQueryCompilation();
         synchronized (_datastoreCompilation) {
             if (!inMemory) {
-                compileQueryFull(parameterValues, cmd);
+                compileQueryFull(parameterValues, subqueries, cmd);
             }
         }
 
@@ -246,9 +246,10 @@ public class JDOQLQuery extends AbstractJDOQLQuery {
     }
 
     private void compileQueryFull(final Map<?, ?> parameters,
+            final Map<String, SubqueryDefinition> subqueries,
             final AbstractClassMetaData candidateCmd) {
-        JDOQL2DQL mapper = new JDOQL2DQL(compilation, parameters, candidateCmd,
-                ec, this);
+        JDOQL2DQL mapper = new JDOQL2DQL(compilation, parameters, subqueries,
+                candidateCmd, ec, this);
         mapper.compile(_datastoreCompilation);
     }
 

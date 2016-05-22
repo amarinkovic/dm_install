@@ -1,26 +1,25 @@
 package pro.documentum.util.queries;
 
 import java.io.Closeable;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Objects;
 
 import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
+import com.documentum.fc.common.IDfAttr;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class IDfCollectionIterator implements Iterator<IDfTypedObject>,
-        Closeable {
-
-    private IDfTypedObject _next;
-
-    private IDfTypedObject _current;
+public class DfIterator implements Iterator<IDfTypedObject>, Closeable {
 
     private final IDfCollection _collection;
+    private IDfTypedObject _next;
+    private IDfTypedObject _current;
 
-    public IDfCollectionIterator(final IDfCollection collection) {
+    public DfIterator(final IDfCollection collection) {
         _collection = Objects.requireNonNull(collection);
     }
 
@@ -85,6 +84,34 @@ public class IDfCollectionIterator implements Iterator<IDfTypedObject>,
     @Override
     public void close() {
         Queries.close(_collection);
+    }
+
+    public IDfAttr getAttr(final int index) throws DfException {
+        return _collection.getAttr(index);
+    }
+
+    public int getAttrCount() throws DfException {
+        return _collection.getAttrCount();
+    }
+
+    public int getAttrDataType(final String attrName) throws DfException {
+        return _collection.getAttrDataType(attrName);
+    }
+
+    public boolean hasAttr(final String attrName) throws DfException {
+        return _collection.hasAttr(attrName);
+    }
+
+    public Enumeration enumAttrs() throws DfException {
+        return _collection.enumAttrs();
+    }
+
+    public int findAttrIndex(final String attrName) throws DfException {
+        return _collection.findAttrIndex(attrName);
+    }
+
+    public boolean isAttrRepeating(final String attrName) throws DfException {
+        return _collection.isAttrRepeating(attrName);
     }
 
 }

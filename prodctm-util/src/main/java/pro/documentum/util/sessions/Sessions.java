@@ -145,4 +145,12 @@ public final class Sessions {
         }
     }
 
+    public static IDfClient getClient() {
+        return CLIENT;
+    }
+
+    public static IDfClientX getClientX() {
+        return CLIENT_X;
+    }
+
 }

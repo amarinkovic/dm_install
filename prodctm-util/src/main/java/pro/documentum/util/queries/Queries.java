@@ -7,8 +7,12 @@ import java.util.Iterator;
 import org.apache.commons.lang.StringUtils;
 
 import com.documentum.fc.client.IDfCollection;
+import com.documentum.fc.client.IDfQuery;
+import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfUtil;
+
+import pro.documentum.util.sessions.Sessions;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -17,6 +21,10 @@ public final class Queries {
 
     private Queries() {
         super();
+    }
+
+    public static void close(final DfIterator collection) {
+        collection.close();
     }
 
     public static void close(final IDfCollection collection) {
@@ -31,6 +39,18 @@ public final class Queries {
         } catch (DfException ex) {
             // ignore
         }
+    }
+
+    public static DfIterator execute(final IDfSession session,
+            final String query) throws DfException {
+        return execute(session, query, IDfQuery.DF_EXEC_QUERY);
+    }
+
+    public static DfIterator execute(final IDfSession session,
+            final String query, final int queryType) throws DfException {
+        IDfQuery dfQuery = Sessions.getClientX().getQuery();
+        dfQuery.setDQL(query);
+        return new DfIterator(dfQuery.execute(session, queryType));
     }
 
     public static String createInClause(final String attrName,

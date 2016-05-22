@@ -69,8 +69,12 @@ public abstract class DfcTestSupport extends Assert {
         _session.beginTrans();
     }
 
-    public IDfLoginInfo getLoginInfo() {
+    protected IDfLoginInfo getLoginInfo() {
         return _loginInfo;
+    }
+
+    protected String getLoginName() {
+        return _loginInfo.getUser();
     }
 
     protected void doPreSetup() throws Exception {

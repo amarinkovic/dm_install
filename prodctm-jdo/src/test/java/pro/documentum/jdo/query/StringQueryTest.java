@@ -128,4 +128,5 @@ public class StringQueryTest extends AbstractQueryTest {
         String q = str(jdo(DmUser.class, "userName == null"), params);
         assertThat(q, endsWith("WHERE this.user_name IS NULL"));
     }
+
 }

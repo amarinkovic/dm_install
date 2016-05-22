@@ -33,6 +33,13 @@ public abstract class DQLLiteral<T> extends DQLExpression {
         if (object instanceof Boolean) {
             return new DQLBool((Boolean) object);
         }
+        if (object instanceof Iterable) {
+            DQLCollection collection = new DQLCollection();
+            for (Object element : (Iterable) object) {
+                collection.add(getInstance(element));
+            }
+            return collection;
+        }
         return null;
     }
 

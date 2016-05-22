@@ -9,7 +9,7 @@ import pro.documentum.model.DmUser;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes" })
 public class DQLQueryTest extends AbstractQueryTest {
 
     @Test
