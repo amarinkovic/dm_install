@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin>
+
+    <!-- STORE MANAGER -->
+    <extension point="org.datanucleus.store_manager">
+        <store-manager class-name="pro.documentum.persistence.common.DocumentumStoreManager" key="dctm" url-key="dctm" />
+    </extension>
+
+    <!-- QUERY LANGUAGES -->
+    <extension point="org.datanucleus.store_query_query">
+        <query class-name="pro.documentum.persistence.jdo.query.JDOQLQuery" datastore="dctm" name="JDOQL" />
+        <query class-name="pro.documentum.persistence.jpa.query.JPQLQuery" datastore="dctm" name="JPQL" />
+        <query class-name="pro.documentum.persistence.common.query.DQLQuery" datastore="dctm" name="DQL" />
+    </extension>
+
+    <!-- CONNECTION FACTORY -->
+    <extension point="org.datanucleus.store_connectionfactory">
+        <connectionfactory name="dctm" class-name="pro.documentum.persistence.common.DocumentumConnectionFactory" transactional="true" datastore="dctm" />
+    </extension>
+
+    <!-- DATASTORE IDENTITY -->
+    <extension point="org.datanucleus.store_datastoreidentity">
+        <datastoreidentity name="dctm" class-name="pro.documentum.persistence.common.identity.DfIdIdentity" unique="true" />
+    </extension>
+
+    <!-- NAMING FACTORY -->
+    <extension point="org.datanucleus.identifier_namingfactory">
+        <identifierfactory name="dctm" class-name="pro.documentum.persistence.common.naming.DocumentumNamingFactory" />
+    </extension>
+
+    <!-- VALUE GENERATORS -->
+    <extension point="org.datanucleus.store_valuegenerator">
+        <valuegenerator name="increment" class-name="pro.documentum.persistence.common.valuegenerator.DfIdGenerator" datastore="dctm" />
+    </extension>
+
+    <!-- STRING TRANSLATOR -->
+    <extension point="org.datanucleus.identity_string_translator">
+        <identitystringtranslator name="dctm" class-name="pro.documentum.persistence.common.translator.StringToDfIdIdentity" />
+    </extension>
+
+</plugin>

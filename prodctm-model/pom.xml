@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -18,12 +18,22 @@
         </dependency>
         <dependency>
             <groupId>org.datanucleus</groupId>
+            <artifactId>javax.persistence</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.datanucleus</groupId>
             <artifactId>datanucleus-core</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.datanucleus</groupId>
             <artifactId>datanucleus-api-jdo</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.datanucleus</groupId>
+            <artifactId>datanucleus-api-jpa</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -43,6 +53,39 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.datanucleus</groupId>
+                    <artifactId>datanucleus-maven-plugin</artifactId>
+                    <version>${datanucleus-maven-plugin.version}</version>
+                    <configuration>
+                        <fork>false</fork>
+                        <verbose>true</verbose>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>jdo enhance</id>
+                            <configuration>
+                                <api>JDO</api>
+                                <metadataIncludes>pro/documentum/model/jdo/**/*.class</metadataIncludes>
+                            </configuration>
+                            <phase>process-classes</phase>
+                            <goals>
+                                <goal>enhance</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>jpa enhance</id>
+                            <configuration>
+                                <api>JPA</api>
+                                <metadataIncludes>pro/documentum/model/jpa/**/*.class</metadataIncludes>
+                            </configuration>
+                            <phase>process-classes</phase>
+                            <goals>
+                                <goal>enhance</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
                 <plugin>
                     <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
                     <groupId>org.eclipse.m2e</groupId>

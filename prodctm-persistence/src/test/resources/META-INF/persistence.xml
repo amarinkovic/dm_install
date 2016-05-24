@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/persistence" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+        http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd" version="2.0">
+
+    <persistence-unit name="JDOTesting">
+        <class>pro.documentum.model.jdo.DmUser</class>
+        <exclude-unlisted-classes />
+    </persistence-unit>
+
+    <persistence-unit name="JPATesting">
+        <provider>org.datanucleus.api.jpa.PersistenceProviderImpl</provider>
+        <properties>
+            <property name="datanucleus.NontransactionalRead" value="true" />
+            <property name="datanucleus.NontransactionalWrite" value="true" />
+            <property name="datanucleus.ConnectionURL" value="dctm:DCTM_DEV" />
+        </properties>
+    </persistence-unit>
+
+</persistence>

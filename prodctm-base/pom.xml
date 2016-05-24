@@ -23,8 +23,10 @@
         <dfc.version>7.2</dfc.version>
         <aspectj.version>1.8.2</aspectj.version>
         <jdo-api.version>3.1</jdo-api.version>
+        <jpa-api-version>2.1.2</jpa-api-version>
         <datanucleus-core.version>4.1.10</datanucleus-core.version>
         <datanucleus-api-jdo.version>4.1.1</datanucleus-api-jdo.version>
+        <datanucleus-api-jpa.version>4.1.9</datanucleus-api-jpa.version>
         <datanucleus-jdo-query.version>4.0.5</datanucleus-jdo-query.version>
         <lombok.version>1.16.8</lombok.version>
         <datanucleus-maven-plugin.version>4.0.1</datanucleus-maven-plugin.version>
@@ -82,6 +84,11 @@
             </dependency>
             <dependency>
                 <groupId>org.datanucleus</groupId>
+                <artifactId>javax.persistence</artifactId>
+                <version>${jpa-api-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.datanucleus</groupId>
                 <artifactId>datanucleus-core</artifactId>
                 <version>${datanucleus-core.version}</version>
             </dependency>
@@ -94,6 +101,11 @@
                 <groupId>org.datanucleus</groupId>
                 <artifactId>datanucleus-jdo-query</artifactId>
                 <version>${datanucleus-jdo-query.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.datanucleus</groupId>
+                <artifactId>datanucleus-api-jpa</artifactId>
+                <version>${datanucleus-api-jpa.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -417,24 +429,6 @@
                             <version>${aspectj.version}</version>
                         </dependency>
                     </dependencies>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.datanucleus</groupId>
-                    <artifactId>datanucleus-maven-plugin</artifactId>
-                    <version>${datanucleus-maven-plugin.version}</version>
-                    <configuration>
-                        <fork>false</fork>
-                        <verbose>true</verbose>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <phase>process-classes</phase>
-                            <goals>
-                                <goal>enhance</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
 
                 <plugin>
