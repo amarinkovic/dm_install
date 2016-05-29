@@ -1,23 +1,26 @@
-package pro.documentum.model.jdo;
+package pro.documentum.model.jpa;
 
 import java.util.List;
 
-import javax.jdo.annotations.Column;
-import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
+import org.datanucleus.api.jpa.annotations.DatastoreId;
+
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-@PersistenceCapable(table = "dm_folder")
+@Entity
+@Table(name = "dm_folder")
+@DatastoreId
 @Accessors(chain = true)
 public class DmFolder extends DmSysobject {
 
     @Column(name = "r_folder_path")
-    @Persistent(defaultFetchGroup = "true", serialized = "true")
     @Getter
     private List<String> folderPaths;
 

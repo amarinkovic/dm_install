@@ -3,6 +3,9 @@ package pro.documentum.persistence.common.util;
 import java.lang.reflect.Array;
 import java.util.Collection;
 
+import org.datanucleus.Configuration;
+import org.datanucleus.ExecutionContext;
+import org.datanucleus.PropertyNames;
 import org.datanucleus.exceptions.NucleusObjectNotFoundException;
 import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
@@ -15,7 +18,10 @@ import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfId;
+import com.documentum.fc.common.DfLoginInfo;
+import com.documentum.fc.common.IDfLoginInfo;
 
+import pro.documentum.persistence.common.IDocumentumCredentialsHolder;
 import pro.documentum.util.IDfSessionInvoker;
 import pro.documentum.util.ids.DfIdUtil;
 import pro.documentum.util.logger.Logger;
@@ -26,6 +32,10 @@ import pro.documentum.util.sessions.Sessions;
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
 public final class Nucleus {
+
+    public static final String LOGIN_PROPERTY = PropertyNames.PROPERTY_CONNECTION_USER_NAME;
+
+    public static final String PASSWORD_PROPERTY = PropertyNames.PROPERTY_CONNECTION_PASSWORD;
 
     private Nucleus() {
         super();
@@ -53,8 +63,7 @@ public final class Nucleus {
             final StoreManager storeMgr) throws DfException {
         Table table = storeMgr.getStoreDataForClass(cmd.getFullClassName())
                 .getTable();
-        String objectId = String.valueOf(IdentityUtils
-                .getTargetKeyForDatastoreIdentity(id));
+        String objectId = Nucleus.getObjectId(id);
         return DfObjects.newObject(session, table.getName(), objectId);
     }
 
@@ -138,6 +147,52 @@ public final class Nucleus {
             i++;
         }
         return array;
+    }
+
+    public static IDfLoginInfo extractLoginInfo(final ExecutionContext ec) {
+        if (ec == null) {
+            return null;
+        }
+        Object owner = ec.getOwner();
+        IDfLoginInfo loginInfo = null;
+        if (owner instanceof IDocumentumCredentialsHolder) {
+            loginInfo = getLoginInfo((IDocumentumCredentialsHolder) owner);
+        }
+        if (loginInfo == null) {
+            loginInfo = getLoginInfo(ec);
+        }
+        if (loginInfo == null) {
+            loginInfo = getLoginInfo(ec.getNucleusContext().getConfiguration());
+        }
+        return loginInfo;
+    }
+
+    private static IDfLoginInfo getLoginInfo(
+            final IDocumentumCredentialsHolder credentialsHolder) {
+        String userName = credentialsHolder.getUserName();
+        String password = credentialsHolder.getPassword();
+        if (userName != null) {
+            return new DfLoginInfo(userName, password);
+        }
+        return null;
+    }
+
+    private static IDfLoginInfo getLoginInfo(final Configuration cnf) {
+        String userName = cnf.getStringProperty(LOGIN_PROPERTY);
+        String password = cnf.getStringProperty(PASSWORD_PROPERTY);
+        if (userName != null) {
+            return new DfLoginInfo(userName, password);
+        }
+        return null;
+    }
+
+    private static IDfLoginInfo getLoginInfo(final ExecutionContext ec) {
+        String userName = ec.getStringProperty(LOGIN_PROPERTY);
+        String password = ec.getStringProperty(PASSWORD_PROPERTY);
+        if (userName != null) {
+            return new DfLoginInfo(userName, password);
+        }
+        return null;
     }
 
 }

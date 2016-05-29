@@ -31,6 +31,11 @@
 
     <!-- VALUE GENERATORS -->
     <extension point="org.datanucleus.store_valuegenerator">
+        <!--
+        Here we want to support both JDO and JPA. The problem is
+        JDO handles customStrategy in DatastoreIdentity but JPA
+        doesn't, increment strategy works for both JDO and JPA
+        -->
         <valuegenerator name="increment" class-name="pro.documentum.persistence.common.valuegenerator.DfIdGenerator" datastore="dctm" />
     </extension>
 

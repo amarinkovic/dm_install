@@ -3,7 +3,6 @@ package pro.documentum.persistence.common.query;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +29,7 @@ import org.datanucleus.util.StringUtils;
 import pro.documentum.persistence.common.query.expression.DQLExpression;
 import pro.documentum.persistence.common.util.DNMetaData;
 import pro.documentum.persistence.common.util.DNQueries;
+import pro.documentum.persistence.common.util.DNRelation;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -244,12 +244,11 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
         AbstractMemberMetaData embMmd = null;
 
         List<AbstractMemberMetaData> embMmds = new ArrayList<>();
-        boolean firstTuple = true;
-        Iterator<String> iter = tuples.iterator();
         ClassLoaderResolver clr = getClassLoaderResolver();
-        while (iter.hasNext()) {
-            String name = iter.next();
-            if (firstTuple && name.equals(getCandidateAlias())) {
+        for (int i = 0, n = tuples.size(); i < n; i++) {
+            boolean hasNext = i < n - 1;
+            String name = tuples.get(i);
+            if (i == 0 && name.equals(getCandidateAlias())) {
                 cmd = _classMetaData;
                 continue;
             }
@@ -257,20 +256,17 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
             AbstractMemberMetaData mmd = cmd.getMetaDataForMember(name);
             RelationType relationType = mmd
                     .getRelationType(getClassLoaderResolver());
-            if (relationType == RelationType.NONE) {
-                if (iter.hasNext()) {
+            if (DNRelation.isNone(relationType)) {
+                if (hasNext) {
                     throw new NucleusUserException("Query has reference to "
                             + StringUtils.collectionToString(tuples) + " yet "
                             + name + " is a non-relation field!");
                 }
                 if (embMmd != null) {
                     embMmds.add(mmd);
-                    return table
-                            .getMemberColumnMappingForEmbeddedMember(embMmds)
-                            .getColumn(0).getName();
+                    return DNMetaData.getFirstEmbeddedColumn(table, embMmds);
                 }
-                return table.getMemberColumnMappingForMember(mmd).getColumn(0)
-                        .getName();
+                return DNMetaData.getFirstColumn(table, mmd);
             }
 
             AbstractMemberMetaData emmd = null;
@@ -304,7 +300,7 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
                         || relationType == RelationType.ONE_TO_MANY_BI
                         || relationType == RelationType.MANY_TO_ONE_UNI
                         || relationType == RelationType.MANY_TO_ONE_BI) {
-                    if (!iter.hasNext()) {
+                    if (!hasNext) {
                         return name;
                     }
                     throw new NucleusUserException(
@@ -325,7 +321,6 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
                                 + " is not persisted into this object, so unexecutable in the datastore");
                 return null;
             }
-            firstTuple = false;
         }
 
         return null;

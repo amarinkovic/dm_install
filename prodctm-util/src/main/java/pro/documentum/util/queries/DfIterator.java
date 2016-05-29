@@ -102,6 +102,7 @@ public class DfIterator implements Iterator<IDfTypedObject>, Closeable {
         return _collection.hasAttr(attrName);
     }
 
+    @SuppressWarnings("rawtypes")
     public Enumeration enumAttrs() throws DfException {
         return _collection.enumAttrs();
     }

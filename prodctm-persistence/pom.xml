@@ -88,7 +88,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Bundle-SymbolicName>pro.documentum.jdo;singleton:=true</Bundle-SymbolicName>
+                        <Bundle-SymbolicName>pro.documentum.persistence;singleton:=true</Bundle-SymbolicName>
                         <Import-Package>
                             org.datanucleus*;version="${datanucleus-core.version}",
                             *;resolution:=optional

@@ -1,6 +1,8 @@
 package pro.documentum.persistence.common.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -10,8 +12,12 @@ import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.ArrayMetaData;
 import org.datanucleus.metadata.CollectionMetaData;
+import org.datanucleus.metadata.ColumnMetaData;
+import org.datanucleus.metadata.ElementMetaData;
 import org.datanucleus.metadata.MetaDataManager;
 import org.datanucleus.store.StoreData;
+import org.datanucleus.store.schema.table.Column;
+import org.datanucleus.store.schema.table.MemberColumnMapping;
 import org.datanucleus.store.schema.table.Table;
 
 import com.documentum.fc.client.IDfPersistentObject;
@@ -118,6 +124,56 @@ public final class DNMetaData {
     public static StoreData getStoreData(final ExecutionContext ec,
             final AbstractClassMetaData cmd) {
         return getStoreData(ec, cmd.getFullClassName());
+    }
+
+    public static String getFirstColumn(final Table table,
+            final AbstractMemberMetaData mmd) {
+        Column column = table.getMemberColumnMappingForMember(mmd).getColumn(0);
+        return getSelectColumns(column, false).get(0);
+    }
+
+    public static String getFirstEmbeddedColumn(final Table table,
+            final List<AbstractMemberMetaData> mmd) {
+        Column column = table.getMemberColumnMappingForEmbeddedMember(mmd)
+                .getColumn(0);
+        return getSelectColumns(column, false).get(0);
+    }
+
+    public static List<String> getSelectColumns(final Column column) {
+        return getSelectColumns(column, true);
+    }
+
+    public static List<String> getSelectColumns(final Column column,
+            final boolean defaultFetchGroup) {
+        List<String> result = new ArrayList<>();
+        MemberColumnMapping mcm = column.getMemberColumnMapping();
+        if (mcm == null) {
+            result.add(column.getName());
+            return result;
+        }
+        AbstractMemberMetaData mmd = mcm.getMemberMetaData();
+        if (defaultFetchGroup) {
+            if (!mmd.isDefaultFetchGroup() && !mmd.isSerialized()) {
+                return result;
+            }
+        }
+        ColumnMetaData[] columnMetaDatum = null;
+        if (mmd.hasContainer()) {
+            ElementMetaData emd = mmd.getElementMetaData();
+            if (emd != null) {
+                ColumnMetaData[] data = emd.getColumnMetaData();
+                if (data != null && data.length > 0) {
+                    columnMetaDatum = data;
+                }
+            }
+        }
+        if (columnMetaDatum == null) {
+            columnMetaDatum = mmd.getColumnMetaData();
+        }
+        for (ColumnMetaData c : columnMetaDatum) {
+            result.add(c.getName());
+        }
+        return result;
     }
 
 }

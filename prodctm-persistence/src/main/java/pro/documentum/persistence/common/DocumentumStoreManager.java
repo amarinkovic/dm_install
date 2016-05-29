@@ -8,8 +8,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.datanucleus.ClassLoaderResolver;
+import org.datanucleus.Configuration;
 import org.datanucleus.ExecutionContext;
 import org.datanucleus.PersistenceNucleusContext;
+import org.datanucleus.PropertyNames;
 import org.datanucleus.Transaction;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.ClassMetaData;
@@ -24,16 +26,20 @@ import org.datanucleus.store.connection.ManagedConnection;
 import org.datanucleus.store.schema.table.CompleteClassTable;
 
 import com.documentum.fc.client.IDfSession;
-import com.documentum.fc.common.DfLoginInfo;
-import com.documentum.fc.common.IDfLoginInfo;
 
 import pro.documentum.persistence.common.util.DNMetaData;
-import pro.documentum.persistence.jdo.DocumentumPersistenceManager;
+import pro.documentum.persistence.common.util.Nucleus;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
 public class DocumentumStoreManager extends AbstractStoreManager {
+
+    public static final String TRANSLATOR_TYPE = PropertyNames.PROPERTY_IDENTITY_STRING_TRANSLATOR_TYPE;
+
+    public static final String IDENTITY_TYPE = PropertyNames.PROPERTY_DATASTORE_IDENTITY_TYPE;
+
+    public static final String NAMING_FACTORY = PropertyNames.PROPERTY_IDENTIFIER_NAMING_FACTORY;
 
     public static final String PREFIX = "dctm";
 
@@ -41,24 +47,19 @@ public class DocumentumStoreManager extends AbstractStoreManager {
             final PersistenceNucleusContext nucleusContext,
             final Map<String, Object> props) {
         super(PREFIX, clr, nucleusContext, props);
+        setConfiguration(nucleusContext);
         persistenceHandler = new DocumentumPersistenceHandler(this);
+    }
+
+    private void setConfiguration(final PersistenceNucleusContext nucleusContext) {
+        Configuration configuration = nucleusContext.getConfiguration();
+        configuration.setProperty(TRANSLATOR_TYPE, PREFIX);
+        configuration.setProperty(IDENTITY_TYPE, PREFIX);
+        configuration.setProperty(NAMING_FACTORY, PREFIX);
     }
 
     public static String getDocbaseName(final String url) {
         return url.substring(DocumentumStoreManager.PREFIX.length() + 1);
-    }
-
-    private static IDfLoginInfo getLoginInfo(
-            final ExecutionContext executionContext) {
-        if (executionContext == null) {
-            return null;
-        }
-        Object owner = executionContext.getOwner();
-        if (!(owner instanceof IDocumentumCredentialsHolder)) {
-            return null;
-        }
-        IDocumentumCredentialsHolder ch = (IDocumentumCredentialsHolder) owner;
-        return new DfLoginInfo(ch.getUserName(), ch.getPassword());
     }
 
     @Override
@@ -68,8 +69,8 @@ public class DocumentumStoreManager extends AbstractStoreManager {
                 .lookupConnectionFactory(primaryConnectionFactoryName);
         ExecutionContext connectionContext = executionContext;
         Map<String, Object> options = new HashMap<>();
-        options.put(DocumentumPersistenceManager.OPTION_LOGININFO,
-                getLoginInfo(executionContext));
+        options.put(IDocumentumCredentialsHolder.OPTION_LOGININFO,
+                Nucleus.extractLoginInfo(executionContext));
         Transaction transaction = null;
         final boolean enlisted = executionContext.getTransaction().isActive();
         if (enlisted) {
@@ -99,6 +100,27 @@ public class DocumentumStoreManager extends AbstractStoreManager {
         return result;
     }
 
+    @Override
+    public Object getStrategyValue(final ExecutionContext ec,
+            final AbstractClassMetaData cmd, final int absoluteFieldNumber) {
+        DNMetaData.getStoreData(ec, cmd);
+        return super.getStrategyValue(ec, cmd, absoluteFieldNumber);
+    }
+
+    public void manageClasses(final ClassLoaderResolver clr,
+            final String... classNames) {
+        if (classNames == null) {
+            return;
+        }
+        ManagedConnection mconn = getConnection(-1);
+        try {
+            IDfSession session = (IDfSession) mconn.getConnection();
+            manageClasses(clr, session, classNames);
+        } finally {
+            mconn.release();
+        }
+    }
+
     public void manageClasses(final ExecutionContext ec,
             final String... classNames) {
         if (classNames == null) {
@@ -111,13 +133,6 @@ public class DocumentumStoreManager extends AbstractStoreManager {
         } finally {
             mconn.release();
         }
-    }
-
-    @Override
-    public Object getStrategyValue(final ExecutionContext ec,
-            final AbstractClassMetaData cmd, final int absoluteFieldNumber) {
-        DNMetaData.getStoreData(ec, cmd);
-        return super.getStrategyValue(ec, cmd, absoluteFieldNumber);
     }
 
     public void manageClasses(final ClassLoaderResolver clr,

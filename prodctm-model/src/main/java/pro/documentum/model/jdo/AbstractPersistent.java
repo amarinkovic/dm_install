@@ -13,8 +13,11 @@ import javax.jdo.annotations.VersionStrategy;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import org.datanucleus.metadata.MetaData;
+
+import pro.documentum.model.IPersistent;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -23,7 +26,8 @@ import org.datanucleus.metadata.MetaData;
 @Version(strategy = VersionStrategy.VERSION_NUMBER, column = "i_vstamp", extensions = {@Extension(vendorName = MetaData.VENDOR_NAME, key = MetaData.EXTENSION_CLASS_VERSION_FIELD_NAME, value = "vStamp") })
 @DatastoreIdentity(strategy = IdGeneratorStrategy.INCREMENT, column = "r_object_id")
 @Inheritance(strategy = InheritanceStrategy.COMPLETE_TABLE)
-public abstract class AbstractPersistent {
+@Accessors(chain = true)
+public abstract class AbstractPersistent implements IPersistent {
 
     @Column(name = "i_vstamp")
     @Getter

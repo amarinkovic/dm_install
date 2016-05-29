@@ -11,8 +11,6 @@ import pro.documentum.persistence.common.IDocumentumCredentialsHolder;
 public class DocumentumPersistenceManager extends JDOPersistenceManager
         implements IDocumentumCredentialsHolder {
 
-    public static final String OPTION_LOGININFO = "loginInfo";
-
     private final String _userName;
 
     private final String _password;

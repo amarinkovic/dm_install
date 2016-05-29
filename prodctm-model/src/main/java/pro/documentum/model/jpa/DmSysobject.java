@@ -1,4 +1,4 @@
-package pro.documentum.model.jdo;
+package pro.documentum.model.jpa;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -7,18 +7,22 @@ package pro.documentum.model.jdo;
 import java.util.Date;
 import java.util.List;
 
-import javax.jdo.annotations.Column;
-import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import org.datanucleus.api.jpa.annotations.DatastoreId;
+
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-@PersistenceCapable(table = "dm_sysobject")
+@Entity
+@Table(name = "dm_sysobject")
+@DatastoreId
 @Accessors(chain = true)
 public class DmSysobject extends AbstractPersistent {
 
@@ -42,13 +46,11 @@ public class DmSysobject extends AbstractPersistent {
     private String chronicleId;
 
     @Column(name = "i_folder_id")
-    @Persistent(defaultFetchGroup = "true", serialized = "true")
     @Getter
     @Setter
     private List<String> folderIds;
 
     @Column(name = "r_version_label")
-    @Persistent(defaultFetchGroup = "true", serialized = "true")
     @Getter
     @Setter
     private List<String> versionLabels;

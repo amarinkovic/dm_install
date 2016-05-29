@@ -22,7 +22,7 @@ import com.documentum.fc.common.IDfLoginInfo;
 
 import pro.documentum.persistence.common.util.DNExceptions;
 import pro.documentum.persistence.common.util.DfExceptions;
-import pro.documentum.persistence.jdo.DocumentumPersistenceManager;
+import pro.documentum.persistence.common.util.Nucleus;
 import pro.documentum.util.logger.Logger;
 import pro.documentum.util.sessions.Sessions;
 
@@ -64,8 +64,11 @@ public class DocumentumConnectionFactory extends AbstractConnectionFactory {
     @SuppressWarnings("rawtypes")
     public ManagedConnection createManagedConnection(
             final ExecutionContext executionContext, final Map map) {
-        IDfLoginInfo loginInfo = (IDfLoginInfo) map
-                .get(DocumentumPersistenceManager.OPTION_LOGININFO);
+        IDfLoginInfo loginInfo = Nucleus.extractLoginInfo(executionContext);
+        if (loginInfo == null) {
+            loginInfo = (IDfLoginInfo) map
+                    .get(IDocumentumCredentialsHolder.OPTION_LOGININFO);
+        }
         return new ManagedConnectionImpl(loginInfo);
     }
 
@@ -86,39 +89,46 @@ public class DocumentumConnectionFactory extends AbstractConnectionFactory {
 
         @Override
         public Object getConnection() {
-            if (conn == null) {
-                obtainNewConnection();
-            } else {
-                IDfSession session = (IDfSession) conn;
-                Logger.debug("Acquired existing session {0} for user {1}, "
-                        + "docbase {2}", Sessions.getSessionId(session),
-                        Sessions.getLoginUserName(session),
-                        Sessions.getDocbaseName(session));
+            if (conn != null) {
+                debug("Acquired existing", (IDfSession) conn);
+                return conn;
             }
-            return conn;
-        }
 
-        protected void obtainNewConnection() {
+            IDfSession session = null;
             try {
-                if (conn == null) {
-                    if (_loginInfo == null) {
-                        if (_sessionManager == null) {
-                            throw DNExceptions
-                                    .noPropertySpecified(PropertyNames.PROPERTY_CONNECTION_USER_NAME);
-                        }
-                        conn = Sessions.brandNew(_sessionManager, _docbaseName);
-                    } else {
-                        conn = Sessions.brandNew(_loginInfo, _docbaseName);
-                    }
-                    IDfSession session = (IDfSession) conn;
-                    Sessions.disableServerTimeout(session);
-                    Logger.debug("Acquired new session {0} for user {1}, "
-                            + "docbase {2}", Sessions.getSessionId(session),
-                            Sessions.getLoginUserName(session),
-                            Sessions.getDocbaseName(session));
-                }
+                session = obtainNewDfSession();
+                Sessions.disableServerTimeout(session);
+                debug("Acquired new", session);
+                conn = session;
+                return conn;
             } catch (DfException ex) {
                 throw DfExceptions.dataStoreException(ex);
+            } finally {
+                if (conn == null) {
+                    Sessions.release(session);
+                }
+            }
+        }
+
+        protected IDfSession obtainNewDfSession() throws DfException {
+            if (_loginInfo != null) {
+                return Sessions.brandNew(_loginInfo, _docbaseName);
+            }
+            if (_sessionManager != null) {
+                return Sessions.brandNew(_sessionManager, _docbaseName);
+            }
+            throw DNExceptions
+                    .noPropertySpecified(PropertyNames.PROPERTY_CONNECTION_USER_NAME);
+        }
+
+        protected void releaseDfSession() {
+            try {
+                IDfSession session = (IDfSession) conn;
+                debug("Releasing", session);
+                Sessions.enableServerTimeout((IDfSession) conn, true);
+                Sessions.release((IDfSession) conn);
+            } catch (DfException ex) {
+                Logger.error(ex);
             }
         }
 
@@ -134,25 +144,16 @@ public class DocumentumConnectionFactory extends AbstractConnectionFactory {
                 listener.managedConnectionPreClose();
             }
 
-            IDfSession session = (IDfSession) conn;
-            try {
-                Logger.debug("Releasing session {0} for user {1}, "
-                        + "docbase {2}", Sessions.getSessionId(session),
-                        Sessions.getLoginUserName(session),
-                        Sessions.getDocbaseName(session));
-                Sessions.enableServerTimeout((IDfSession) conn);
-                Sessions.release((IDfSession) conn);
-            } catch (DfException ex) {
-                Logger.error(ex);
-            }
+            releaseDfSession();
+
             // noinspection ForLoopReplaceableByForEach
             for (int i = 0; i < listeners.size(); i++) {
                 ManagedConnectionResourceListener listener = listeners.get(i);
                 listener.managedConnectionPostClose();
             }
 
-            this.conn = null;
-            this._xaRes = null;
+            conn = null;
+            _xaRes = null;
         }
 
         @Override
@@ -161,10 +162,17 @@ public class DocumentumConnectionFactory extends AbstractConnectionFactory {
                 return _xaRes;
             }
             if (conn == null) {
-                obtainNewConnection();
+                getConnection();
             }
             _xaRes = ((ISession) conn).getXAResource();
             return _xaRes;
+        }
+
+        private void debug(final String op, final IDfSession session) {
+            Logger.debug("{0} session {1} for user {2}, docbase {3}", op,
+                    Sessions.getSessionId(session),
+                    Sessions.getLoginUserName(session),
+                    Sessions.getDocbaseName(session));
         }
 
     }

@@ -11,11 +11,9 @@ import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.ColumnMetaData;
-import org.datanucleus.metadata.ElementMetaData;
 import org.datanucleus.store.StoreData;
 import org.datanucleus.store.query.Query;
 import org.datanucleus.store.schema.table.Column;
-import org.datanucleus.store.schema.table.MemberColumnMapping;
 import org.datanucleus.store.schema.table.Table;
 
 import com.documentum.fc.client.IDfSession;
@@ -35,36 +33,6 @@ public final class DNQueries {
         super();
     }
 
-    public static List<String> getSelectColumns(final Column column) {
-        List<String> result = new ArrayList<>();
-        MemberColumnMapping mcm = column.getMemberColumnMapping();
-        if (mcm == null) {
-            result.add(column.getName());
-            return result;
-        }
-        AbstractMemberMetaData mmd = mcm.getMemberMetaData();
-        if (!mmd.isDefaultFetchGroup() && !mmd.isSerialized()) {
-            return result;
-        }
-        ColumnMetaData[] columnMetaDatum = null;
-        if (mmd.hasContainer()) {
-            ElementMetaData emd = mmd.getElementMetaData();
-            if (emd != null) {
-                ColumnMetaData[] data = emd.getColumnMetaData();
-                if (data != null && data.length > 0) {
-                    columnMetaDatum = data;
-                }
-            }
-        }
-        if (columnMetaDatum == null) {
-            columnMetaDatum = mmd.getColumnMetaData();
-        }
-        for (ColumnMetaData c : columnMetaDatum) {
-            result.add(c.getName());
-        }
-        return result;
-    }
-
     public static String getDqlTextForQuery(final ExecutionContext ec,
             final AbstractClassMetaData cmd, final String candidateAlias,
             final boolean subclasses, final String filterText,
@@ -79,7 +47,7 @@ public final class DNQueries {
             Set<String> selectColumns = new LinkedHashSet<>();
             List<Column> columns = table.getColumns();
             for (Column column : columns) {
-                selectColumns.addAll(getSelectColumns(column));
+                selectColumns.addAll(DNMetaData.getSelectColumns(column));
             }
             projection = ReservedWords.makeProjection(selectColumns);
         }

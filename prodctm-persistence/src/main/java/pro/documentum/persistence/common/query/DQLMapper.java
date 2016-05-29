@@ -30,6 +30,7 @@ import pro.documentum.persistence.common.query.expression.functions.DQLDateToStr
 import pro.documentum.persistence.common.query.expression.functions.DQLLower;
 import pro.documentum.persistence.common.query.expression.functions.DQLUpper;
 import pro.documentum.persistence.common.query.expression.literals.DQLBool;
+import pro.documentum.persistence.common.query.expression.literals.DQLCollection;
 import pro.documentum.persistence.common.query.expression.literals.DQLDate;
 import pro.documentum.persistence.common.query.expression.literals.DQLLiteral;
 import pro.documentum.persistence.common.query.expression.literals.DQLString;
@@ -197,6 +198,21 @@ public class DQLMapper extends AbstractDQLEvaluator implements IDQLEvaluator {
             }
         }
         return super.processInvokeExpression(invokeExpr);
+    }
+
+    @Override
+    protected Object processInExpression(final Expression inExpr) {
+        DQLCollection right = (DQLCollection) popExpression();
+        DQLField left = (DQLField) popExpression();
+        return pushExpression(DQLIN.createINExpression(left, right));
+    }
+
+    @Override
+    protected Object processNotInExpression(final Expression inExpr) {
+        if (processInExpression(inExpr) != null) {
+            return processNotExpression(null);
+        }
+        return super.processNotInExpression(inExpr);
     }
 
     public DQLExpression processLiteralOrParameter(final Expression expression) {

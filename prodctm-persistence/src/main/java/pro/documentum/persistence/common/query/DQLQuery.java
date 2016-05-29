@@ -64,14 +64,15 @@ public class DQLQuery<T> extends AbstractJavaQuery<T> {
             IDfSession session = (IDfSession) mconn.getConnection();
             long startTime = System.currentTimeMillis();
             if (NucleusLogger.QUERY.isDebugEnabled()) {
-                NucleusLogger.QUERY.debug(Localiser.msg("021046", "DQL",
-                        getSingleStringQuery(), null));
+                NucleusLogger.QUERY.debug(Localiser.msg("021046",
+                        getLanguage(), getSingleStringQuery(), null));
             }
             List results = DNQueries.executeDqlQuery(this, session, _dql,
                     getCandidateClassMetaData());
             if (NucleusLogger.QUERY.isDebugEnabled()) {
-                NucleusLogger.QUERY.debug(Localiser.msg("021074", "DQL", ""
-                        + (System.currentTimeMillis() - startTime)));
+                NucleusLogger.QUERY.debug(Localiser.msg("021074",
+                        getLanguage(), ""
+                                + (System.currentTimeMillis() - startTime)));
             }
             return results;
         } finally {

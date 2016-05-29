@@ -60,7 +60,7 @@ public final class DQLIN extends DQLBoolean {
         return null;
     }
 
-    private static DQLExpression createINExpression(final DQLField field,
+    public static DQLExpression createINExpression(final DQLField field,
             final DQLCollection collection) {
         if (!collection.hasNullElements() && !collection.hasNotNullElements()) {
             return null;

@@ -1,18 +1,23 @@
-package pro.documentum.model.jdo;
+package pro.documentum.model.jpa;
 
 import java.util.Date;
 
-import javax.jdo.annotations.Column;
-import javax.jdo.annotations.PersistenceCapable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import org.datanucleus.api.jpa.annotations.DatastoreId;
+
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-@PersistenceCapable(table = "dm_user")
+@Entity
+@Table(name = "dm_user")
+@DatastoreId
 @Accessors(chain = true)
 public class DmUser extends AbstractPersistent {
 

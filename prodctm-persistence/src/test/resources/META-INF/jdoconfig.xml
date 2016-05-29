@@ -5,10 +5,7 @@
         <property name="javax.jdo.PersistenceManagerFactoryClass" value="pro.documentum.persistence.jdo.DocumentumPersistenceManagerFactory" />
         <property name="javax.jdo.option.Optimistic" value="false" />
         <property name="javax.jdo.option.ConnectionURL" value="dctm:DCTM_DEV" />
-        <property name="datanucleus.identityStringTranslatorType" value="dctm" />
-        <property name="datanucleus.datastoreIdentityType" value="dctm" />
         <property name="datanucleus.nontx.atomic" value="false" />
-        <property name="datanucleus.identifier.namingFactory" value="dctm" />
     </persistence-manager-factory>
 
 </jdoconfig>

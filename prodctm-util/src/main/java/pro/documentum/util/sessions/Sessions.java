@@ -11,6 +11,7 @@ import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
 
 import pro.documentum.util.IDfSessionInvoker;
+import pro.documentum.util.logger.Logger;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -91,14 +92,40 @@ public final class Sessions {
 
     public static boolean disableServerTimeout(final IDfSession dfSession)
         throws DfException {
-        ISession session = (ISession) dfSession;
-        return session.getDocbaseApi().disableTimeout();
+        return disableServerTimeout(dfSession, false);
+    }
+
+    public static boolean disableServerTimeout(final IDfSession dfSession,
+            final boolean ignoreex) throws DfException {
+        try {
+            ISession session = (ISession) dfSession;
+            return session.getDocbaseApi().disableTimeout();
+        } catch (DfException ex) {
+            if (ignoreex) {
+                Logger.error(ex);
+                return false;
+            }
+            throw ex;
+        }
     }
 
     public static boolean enableServerTimeout(final IDfSession dfSession)
         throws DfException {
-        ISession session = (ISession) dfSession;
-        return session.getDocbaseApi().enableTimeout();
+        return enableServerTimeout(dfSession, true);
+    }
+
+    public static boolean enableServerTimeout(final IDfSession dfSession,
+            final boolean ignoreex) throws DfException {
+        try {
+            ISession session = (ISession) dfSession;
+            return session.getDocbaseApi().enableTimeout();
+        } catch (DfException ex) {
+            if (ignoreex) {
+                Logger.error(ex);
+                return false;
+            }
+            throw ex;
+        }
     }
 
     public static IDfSessionManager newSessionManager() throws DfException {
@@ -133,15 +160,19 @@ public final class Sessions {
                 .getSession(docbase);
     }
 
-    public static void release(final IDfSession session) throws DfException {
+    public static void release(final IDfSession session) {
         if (session == null) {
             return;
         }
         IDfSessionManager sessionManager = session.getSessionManager();
-        if (sessionManager == null) {
-            session.disconnect();
-        } else {
+        if (sessionManager != null) {
             sessionManager.release(session);
+            return;
+        }
+        try {
+            session.disconnect();
+        } catch (DfException ex) {
+            Logger.error(ex);
         }
     }
 
