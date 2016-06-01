@@ -19,29 +19,31 @@ import pro.documentum.persistence.common.query.IDocumentumQuery;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class JDOQLQuery extends AbstractJDOQLQuery implements IDocumentumQuery {
+public class JDOQLQuery<R> extends AbstractJDOQLQuery implements
+        IDocumentumQuery<R> {
 
     private static final long serialVersionUID = 7280457567657230093L;
-
+    private final DQLQueryHelper<R, ?> _queryHelper;
     private transient DQLQueryCompilation _datastoreCompilation;
 
-    private final DQLQueryHelper<JDOQLQuery> _queryHelper;
-
+    @SuppressWarnings({"unchecked", "rawtypes" })
     public JDOQLQuery(final StoreManager storeMgr, final ExecutionContext ec) {
         super(storeMgr, ec);
-        _queryHelper = new DQLQueryHelper<JDOQLQuery>(this);
+        _queryHelper = new DQLQueryHelper(this);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     public JDOQLQuery(final StoreManager storeMgr, final ExecutionContext ec,
             final AbstractJDOQLQuery q) {
         super(storeMgr, ec, q);
-        _queryHelper = new DQLQueryHelper<JDOQLQuery>(this);
+        _queryHelper = new DQLQueryHelper(this);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     public JDOQLQuery(final StoreManager storeMgr, final ExecutionContext ec,
             final String query) {
         super(storeMgr, ec, query);
-        _queryHelper = new DQLQueryHelper<JDOQLQuery>(this);
+        _queryHelper = new DQLQueryHelper(this);
     }
 
     protected void discardCompiled() {
@@ -103,9 +105,6 @@ public class JDOQLQuery extends AbstractJDOQLQuery implements IDocumentumQuery {
         }
 
         ec.hasPersistenceInformationForClass(candidateClass);
-
-        AbstractClassMetaData cmd = getCandidateClassMetaData();
-
         QueryManager qm = getQueryManager();
         String datastoreKey = getStoreManager().getQueryCacheKey();
         String cacheKey = getQueryCacheKey();
@@ -120,8 +119,7 @@ public class JDOQLQuery extends AbstractJDOQLQuery implements IDocumentumQuery {
 
         _datastoreCompilation = new DQLQueryCompilation();
         if (!inMemory) {
-            _queryHelper.compileQueryFull(compilation, _datastoreCompilation,
-                    parameterValues, subqueries, cmd);
+            _queryHelper.compileQueryFull(parameterValues);
         }
 
         if (cacheKey == null) {
@@ -137,8 +135,7 @@ public class JDOQLQuery extends AbstractJDOQLQuery implements IDocumentumQuery {
     @Override
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Object performExecute(final Map parameters) {
-        return _queryHelper.performExecute(compilation, _datastoreCompilation,
-                parameters);
+        return _queryHelper.performExecute(parameters);
     }
 
     @Override
@@ -157,8 +154,24 @@ public class JDOQLQuery extends AbstractJDOQLQuery implements IDocumentumQuery {
     }
 
     @Override
-    public Collection getCandidateCollection() {
+    @SuppressWarnings("unchecked")
+    public Collection<R> getCandidateCollection() {
         return candidateCollection;
+    }
+
+    @Override
+    public AbstractClassMetaData getCandidateMetaData() {
+        return super.getCandidateClassMetaData();
+    }
+
+    @Override
+    public String getCandidateAlias() {
+        return compilation.getCandidateAlias();
+    }
+
+    @Override
+    public DQLQueryCompilation getDatastoreCompilation() {
+        return _datastoreCompilation;
     }
 
 }

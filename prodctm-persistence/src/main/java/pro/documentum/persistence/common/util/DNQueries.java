@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.ColumnMetaData;
@@ -19,7 +18,10 @@ import org.datanucleus.store.schema.table.Table;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfException;
 
+import pro.documentum.persistence.common.query.IDocumentumQuery;
 import pro.documentum.persistence.common.query.result.DQLQueryResult;
+import pro.documentum.persistence.common.query.result.IResultObjectFactory;
+import pro.documentum.persistence.common.query.result.PersistentObjectFactory;
 import pro.documentum.util.queries.DfIterator;
 import pro.documentum.util.queries.Queries;
 import pro.documentum.util.queries.ReservedWords;
@@ -33,13 +35,13 @@ public final class DNQueries {
         super();
     }
 
-    public static String getDqlTextForQuery(final ExecutionContext ec,
-            final AbstractClassMetaData cmd, final String candidateAlias,
-            final boolean subclasses, final String filterText,
-            final String resultText, final String orderText,
-            final Long rangeFromIncl, final Long rangeToExcl) {
+    public static <R, T extends Query<?> & IDocumentumQuery<R>> String getDqlTextForQuery(
+            final T query, final String filterText, final String resultText,
+            final String orderText, final Long rangeFromIncl,
+            final Long rangeToExcl) {
 
-        StoreData sd = DNMetaData.getStoreData(ec, cmd);
+        StoreData sd = DNMetaData.getStoreData(query.getExecutionContext(),
+                query.getCandidateMetaData());
         Table table = sd.getTable();
 
         String projection = resultText;
@@ -60,8 +62,8 @@ public final class DNQueries {
             queryBuilder.append(table.getSchemaName()).append(".");
         }
         queryBuilder.append(table.getName());
-        if (StringUtils.isNotBlank(candidateAlias)) {
-            queryBuilder.append(" ").append(candidateAlias);
+        if (StringUtils.isNotBlank(query.getCandidateAlias())) {
+            queryBuilder.append(" ").append(query.getCandidateAlias());
         }
 
         // Add any WHERE clause
@@ -78,20 +80,15 @@ public final class DNQueries {
         return queryBuilder.toString();
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    public static List<?> executeDqlQuery(final Query<?> query,
-            final IDfSession session, final String dqlText,
-            final AbstractClassMetaData candidateCmd) {
+    public static <R, T extends Query<?> & IDocumentumQuery<R>> List<R> executeDqlQuery(
+            final T query, final IDfSession session, final String dqlText) {
         boolean processed = false;
         List<DfIterator> collections = new ArrayList<>();
         try {
-            DQLQueryResult<?> result = new DQLQueryResult(query);
-            int[] members = query.getFetchPlan()
-                    .getFetchPlanForClass(candidateCmd).getMemberNumbers();
+            DQLQueryResult<R, T> result = new DQLQueryResult<R, T>(query);
             DfIterator cursor = Queries.execute(session, dqlText);
-            members = getPresentMembers(members, candidateCmd, cursor);
             collections.add(cursor);
-            result.addCandidateResult(candidateCmd, cursor, members);
+            result.addCandidateResult(cursor, getObjectFactory(query, cursor));
             processed = true;
             return result;
         } catch (DfException ex) {
@@ -103,6 +100,22 @@ public final class DNQueries {
                 }
             }
         }
+    }
+
+    private static <R, T extends Query<?> & IDocumentumQuery<R>> IResultObjectFactory<R> getObjectFactory(
+            final T query, final DfIterator cursor) throws DfException {
+        Class<?> resultClass = query.getResultClass();
+        Class<?> candidateClass = query.getCandidateClass();
+        if (query.getResult() != null
+                || (resultClass != null && resultClass != candidateClass)) {
+            return null;
+        }
+        AbstractClassMetaData candidateCmd = query.getCandidateMetaData();
+        int[] members = query.getFetchPlan().getFetchPlanForClass(candidateCmd)
+                .getMemberNumbers();
+        members = getPresentMembers(members, candidateCmd, cursor);
+        return new PersistentObjectFactory<R>(query.getCandidateMetaData(),
+                members, query.getIgnoreCache());
     }
 
     private static int[] getPresentMembers(final int[] members,

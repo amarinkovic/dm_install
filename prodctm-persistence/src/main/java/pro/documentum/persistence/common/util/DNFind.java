@@ -33,20 +33,8 @@ public final class DNFind {
             final IDfTypedObject dbObject, final ExecutionContext ec,
             final AbstractClassMetaData classMetaData, final int[] fpMembers,
             final boolean ignoreCache) {
-        Table table = DNMetaData.getStoreData(ec, classMetaData).getTable();
-        AbstractClassMetaData cmd = classMetaData;
-        if (cmd.hasDiscriminatorStrategy()) {
-            String disPropName = table.getDiscriminatorColumn().getName();
-            String discValue = DNValues.getString(dbObject, disPropName);
-            String clsName = ec.getMetaDataManager()
-                    .getClassNameFromDiscriminatorValue(discValue,
-                            cmd.getDiscriminatorMetaData());
-            if (!cmd.getFullClassName().equals(clsName) && clsName != null) {
-                cmd = ec.getMetaDataManager().getMetaDataForClass(clsName,
-                        ec.getClassLoaderResolver());
-            }
-        }
-
+        AbstractClassMetaData cmd = DNMetaData.getActualMetaData(dbObject, ec,
+                classMetaData);
         T pojo = null;
         if (cmd.getIdentityType() == IdentityType.APPLICATION) {
             pojo = getObjectUsingApplicationIdForDBObject(dbObject, cmd, ec,
@@ -66,15 +54,20 @@ public final class DNFind {
             final IDfTypedObject dbObject, final AbstractClassMetaData cmd,
             final ExecutionContext ec, final boolean ignoreCache,
             final int[] fpMembers) {
-        Table table = DNMetaData.getStoreData(ec, cmd).getTable();
-        FetchFieldManager fm = new FetchFieldManager(ec, dbObject, cmd, table);
+        FetchFieldManager fm = getFetchFieldManager(dbObject, cmd, ec);
         Object id = IdentityUtils.getApplicationIdentityForResultSetRow(ec,
                 cmd, null, false, fm);
-        Class<T> type = ec.getClassLoaderResolver().classForName(
-                cmd.getFullClassName());
+        Class<T> type = getClass(cmd, ec);
         T pc = findObject(ec, ignoreCache, fpMembers, fm, id, type);
         DNVersions.processVersion(ec, pc);
         return pc;
+    }
+
+    private static FetchFieldManager getFetchFieldManager(
+            final IDfTypedObject dbObject, final AbstractClassMetaData cmd,
+            final ExecutionContext ec) {
+        Table table = DNMetaData.getStoreData(ec, cmd).getTable();
+        return new FetchFieldManager(ec, dbObject, cmd, table);
     }
 
     @SuppressWarnings("unchecked")
@@ -83,15 +76,20 @@ public final class DNFind {
             final ExecutionContext ec, final boolean ignoreCache,
             final int[] fpMembers) {
         Object idKey = DNValues.getObjectId(dbObject);
-        Table table = DNMetaData.getStoreData(ec, cmd).getTable();
-        FetchFieldManager fm = new FetchFieldManager(ec, dbObject, cmd, table);
+        FetchFieldManager fm = getFetchFieldManager(dbObject, cmd, ec);
         Object id = ec.getNucleusContext().getIdentityManager()
                 .getDatastoreId(cmd.getFullClassName(), idKey);
-        Class<T> type = ec.getClassLoaderResolver().classForName(
-                cmd.getFullClassName());
+        Class<T> type = getClass(cmd, ec);
         T pc = findObject(ec, ignoreCache, fpMembers, fm, id, type);
         DNVersions.processVersion(ec, pc);
         return pc;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Class<T> getClass(final AbstractClassMetaData cmd,
+            final ExecutionContext ec) {
+        return (Class<T>) ec.getClassLoaderResolver().classForName(
+                cmd.getFullClassName());
     }
 
     @SuppressWarnings("unchecked")
@@ -102,8 +100,7 @@ public final class DNFind {
         Table table = DNMetaData.getStoreData(ec, cmd).getTable();
         Object id = new SCOID(cmd.getFullClassName());
         FetchFieldManager fm = new FetchFieldManager(ec, dbObject, cmd, table);
-        Class<T> type = ec.getClassLoaderResolver().classForName(
-                cmd.getFullClassName());
+        Class<T> type = getClass(cmd, ec);
         T pc = findObject(ec, ignoreCache, fpMembers, fm, id, type);
         DNVersions.processVersion(ec, pc);
         return pc;

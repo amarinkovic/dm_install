@@ -1,29 +1,41 @@
 package pro.documentum.persistence.common.fieldmanager;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.ExecutionContext;
 import org.datanucleus.exceptions.NucleusException;
+import org.datanucleus.exceptions.NucleusUserException;
+import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.ColumnMetaData;
 import org.datanucleus.metadata.ElementMetaData;
-import org.datanucleus.metadata.FieldPersistenceModifier;
+import org.datanucleus.metadata.EmbeddedMetaData;
+import org.datanucleus.metadata.FieldRole;
 import org.datanucleus.metadata.IdentityStrategy;
+import org.datanucleus.metadata.MetaDataManager;
 import org.datanucleus.metadata.MetaDataUtils;
 import org.datanucleus.metadata.RelationType;
 import org.datanucleus.state.ObjectProvider;
+import org.datanucleus.state.ObjectProviderFactory;
 import org.datanucleus.store.fieldmanager.AbstractFetchFieldManager;
+import org.datanucleus.store.fieldmanager.FieldManager;
 import org.datanucleus.store.schema.table.MemberColumnMapping;
 import org.datanucleus.store.schema.table.Table;
 
 import com.documentum.fc.client.IDfTypedObject;
+import com.documentum.fc.common.DfException;
 
-import pro.documentum.persistence.common.util.DNClasses;
 import pro.documentum.persistence.common.util.DNMetaData;
+import pro.documentum.persistence.common.util.DNRelation;
 import pro.documentum.persistence.common.util.DNValues;
+import pro.documentum.persistence.common.util.DfExceptions;
+import pro.documentum.util.java.Classes;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -152,41 +164,223 @@ public class FetchFieldManager extends AbstractFetchFieldManager implements
 
     @Override
     public Object fetchObjectField(final int fieldNumber) {
-        AbstractMemberMetaData mmd = getMemberMetadata(fieldNumber);
-        if (mmd.getPersistenceModifier() != FieldPersistenceModifier.PERSISTENT) {
-            return op.provideField(fieldNumber);
-        }
+        try {
+            AbstractMemberMetaData mmd = getMemberMetadata(fieldNumber);
+            if (!DNMetaData.isPersistent(mmd)) {
+                return op.provideField(fieldNumber);
+            }
 
-        ClassLoaderResolver clr = ec.getClassLoaderResolver();
-        RelationType relationType = mmd.getRelationType(clr);
-        boolean isEmbedded = MetaDataUtils.getInstance().isMemberEmbedded(
-                ec.getMetaDataManager(), clr, mmd, relationType, null);
+            boolean isEmbedded = isEmbedded(mmd);
+            RelationType relationType = getRelationType(mmd);
 
-        if (mmd.hasContainer()) {
-            if (mmd.hasArray() || mmd.hasCollection()) {
-                return fetchAsCollection(fieldNumber, mmd);
-            } else if (mmd.hasMap()) {
+            if (!isEmbedded) {
+                return fetchNonEmbedded(mmd, fieldNumber);
+            }
+
+            if (RelationType.isRelationSingleValued(relationType)) {
+                return fetchSingleEmbedded(mmd, fieldNumber);
+            }
+
+            if (RelationType.isRelationMultiValued(relationType)) {
                 return null;
             }
+
+            return null;
+        } catch (DfException ex) {
+            throw DfExceptions.dataStoreException(ex);
         }
-        return fetchSingleField(fieldNumber, (Class<?>) mmd.getType());
     }
 
-    protected Object fetchAsCollection(final int fieldNumber,
-            final AbstractMemberMetaData mmd) {
-        AbstractClassMetaData elementMetadata = DNMetaData.getElementMetadata(
-                ec, mmd);
-        if (elementMetadata != null) {
-            return null;
+    protected RelationType getRelationType(final AbstractMemberMetaData mmd) {
+        ClassLoaderResolver clr = getClassLoaderResolver();
+        return mmd.getRelationType(clr);
+    }
+
+    protected boolean isEmbedded(final AbstractMemberMetaData mmd) {
+        return MetaDataUtils.getInstance().isMemberEmbedded(
+                getMetaDataManager(), getClassLoaderResolver(), mmd,
+                getRelationType(mmd), null);
+    }
+
+    protected MetaDataManager getMetaDataManager() {
+        return ec.getMetaDataManager();
+    }
+
+    protected ClassLoaderResolver getClassLoaderResolver() {
+        return ec.getClassLoaderResolver();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Object fetchNonEmbedded(final AbstractMemberMetaData mmd,
+            final int fieldNumber) {
+        Class<?> elementClass = getElementClass(mmd, String.class);
+        Object result = null;
+        if (!mmd.hasContainer()) {
+            result = fetchSingleField(fieldNumber, elementClass);
+        } else if (mmd.hasArray() || mmd.hasCollection()) {
+            result = fetchAsCollectionOrArray(fieldNumber, mmd, elementClass);
+        } else {
+            result = null;
         }
-        String elementType = DNMetaData.getElementClassName(ec, mmd);
-        Class<?> elementClass = DNClasses.getClass(elementType);
+
+        RelationType relationType = getRelationType(mmd);
+        if (DNRelation.isNone(relationType)) {
+            return result;
+        }
+
+        if (RelationType.isRelationSingleValued(relationType)) {
+            return getValueForSingleRelationField(mmd, (String) result,
+                    FieldRole.ROLE_FIELD);
+        }
+
+        if (RelationType.isRelationMultiValued(relationType)) {
+            if (mmd.hasArray()) {
+                return getValueForMultiRelationField(mmd, (String[]) result);
+            }
+            if (mmd.hasCollection()) {
+                return getValueForMultiRelationField(mmd,
+                        (Collection<String>) result);
+            }
+        }
+
+        return null;
+    }
+
+    protected Class<?> getElementClass(final AbstractMemberMetaData mmd,
+            final Class<?> nonObjectClass) {
+        RelationType relationType = getRelationType(mmd);
+        if (!DNRelation.isNone(relationType)) {
+            return nonObjectClass;
+        }
+        if (!mmd.hasContainer()) {
+            return (Class<?>) mmd.getType();
+        }
+        return DNMetaData.getElementClass(ec, mmd);
+    }
+
+    protected Object fetchAsCollectionOrArray(final int fieldNumber,
+            final AbstractMemberMetaData mmd, final Class<?> elementClass) {
         if (mmd.hasArray()) {
-            return fetchAsArray(fieldNumber, (Class<?>) mmd.getType());
+            return fetchAsArray(fieldNumber,
+                    Classes.getArrayClass(elementClass));
         }
         @SuppressWarnings("unchecked")
         Class<? extends Collection<?>> containerType = mmd.getType();
         return fetchAsCollection(fieldNumber, elementClass, containerType);
+    }
+
+    protected Object getValueForMultiRelationField(
+            final AbstractMemberMetaData mmd, final String[] values) {
+        Class<?> elementClass = DNMetaData.getElementClass(ec, mmd);
+        Object result = Array.newInstance(elementClass, values.length);
+        for (int i = 0; i < values.length; i++) {
+            Object value = getValueForSingleRelationField(mmd, values[i],
+                    FieldRole.ROLE_ARRAY_ELEMENT);
+            Array.set(result, i, value);
+        }
+        return result;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    protected Object getValueForMultiRelationField(
+            final AbstractMemberMetaData mmd, final Collection<String> values) {
+        Collection collection = Classes.newCollection(mmd.getType());
+        for (String id : values) {
+            Object value = getValueForSingleRelationField(mmd, id,
+                    FieldRole.ROLE_COLLECTION_ELEMENT);
+            collection.add(value);
+        }
+        return collection;
+    }
+
+    protected Object getValueForSingleRelationField(
+            final AbstractMemberMetaData mmd, final String value,
+            final FieldRole fieldRole) {
+        if (value == null) {
+            return null;
+        }
+
+        AbstractClassMetaData memberCmd = getMetaDataForClass(mmd);
+        if (memberCmd != null) {
+            return IdentityUtils.getObjectFromIdString(value, memberCmd, ec,
+                    true);
+        }
+
+        String[] implNames = getImplementationsForReferenceField(mmd, fieldRole);
+        if (implNames == null || implNames.length == 0) {
+            throw new NucleusUserException(
+                    "We do not currently support the field type of "
+                            + mmd.getFullFieldName()
+                            + " which has an interdeterminate type (e.g interface or Object element types)");
+        }
+
+        // noinspection LoopStatementThatDoesntLoop
+        for (String implName : implNames) {
+            memberCmd = getMetaDataForClass(implName);
+            return IdentityUtils.getObjectFromPersistableIdentity(value,
+                    memberCmd, ec);
+        }
+
+        return null;
+    }
+
+    private String[] getImplementationsForReferenceField(
+            final AbstractMemberMetaData mmd, final FieldRole fieldRole) {
+        return MetaDataUtils.getInstance()
+                .getImplementationNamesForReferenceField(mmd, fieldRole,
+                        getClassLoaderResolver(), ec.getMetaDataManager());
+    }
+
+    protected Object fetchSingleEmbedded(final AbstractMemberMetaData mmd,
+            final int fieldNumber) throws DfException {
+        AbstractClassMetaData embcmd = getMetaDataForClass(mmd);
+        if (embcmd == null) {
+            throw new NucleusUserException("Field " + mmd.getFullFieldName()
+                    + " marked as embedded but no such metadata");
+        }
+        embcmd = DNMetaData.getActualMetaData(_object, ec, embcmd);
+        EmbeddedMetaData embmd = mmd.getEmbeddedMetaData();
+        AbstractMemberMetaData[] embmmds = embmd.getMemberMetaData();
+        boolean hasAllAttrs = true;
+        for (AbstractMemberMetaData embmmd : embmmds) {
+            String embFieldName = DNMetaData.getFieldName(embmmd);
+            if (_object.hasAttr(embFieldName)) {
+                continue;
+            }
+            hasAllAttrs = false;
+            break;
+        }
+
+        if (!hasAllAttrs) {
+            return null;
+        }
+
+        List<AbstractMemberMetaData> embMmds = new ArrayList<>();
+        embMmds.add(mmd);
+        ObjectProviderFactory opf = getObjectProviderFactory();
+        ObjectProvider eop = opf.newForEmbedded(ec, embcmd, op, fieldNumber);
+        FieldManager ffm = new FetchEmbeddedFieldManager(eop, _object, embMmds,
+                _table);
+        eop.replaceFields(embcmd.getAllMemberPositions(), ffm);
+        return eop.getObject();
+    }
+
+    protected AbstractClassMetaData getMetaDataForClass(
+            final AbstractMemberMetaData mmd) {
+        return getMetaDataForClass(mmd.getType());
+    }
+
+    protected AbstractClassMetaData getMetaDataForClass(final Class<?> cls) {
+        return getMetaDataForClass(cls.getName());
+    }
+
+    protected AbstractClassMetaData getMetaDataForClass(final String className) {
+        return getMetaDataManager().getMetaDataForClass(className,
+                getClassLoaderResolver());
+    }
+
+    protected ObjectProviderFactory getObjectProviderFactory() {
+        return ec.getNucleusContext().getObjectProviderFactory();
     }
 
 }

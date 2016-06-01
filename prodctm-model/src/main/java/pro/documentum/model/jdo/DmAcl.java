@@ -3,12 +3,16 @@ package pro.documentum.model.jdo;
 import java.util.List;
 
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.Element;
+import javax.jdo.annotations.Embedded;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+
+import pro.documentum.model.jdo.embedded.DmPermit;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -47,41 +51,14 @@ public class DmAcl extends AbstractPersistent {
     @Setter
     private boolean internal;
 
-    @Column(name = "r_accessor_name")
+    @Element(types = {DmPermit.class, }, embedded = "true", embeddedMapping = {@Embedded(members = {
+        @Persistent(name = "accessorName", columns = @Column(name = "r_accessor_name")),
+        @Persistent(name = "accessorPermit", columns = @Column(name = "r_accessor_permit")),
+        @Persistent(name = "accessorXPermit", columns = @Column(name = "r_accessor_xpermit")), }) })
     @Persistent(defaultFetchGroup = "true", serialized = "true")
     @Getter
     @Setter
-    private List<String> accessorNames;
-
-    @Column(name = "r_accessor_permit")
-    @Persistent(defaultFetchGroup = "true", serialized = "true")
-    @Getter
-    @Setter
-    private List<Integer> accessorPermits;
-
-    @Column(name = "r_accessor_xpermit")
-    @Persistent(defaultFetchGroup = "true", serialized = "true")
-    @Getter
-    @Setter
-    private List<Integer> accessorXPermits;
-
-    @Column(name = "r_is_group")
-    @Persistent(defaultFetchGroup = "true", serialized = "true")
-    @Getter
-    @Setter
-    private List<Boolean> group;
-
-    @Column(name = "r_permit_type")
-    @Persistent(defaultFetchGroup = "true", serialized = "true")
-    @Getter
-    @Setter
-    private List<Integer> permitTypes;
-
-    @Column(name = "r_application_permit")
-    @Persistent(defaultFetchGroup = "true", serialized = "true")
-    @Getter
-    @Setter
-    private List<String> applicationPermits;
+    private List<DmPermit> permits;
 
     @Column(name = "r_has_events")
     @Getter

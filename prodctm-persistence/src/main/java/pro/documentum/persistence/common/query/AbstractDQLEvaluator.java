@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.datanucleus.ClassLoaderResolver;
-import org.datanucleus.ExecutionContext;
 import org.datanucleus.exceptions.NucleusException;
 import org.datanucleus.exceptions.NucleusUserException;
 import org.datanucleus.metadata.AbstractClassMetaData;
@@ -16,7 +15,6 @@ import org.datanucleus.metadata.MetaDataManager;
 import org.datanucleus.metadata.MetaDataUtils;
 import org.datanucleus.metadata.RelationType;
 import org.datanucleus.query.compiler.CompilationComponent;
-import org.datanucleus.query.compiler.QueryCompilation;
 import org.datanucleus.query.evaluator.AbstractExpressionEvaluator;
 import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.ParameterExpression;
@@ -34,21 +32,14 @@ import pro.documentum.persistence.common.util.DNRelation;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
+public abstract class AbstractDQLEvaluator<R, T extends Query<?> & IDocumentumQuery<R>>
+        extends AbstractExpressionEvaluator {
 
     private final Deque<DQLExpression> _exprs = new ArrayDeque<>();
 
-    private final Query<?> _query;
-
-    private final ExecutionContext _executionContext;
-
-    private final AbstractClassMetaData _classMetaData;
-
-    private final QueryCompilation _queryCompilation;
+    private final T _query;
 
     private final Map<?, ?> _params;
-
-    private final Map<String, Query.SubqueryDefinition> _subqueries;
 
     private String _filterText;
 
@@ -68,16 +59,8 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
 
     private int _positionalParamNumber = -1;
 
-    public AbstractDQLEvaluator(final QueryCompilation compilation,
-            final Map<?, ?> params,
-            final Map<String, Query.SubqueryDefinition> subqueries,
-            final AbstractClassMetaData classMetaData,
-            final ExecutionContext executionContext, final Query<?> query) {
-        _queryCompilation = compilation;
+    public AbstractDQLEvaluator(final T query, final Map<?, ?> params) {
         _params = params;
-        _subqueries = subqueries;
-        _executionContext = executionContext;
-        _classMetaData = classMetaData;
         _query = query;
     }
 
@@ -113,22 +96,20 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
         if (isResultComplete()) {
             resultText = getResultText();
         }
-        String dqlText = DNQueries
-                .getDqlTextForQuery(_executionContext, _classMetaData,
-                        getCandidateAlias(), isSubclasses(), getFilterText(),
-                        resultText, getOrderText(), rangeFrom, rangeTo);
+        String dqlText = DNQueries.getDqlTextForQuery(_query, getFilterText(),
+                resultText, getOrderText(), rangeFrom, rangeTo);
         dqlCompilation.setDqlText(dqlText);
     }
 
     protected void compileFilter() {
-        if (_queryCompilation.getExprFilter() == null) {
+        if (_query.getCompilation().getExprFilter() == null) {
             return;
         }
 
         setCompilationComponent(CompilationComponent.FILTER);
 
         try {
-            _queryCompilation.getExprFilter().evaluate(this);
+            _query.getCompilation().getExprFilter().evaluate(this);
             DQLExpression dqlExpr = popExpression();
             setFilterText(dqlExpr.getText());
         } catch (Exception e) {
@@ -161,7 +142,7 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
     }
 
     protected Expression[] getExprOrdering() {
-        return _queryCompilation.getExprOrdering();
+        return _query.getCompilation().getExprOrdering();
     }
 
     protected void compileResult() {
@@ -186,7 +167,7 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
     }
 
     protected Expression[] getExprResult() {
-        return _queryCompilation.getExprResult();
+        return _query.getCompilation().getExprResult();
     }
 
     protected abstract void doCompileOrder();
@@ -238,9 +219,9 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
             return null;
         }
 
-        AbstractClassMetaData cmd = _classMetaData;
-        Table table = DNMetaData.getStoreData(_executionContext, cmd)
-                .getTable();
+        AbstractClassMetaData cmd = _query.getCandidateMetaData();
+        Table table = DNMetaData
+                .getStoreData(_query.getExecutionContext(), cmd).getTable();
         AbstractMemberMetaData embMmd = null;
 
         List<AbstractMemberMetaData> embMmds = new ArrayList<>();
@@ -249,7 +230,7 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
             boolean hasNext = i < n - 1;
             String name = tuples.get(i);
             if (i == 0 && name.equals(getCandidateAlias())) {
-                cmd = _classMetaData;
+                cmd = _query.getCandidateMetaData();
                 continue;
             }
 
@@ -401,10 +382,6 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
         _compilationComponent = compilationComponent;
     }
 
-    protected boolean isSubclasses() {
-        return _query.isSubclasses();
-    }
-
     protected long getRangeFromIncl() {
         return _query.getRangeFromIncl();
     }
@@ -414,23 +391,15 @@ public abstract class AbstractDQLEvaluator extends AbstractExpressionEvaluator {
     }
 
     protected ClassLoaderResolver getClassLoaderResolver() {
-        return _executionContext.getClassLoaderResolver();
+        return _query.getExecutionContext().getClassLoaderResolver();
     }
 
     protected String getCandidateAlias() {
-        return _queryCompilation.getCandidateAlias();
+        return _query.getCandidateAlias();
     }
 
     protected MetaDataManager getMetaDataManager() {
-        return _executionContext.getMetaDataManager();
-    }
-
-    public boolean hasSubQuery(final String name) {
-        return _subqueries != null && _subqueries.containsKey(name);
-    }
-
-    public Query.SubqueryDefinition getSubQuery(final String name) {
-        return _subqueries.get(name);
+        return _query.getExecutionContext().getMetaDataManager();
     }
 
 }

@@ -35,11 +35,11 @@ public final class DQLIN extends DQLBoolean {
             return null;
         }
         List<Expression> args = invokeExpr.getArguments();
-        if (!hasRequiredArgs(args, 1)) {
+        if (!Expressions.hasRequiredArgs(args, 1)) {
             return null;
         }
         Expression arg = args.get(0);
-        if (!isPrimary(arg)) {
+        if (!Expressions.isPrimary(arg)) {
             return null;
         }
         if (arg.evaluate(evaluator) == null) {
@@ -47,7 +47,8 @@ public final class DQLIN extends DQLBoolean {
         }
         DQLField field = (DQLField) evaluator.popExpression();
         Expression left = invokeExpr.getLeft();
-        if (!isLiteralOrParameter(left) && !isVariable(left)) {
+        if (!Expressions.isLiteralOrParameter(left)
+                && !Expressions.isVariable(left)) {
             return null;
         }
         if (left.evaluate(evaluator) == null) {

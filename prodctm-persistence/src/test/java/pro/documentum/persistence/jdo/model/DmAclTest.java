@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.jdo.Query;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import pro.documentum.model.jdo.DmAcl;
@@ -16,11 +17,13 @@ import pro.documentum.persistence.jdo.JDOTestSupport;
 public class DmAclTest extends JDOTestSupport {
 
     @Test
+    @Ignore
     public void testAcl() throws Exception {
         Query query = getPersistenceManager().newQuery(DmAcl.class);
         List<DmAcl> results = (List<DmAcl>) query.execute();
         assertNotNull(results);
         DmAcl acl = results.get(0);
+        assertNotNull(acl.getPermits());
         query.close(results);
         assertNotNull(acl);
     }

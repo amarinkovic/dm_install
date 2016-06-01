@@ -14,6 +14,7 @@ import org.datanucleus.metadata.ArrayMetaData;
 import org.datanucleus.metadata.CollectionMetaData;
 import org.datanucleus.metadata.ColumnMetaData;
 import org.datanucleus.metadata.ElementMetaData;
+import org.datanucleus.metadata.FieldPersistenceModifier;
 import org.datanucleus.metadata.MetaDataManager;
 import org.datanucleus.store.StoreData;
 import org.datanucleus.store.schema.table.Column;
@@ -22,9 +23,11 @@ import org.datanucleus.store.schema.table.Table;
 
 import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfType;
+import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
 
 import pro.documentum.persistence.common.DocumentumStoreManager;
+import pro.documentum.util.java.Classes;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -63,6 +66,11 @@ public final class DNMetaData {
             }
         }
         return null;
+    }
+
+    public static Class<?> getElementClass(final ExecutionContext ec,
+            final AbstractMemberMetaData mmd) {
+        return Classes.getClass(getElementClassName(ec, mmd));
     }
 
     public static String getElementClassName(final ExecutionContext ec,
@@ -174,6 +182,43 @@ public final class DNMetaData {
             result.add(c.getName());
         }
         return result;
+    }
+
+    public static AbstractClassMetaData getActualMetaData(
+            final IDfTypedObject dbObject, final ExecutionContext ec,
+            final AbstractClassMetaData classMetaData) {
+        AbstractClassMetaData cmd = classMetaData;
+        if (!cmd.hasDiscriminatorStrategy()) {
+            return cmd;
+        }
+        Table table = getStoreData(ec, classMetaData).getTable();
+        String discriminatorProperty = table.getDiscriminatorColumn().getName();
+        String discriminatorValue = DNValues.getString(dbObject,
+                discriminatorProperty);
+        String className = ec.getMetaDataManager()
+                .getClassNameFromDiscriminatorValue(discriminatorValue,
+                        cmd.getDiscriminatorMetaData());
+        if (!cmd.getFullClassName().equals(className)) {
+            cmd = ec.getMetaDataManager().getMetaDataForClass(className,
+                    ec.getClassLoaderResolver());
+        }
+        return cmd;
+    }
+
+    public static boolean isPersistent(final AbstractMemberMetaData mmd) {
+        return mmd.getPersistenceModifier() == FieldPersistenceModifier.PERSISTENT;
+    }
+
+    public static String getFieldName(final AbstractMemberMetaData embMmd) {
+        String columnName = null;
+        ColumnMetaData[] colmds = embMmd.getColumnMetaData();
+        if (colmds != null && colmds.length > 0) {
+            columnName = colmds[0].getName();
+        }
+        if (columnName == null) {
+            columnName = embMmd.getName();
+        }
+        return columnName;
     }
 
 }

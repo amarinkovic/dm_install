@@ -29,7 +29,7 @@ public class DQLAny extends DQLBoolean {
             return null;
         }
         List<Expression> anyExprs = invokeExpr.getArguments();
-        if (!hasRequiredArgs(anyExprs, 1)) {
+        if (!Expressions.hasRequiredArgs(anyExprs, 1)) {
             return null;
         }
         Expression anyExpr = anyExprs.get(0);

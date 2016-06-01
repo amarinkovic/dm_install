@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.datanucleus.ExecutionContext;
-import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.store.query.AbstractQueryResult;
 import org.datanucleus.store.query.AbstractQueryResultIterator;
 import org.datanucleus.store.query.Query;
@@ -24,21 +23,22 @@ import org.datanucleus.util.WeakValueMap;
 import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
 
-import pro.documentum.persistence.common.util.DNFind;
+import pro.documentum.persistence.common.query.IDocumentumQuery;
 import pro.documentum.util.queries.DfIterator;
 
-public class DQLQueryResult<E> extends AbstractQueryResult<E> {
+public class DQLQueryResult<R, T extends Query<?> & IDocumentumQuery<R>> extends
+        AbstractQueryResult<R> {
 
     private static final long serialVersionUID = -8682935620558424082L;
 
     private final ExecutionContext _ec;
 
-    private final Map<Integer, E> _itemsByIndex;
+    private final Map<Integer, R> _itemsByIndex;
 
-    private List<CandidateClassResult> _results = new ArrayList<>();
+    private List<CandidateClassResult<R>> _results = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
-    public DQLQueryResult(final Query<?> query) {
+    public DQLQueryResult(final T query) {
         super(query);
         _ec = query.getExecutionContext();
 
@@ -67,9 +67,9 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
         }
     }
 
-    public void addCandidateResult(final AbstractClassMetaData cmd,
-            final DfIterator cursor, final int[] fpMembers) throws DfException {
-        _results.add(new CandidateClassResult(cmd, cursor, fpMembers));
+    public void addCandidateResult(final DfIterator cursor,
+            final IResultObjectFactory<R> objectFactory) throws DfException {
+        _results.add(new CandidateClassResult<R>(cursor, objectFactory));
     }
 
     @Override
@@ -103,7 +103,7 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
         if (_itemsByIndex != null) {
             _itemsByIndex.clear();
         }
-        for (CandidateClassResult result : _results) {
+        for (CandidateClassResult<R> result : _results) {
             result.close();
         }
         _results = null;
@@ -126,7 +126,7 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
     }
 
     @Override
-    public E get(final int index) {
+    public R get(final int index) {
         if (index < 0) {
             throw new IndexOutOfBoundsException("Index must be 0 or higher");
         }
@@ -136,7 +136,7 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
         }
 
         while (true) {
-            E nextPojo = getNextObject();
+            R nextPojo = getNextObject();
             // noinspection ConstantConditions
             if (_itemsByIndex.size() == (index + 1)) {
                 return nextPojo;
@@ -153,9 +153,9 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
         if (_results.isEmpty()) {
             return false;
         }
-        Iterator<CandidateClassResult> iter = _results.iterator();
+        Iterator<CandidateClassResult<R>> iter = _results.iterator();
         while (iter.hasNext()) {
-            CandidateClassResult result = iter.next();
+            CandidateClassResult<R> result = iter.next();
             Iterator<IDfTypedObject> inner = result.iterator();
             if (inner.hasNext()) {
                 return true;
@@ -165,17 +165,17 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
         return false;
     }
 
-    protected E getNextObject() {
+    protected R getNextObject() {
         if (!hasNext()) {
             return null;
         }
-        E pojo = null;
-        Iterator<CandidateClassResult> iter = _results.iterator();
+        R pojo = null;
+        Iterator<CandidateClassResult<R>> iter = _results.iterator();
         outer: while (iter.hasNext()) {
-            CandidateClassResult result = iter.next();
+            CandidateClassResult<R> result = iter.next();
             // noinspection LoopStatementThatDoesntLoop
             for (IDfTypedObject dbObject : result) {
-                pojo = getPojoForCandidate(result, dbObject);
+                pojo = result.getPojoForCandidate(_ec, dbObject);
                 addObject(pojo);
                 break outer;
             }
@@ -184,14 +184,7 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
         return pojo;
     }
 
-    private E getPojoForCandidate(final CandidateClassResult result,
-            final IDfTypedObject dbObject) {
-        return DNFind.getPojoForDBObjectForCandidate(dbObject, _ec,
-                result.getClassMetaData(), result.getMembers(),
-                query.getIgnoreCache());
-    }
-
-    private void addObject(final E pojo) {
+    private void addObject(final R pojo) {
         _itemsByIndex.put(_itemsByIndex.size(), pojo);
     }
 
@@ -214,12 +207,12 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
     }
 
     @Override
-    public Iterator<E> iterator() {
+    public Iterator<R> iterator() {
         return new QueryResultIterator();
     }
 
     @Override
-    public ListIterator<E> listIterator() {
+    public ListIterator<R> listIterator() {
         return new QueryResultIterator();
     }
 
@@ -229,7 +222,7 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
             return false;
         }
 
-        DQLQueryResult<?> other = (DQLQueryResult) o;
+        DQLQueryResult<?, ?> other = (DQLQueryResult) o;
         if (_results != null) {
             return other._results.equals(_results);
         } else if (query != null) {
@@ -244,16 +237,16 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
         return super.hashCode();
     }
 
-    protected List<E> writeReplace() throws ObjectStreamException {
+    protected List<R> writeReplace() throws ObjectStreamException {
         disconnect();
-        List<E> list = new ArrayList<>();
+        List<R> list = new ArrayList<>();
         for (int i = 0; i < _itemsByIndex.size(); i++) {
             list.add(_itemsByIndex.get(i));
         }
         return list;
     }
 
-    private class QueryResultIterator extends AbstractQueryResultIterator<E> {
+    private class QueryResultIterator extends AbstractQueryResultIterator<R> {
 
         private int _nextRowNum;
 
@@ -280,18 +273,18 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
         }
 
         @Override
-        public E next() {
+        public R next() {
             synchronized (DQLQueryResult.this) {
                 if (!isOpen()) {
                     throw new NoSuchElementException(Localiser.msg("052600"));
                 }
                 if (_nextRowNum < _itemsByIndex.size()) {
-                    E pojo = _itemsByIndex.get(_nextRowNum);
+                    R pojo = _itemsByIndex.get(_nextRowNum);
                     ++_nextRowNum;
                     return pojo;
                 }
                 if (hasNext()) {
-                    E pojo = getNextObject();
+                    R pojo = getNextObject();
                     ++_nextRowNum;
                     return pojo;
                 }
@@ -310,7 +303,7 @@ public class DQLQueryResult<E> extends AbstractQueryResult<E> {
         }
 
         @Override
-        public E previous() {
+        public R previous() {
             throw new UnsupportedOperationException("Not yet implemented");
         }
 

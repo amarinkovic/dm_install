@@ -3,7 +3,7 @@ package pro.documentum.persistence.common.query.result;
 import java.io.Closeable;
 import java.util.Iterator;
 
-import org.datanucleus.metadata.AbstractClassMetaData;
+import org.datanucleus.ExecutionContext;
 
 import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
@@ -13,27 +13,16 @@ import pro.documentum.util.queries.DfIterator;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-class CandidateClassResult implements Iterable<IDfTypedObject>, Closeable {
-
-    private final AbstractClassMetaData _classMetaData;
+class CandidateClassResult<T> implements Iterable<IDfTypedObject>, Closeable {
 
     private final DfIterator _iterator;
 
-    private final int[] _members;
+    private final IResultObjectFactory<T> _objectFactory;
 
-    CandidateClassResult(final AbstractClassMetaData classMetaData,
-            final DfIterator curs, final int[] fpMembers) throws DfException {
-        _classMetaData = classMetaData;
+    CandidateClassResult(final DfIterator curs,
+            final IResultObjectFactory<T> objectFactory) throws DfException {
         _iterator = curs;
-        _members = fpMembers;
-    }
-
-    public AbstractClassMetaData getClassMetaData() {
-        return _classMetaData;
-    }
-
-    public int[] getMembers() {
-        return _members;
+        _objectFactory = objectFactory;
     }
 
     @Override
@@ -44,6 +33,11 @@ class CandidateClassResult implements Iterable<IDfTypedObject>, Closeable {
     @Override
     public void close() {
         _iterator.close();
+    }
+
+    public T getPojoForCandidate(final ExecutionContext context,
+            final IDfTypedObject dbObject) {
+        return _objectFactory.getObject(context, dbObject);
     }
 
 }

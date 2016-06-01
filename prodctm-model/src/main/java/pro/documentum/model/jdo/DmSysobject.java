@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.Element;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
@@ -39,13 +40,13 @@ public class DmSysobject extends AbstractPersistent {
 
     @Column(name = "i_chronicle_id")
     @Getter
-    private String chronicleId;
+    private DmSysobject chronicle;
 
     @Column(name = "i_folder_id")
-    @Persistent(defaultFetchGroup = "true", serialized = "true")
-    @Getter
+    @Element(types = {DmFolder.class, })
     @Setter
-    private List<String> folderIds;
+    @Getter
+    private List<DmFolder> folders;
 
     @Column(name = "r_version_label")
     @Persistent(defaultFetchGroup = "true", serialized = "true")
@@ -64,7 +65,7 @@ public class DmSysobject extends AbstractPersistent {
     @Column(name = "i_cabinet_id")
     @Getter
     @Setter
-    private String cabinetId;
+    private DmCabinet cabinet;
 
     @Column(name = "owner_name")
     @Getter
@@ -74,15 +75,10 @@ public class DmSysobject extends AbstractPersistent {
     @Getter
     private String creatorName;
 
-    @Column(name = "acl_name")
+    @Column
     @Getter
     @Setter
-    private String aclName;
-
-    @Column(name = "acl_domain")
-    @Getter
-    @Setter
-    private String aclDomain;
+    private DmAcl acl;
 
     @Column(name = "r_lock_owner")
     @Getter

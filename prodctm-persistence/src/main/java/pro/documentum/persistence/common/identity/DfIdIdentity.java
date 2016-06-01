@@ -19,6 +19,10 @@ public class DfIdIdentity implements DatastoreId, Comparable<DfIdIdentity> {
         this(null, DfId.DF_NULLID_STR);
     }
 
+    public DfIdIdentity(final String dfId) {
+        this(null, dfId);
+    }
+
     public DfIdIdentity(final String className, final Object id) {
         if (id == null) {
             _dfId = DfId.DF_NULLID_STR;

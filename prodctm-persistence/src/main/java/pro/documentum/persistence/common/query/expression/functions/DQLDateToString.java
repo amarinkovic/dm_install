@@ -8,6 +8,7 @@ import org.datanucleus.query.expression.InvokeExpression;
 import pro.documentum.persistence.common.query.IDQLEvaluator;
 import pro.documentum.persistence.common.query.IInvokeEvaluator;
 import pro.documentum.persistence.common.query.expression.DQLExpression;
+import pro.documentum.persistence.common.query.expression.Expressions;
 import pro.documentum.persistence.common.query.expression.literals.DQLString;
 
 /**
@@ -34,14 +35,15 @@ public final class DQLDateToString extends DQLFieldFunc {
         if (dateExprs.size() != 2) {
             return null;
         }
-        if (!isPrimary(dateExprs.get(0))) {
+        if (!Expressions.isPrimary(dateExprs.get(0))) {
             return null;
         }
-        if (!isLiteralOrParameter(dateExprs.get(1))) {
+        if (!Expressions.isLiteralOrParameter(dateExprs.get(1))) {
             return null;
         }
         DQLExpression field = (DQLExpression) evaluator
-                .processPrimaryExpression(asPrimary(dateExprs.get(0)));
+                .processPrimaryExpression(Expressions.asPrimary(dateExprs
+                        .get(0)));
         if (field == null) {
             return null;
         }

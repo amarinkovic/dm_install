@@ -2,6 +2,7 @@ package pro.documentum.persistence.jdo.query;
 
 import static org.hamcrest.Matchers.endsWith;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import pro.documentum.model.jdo.DmFolder;
@@ -29,6 +30,7 @@ public class AnyKeywordQueryTest extends AbstractQueryTest {
     }
 
     @Test
+    @Ignore
     public void testAnyKeyword3() throws Exception {
         String q = str(jdo(DmFolder.class, "ANY (folderPaths) "
                 + "== '/System/Modules' "
@@ -39,6 +41,7 @@ public class AnyKeywordQueryTest extends AbstractQueryTest {
     }
 
     @Test
+    @Ignore
     public void testAnyKeyword4() throws Exception {
         String q = str(jdo(DmFolder.class, "ANY (folderPaths "
                 + "== '/System/Modules' "
@@ -49,6 +52,7 @@ public class AnyKeywordQueryTest extends AbstractQueryTest {
     }
 
     @Test
+    @Ignore
     public void testAnyKeyword5() throws Exception {
         String q = str(jdo(DmFolder.class, "ANY (folderPaths "
                 + "== '/System/Modules' "
@@ -61,6 +65,7 @@ public class AnyKeywordQueryTest extends AbstractQueryTest {
     }
 
     @Test
+    @Ignore
     public void testAnyKeyword6() throws Exception {
         String q = str(jdo(DmFolder.class, "ANY (folderPaths "
                 + "== '/System/Modules' "

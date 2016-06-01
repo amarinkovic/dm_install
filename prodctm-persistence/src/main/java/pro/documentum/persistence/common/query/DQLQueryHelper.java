@@ -7,9 +7,6 @@ import java.util.Map;
 
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.ExecutionContext;
-import org.datanucleus.metadata.AbstractClassMetaData;
-import org.datanucleus.metadata.MetaDataManager;
-import org.datanucleus.query.compiler.QueryCompilation;
 import org.datanucleus.query.evaluator.JDOQLEvaluator;
 import org.datanucleus.query.evaluator.JavaQueryEvaluator;
 import org.datanucleus.store.StoreManager;
@@ -29,7 +26,7 @@ import pro.documentum.persistence.common.util.DNQueries;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DQLQueryHelper<T extends Query & IDocumentumQuery> {
+public class DQLQueryHelper<R, T extends Query<?> & IDocumentumQuery<R>> {
 
     private final T _query;
 
@@ -37,24 +34,17 @@ public class DQLQueryHelper<T extends Query & IDocumentumQuery> {
         _query = query;
     }
 
-    public void compileQueryFull(final QueryCompilation queryCompilation,
-            final DQLQueryCompilation datastoreCompilcation,
-            final Map<?, ?> parameters,
-            final Map<String, Query.SubqueryDefinition> subqueries,
-            final AbstractClassMetaData candidateCmd) {
-        DQLMapper mapper = new DQLMapper(queryCompilation, parameters,
-                subqueries, candidateCmd, _query.getExecutionContext(), _query);
-        mapper.compile(datastoreCompilcation);
+    public void compileQueryFull(final Map<?, ?> parameters) {
+        DQLMapper<R, T> mapper = new DQLMapper<R, T>(_query, parameters);
+        mapper.compile(_query.getDatastoreCompilation());
     }
 
-    public Object performExecute(final QueryCompilation compilation,
-            final DQLQueryCompilation datastoreCompilation, final Map parameters) {
+    @SuppressWarnings("unchecked")
+    public Object performExecute(final Map<?, ?> parameters) {
         ExecutionContext context = _query.getExecutionContext();
         StoreManager storeManager = _query.getStoreManager();
         ClassLoaderResolver classLoaderResolver = context
                 .getClassLoaderResolver();
-        MetaDataManager metaDataManager = context.getMetaDataManager();
-
         ManagedConnection mconn = storeManager.getConnection(context);
         try {
             IDfSession session = (IDfSession) mconn.getConnection();
@@ -66,40 +56,32 @@ public class DQLQueryHelper<T extends Query & IDocumentumQuery> {
                         null));
             }
 
-            List candidates = null;
+            List<R> candidates = null;
             boolean filterInMemory = _query.getFilter() != null;
             boolean resultInMemory = _query.getResult() != null;
             boolean orderInMemory = _query.getOrdering() != null;
             boolean rangeInMemory = _query.getRange() != null;
             if (_query.getCandidateCollection() != null) {
-                candidates = new ArrayList(_query.getCandidateCollection());
+                candidates = new ArrayList<>(_query.getCandidateCollection());
             } else if (_query.evaluateInMemory()) {
-                AbstractClassMetaData cmd = metaDataManager
-                        .getMetaDataForClass(_query.getCandidateClass(),
-                                classLoaderResolver);
-                String dqlTextForQuery = DNQueries.getDqlTextForQuery(context,
-                        cmd, compilation.getCandidateAlias(),
-                        _query.isSubclasses(), null, null, null, null, null);
+                String dqlTextForQuery = DNQueries.getDqlTextForQuery(_query,
+                        null, null, null, null, null);
                 candidates = DNQueries.executeDqlQuery(_query, session,
-                        dqlTextForQuery, cmd);
+                        dqlTextForQuery);
             } else {
-                filterInMemory = !datastoreCompilation.isFilterComplete();
+                filterInMemory = !isFilterComplete();
                 if (!filterInMemory) {
-                    resultInMemory = !datastoreCompilation.isResultComplete();
-                    orderInMemory = !datastoreCompilation.isOrderComplete();
+                    resultInMemory = !isResultComplete();
+                    orderInMemory = !isOrderComplete();
                     if (!orderInMemory) {
-                        rangeInMemory = !datastoreCompilation.isRangeComplete();
+                        rangeInMemory = !isRangeComplete();
                     }
                 }
-                AbstractClassMetaData cmd = metaDataManager
-                        .getMetaDataForClass(_query.getCandidateClass(),
-                                classLoaderResolver);
-                String dqlText = datastoreCompilation.getDqlText();
                 candidates = DNQueries.executeDqlQuery(_query, session,
-                        dqlText, cmd);
+                        getDqlText());
             }
 
-            Collection results = candidates;
+            Collection<R> results = candidates;
             if (filterInMemory || resultInMemory || rangeInMemory
                     || _query.getResultClass() != null || orderInMemory) {
                 if (results instanceof QueryResult) {
@@ -109,7 +91,8 @@ public class DQLQueryHelper<T extends Query & IDocumentumQuery> {
 
                 // Evaluate result/filter/grouping/having/ordering in-memory
                 JavaQueryEvaluator resultMapper = new JDOQLEvaluator(_query,
-                        results, compilation, parameters, classLoaderResolver);
+                        results, _query.getCompilation(), parameters,
+                        classLoaderResolver);
                 results = resultMapper.execute(filterInMemory, orderInMemory,
                         resultInMemory, true, rangeInMemory);
             }
@@ -127,18 +110,38 @@ public class DQLQueryHelper<T extends Query & IDocumentumQuery> {
     }
 
     private Object addListeners(final ManagedConnection mconn,
-            final Collection<?> results) {
-        if (!(results instanceof QueryResult<?>)) {
+            final Collection<R> results) {
+        if (!(results instanceof QueryResult)) {
             return results;
         }
-        QueryResult<?> queryResult = (QueryResult<?>) results;
-        ManagedConnectionResourceListener listener = new QueryResultResourceListener(
+        QueryResult<R> queryResult = (QueryResult<R>) results;
+        ManagedConnectionResourceListener listener = new QueryResultResourceListener<R, T>(
                 _query, queryResult, mconn);
         mconn.addListener(listener);
         if (queryResult instanceof AbstractQueryResult) {
             ((AbstractQueryResult) queryResult).addConnectionListener(listener);
         }
         return results;
+    }
+
+    private boolean isFilterComplete() {
+        return _query.getDatastoreCompilation().isFilterComplete();
+    }
+
+    private boolean isResultComplete() {
+        return _query.getDatastoreCompilation().isResultComplete();
+    }
+
+    private boolean isRangeComplete() {
+        return _query.getDatastoreCompilation().isRangeComplete();
+    }
+
+    private boolean isOrderComplete() {
+        return _query.getDatastoreCompilation().isOrderComplete();
+    }
+
+    private String getDqlText() {
+        return _query.getDatastoreCompilation().getDqlText();
     }
 
 }

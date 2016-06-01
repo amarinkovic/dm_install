@@ -17,29 +17,31 @@ import pro.documentum.persistence.common.query.IDocumentumQuery;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class JPQLQuery extends AbstractJPQLQuery implements IDocumentumQuery {
+public class JPQLQuery<R> extends AbstractJPQLQuery implements
+        IDocumentumQuery<R> {
 
     private static final long serialVersionUID = 8844314390625762269L;
-
+    private final DQLQueryHelper<R, ?> _queryHelper;
     private transient DQLQueryCompilation _datastoreCompilation;
 
-    private final DQLQueryHelper<JPQLQuery> _queryHelper;
-
+    @SuppressWarnings({"unchecked", "rawtypes" })
     public JPQLQuery(final StoreManager storeMgr, final ExecutionContext ec) {
         super(storeMgr, ec);
-        _queryHelper = new DQLQueryHelper<JPQLQuery>(this);
+        _queryHelper = new DQLQueryHelper(this);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     public JPQLQuery(final StoreManager storeMgr, final ExecutionContext ec,
             final AbstractJPQLQuery q) {
         super(storeMgr, ec, q);
-        _queryHelper = new DQLQueryHelper<JPQLQuery>(this);
+        _queryHelper = new DQLQueryHelper(this);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     public JPQLQuery(final StoreManager storeMgr, final ExecutionContext ec,
             final String query) {
         super(storeMgr, ec, query);
-        _queryHelper = new DQLQueryHelper<JPQLQuery>(this);
+        _queryHelper = new DQLQueryHelper(this);
     }
 
     @Override
@@ -81,6 +83,7 @@ public class JPQLQuery extends AbstractJPQLQuery implements IDocumentumQuery {
     }
 
     @Override
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected synchronized void compileInternal(final Map parameterValues) {
         if (isCompiled()) {
             return;
@@ -114,13 +117,12 @@ public class JPQLQuery extends AbstractJPQLQuery implements IDocumentumQuery {
         }
 
         _datastoreCompilation = new DQLQueryCompilation();
-        AbstractClassMetaData cmd = getCandidateClassMetaData();
+        AbstractClassMetaData cmd = getCandidateMetaData();
 
         storeMgr.manageClasses(clr, cmd.getFullClassName());
 
         if (!inMemory) {
-            _queryHelper.compileQueryFull(compilation, _datastoreCompilation,
-                    parameterValues, subqueries, cmd);
+            _queryHelper.compileQueryFull(parameterValues);
         }
 
         if (cacheKey != null) {
@@ -132,9 +134,9 @@ public class JPQLQuery extends AbstractJPQLQuery implements IDocumentumQuery {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     protected Object performExecute(final Map parameters) {
-        return _queryHelper.performExecute(compilation, _datastoreCompilation,
-                parameters);
+        return _queryHelper.performExecute(parameters);
     }
 
     @Override
@@ -146,8 +148,24 @@ public class JPQLQuery extends AbstractJPQLQuery implements IDocumentumQuery {
     }
 
     @Override
-    public Collection getCandidateCollection() {
+    @SuppressWarnings("unchecked")
+    public Collection<R> getCandidateCollection() {
         return candidateCollection;
+    }
+
+    @Override
+    public AbstractClassMetaData getCandidateMetaData() {
+        return super.getCandidateClassMetaData();
+    }
+
+    @Override
+    public String getCandidateAlias() {
+        return compilation.getCandidateAlias();
+    }
+
+    @Override
+    public DQLQueryCompilation getDatastoreCompilation() {
+        return _datastoreCompilation;
     }
 
 }

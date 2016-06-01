@@ -4,11 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.datanucleus.ExecutionContext;
 import org.datanucleus.exceptions.NucleusUserException;
-import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.query.compiler.CompilationComponent;
-import org.datanucleus.query.compiler.QueryCompilation;
 import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.InvokeExpression;
 import org.datanucleus.query.expression.Literal;
@@ -26,6 +23,7 @@ import pro.documentum.persistence.common.query.expression.DQLExpression;
 import pro.documentum.persistence.common.query.expression.DQLField;
 import pro.documentum.persistence.common.query.expression.DQLIN;
 import pro.documentum.persistence.common.query.expression.DQLSubQuery;
+import pro.documentum.persistence.common.query.expression.Expressions;
 import pro.documentum.persistence.common.query.expression.functions.DQLDateToString;
 import pro.documentum.persistence.common.query.expression.functions.DQLLower;
 import pro.documentum.persistence.common.query.expression.functions.DQLUpper;
@@ -36,7 +34,8 @@ import pro.documentum.persistence.common.query.expression.literals.DQLLiteral;
 import pro.documentum.persistence.common.query.expression.literals.DQLString;
 import pro.documentum.persistence.common.query.expression.literals.nulls.DQLNull;
 
-public class DQLMapper extends AbstractDQLEvaluator implements IDQLEvaluator {
+public class DQLMapper<R, T extends Query<?> & IDocumentumQuery<R>> extends
+        AbstractDQLEvaluator<R, T> implements IDQLEvaluator {
 
     private static final List<IInvokeEvaluator> INVOKE_EVALUATORS;
     private static final List<IVariableEvaluator> VARIABLE_EVALUATORS;
@@ -60,12 +59,8 @@ public class DQLMapper extends AbstractDQLEvaluator implements IDQLEvaluator {
         VARIABLE_EVALUATORS.add(DQLSubQuery.getVariableEvaluator());
     }
 
-    public DQLMapper(final QueryCompilation compilation,
-            final Map<?, ?> params,
-            final Map<String, Query.SubqueryDefinition> subqueries,
-            final AbstractClassMetaData cmd, final ExecutionContext ec,
-            final Query<?> query) {
-        super(compilation, params, subqueries, cmd, ec, query);
+    public DQLMapper(final T query, final Map<?, ?> params) {
+        super(query, params);
     }
 
     @Override
@@ -97,20 +92,20 @@ public class DQLMapper extends AbstractDQLEvaluator implements IDQLEvaluator {
         int i = 0;
         for (Expression expr : resultExprs) {
             DQLExpression dqlExpression = null;
-            if (DQLExpression.isPrimary(expr)) {
-                processPrimaryExpression(DQLExpression.asPrimary(expr));
+            if (Expressions.isPrimary(expr)) {
+                processPrimaryExpression(Expressions.asPrimary(expr));
                 dqlExpression = popExpression();
                 str.append(dqlExpression.getText());
-            } else if (DQLExpression.isLiteral(expr)) {
-                processLiteral(DQLExpression.asLiteral(expr));
+            } else if (Expressions.isLiteral(expr)) {
+                processLiteral(Expressions.asLiteral(expr));
                 dqlExpression = popExpression();
                 str.append(dqlExpression.getText());
-            } else if (DQLExpression.isParameter(expr)) {
-                processParameterExpression(DQLExpression.asParameter(expr));
+            } else if (Expressions.isParameter(expr)) {
+                processParameterExpression(Expressions.asParameter(expr));
                 dqlExpression = popExpression();
                 str.append(dqlExpression.getText());
-            } else if (DQLExpression.isInvoke(expr)) {
-                processInvokeExpression(DQLExpression.asInvoke(expr), str);
+            } else if (Expressions.isInvoke(expr)) {
+                processInvokeExpression(Expressions.asInvoke(expr), str);
             } else {
                 NucleusLogger.GENERAL.info("Query result expression " + expr
                         + " not supported via DQL "
@@ -138,8 +133,8 @@ public class DQLMapper extends AbstractDQLEvaluator implements IDQLEvaluator {
         }
 
         Expression argExpr = argExprs.get(0);
-        if (DQLExpression.isPrimary(argExpr)) {
-            processPrimaryExpression(DQLExpression.asPrimary(argExpr));
+        if (Expressions.isPrimary(argExpr)) {
+            processPrimaryExpression(Expressions.asPrimary(argExpr));
         } else {
             throw new NucleusUserException("Invocation of static method "
                     + invokeExpr.getOperation() + " with arg of type "
@@ -216,10 +211,10 @@ public class DQLMapper extends AbstractDQLEvaluator implements IDQLEvaluator {
     }
 
     public DQLExpression processLiteralOrParameter(final Expression expression) {
-        if (DQLExpression.isLiteral(expression)) {
-            processLiteral(DQLExpression.asLiteral(expression));
-        } else if (DQLExpression.isParameter(expression)) {
-            processParameterExpression(DQLExpression.asParameter(expression));
+        if (Expressions.isLiteral(expression)) {
+            processLiteral(Expressions.asLiteral(expression));
+        } else if (Expressions.isParameter(expression)) {
+            processParameterExpression(Expressions.asParameter(expression));
         } else {
             return null;
         }
@@ -385,7 +380,7 @@ public class DQLMapper extends AbstractDQLEvaluator implements IDQLEvaluator {
 
     private Object transformToInvariant(final Expression expr) {
         Expression parent = expr.getParent();
-        if (!DQLExpression.isDyadic(parent)) {
+        if (!Expressions.isDyadic(parent)) {
             return null;
         }
         if (parent.getLeft() == null || parent.getRight() == null) {
@@ -398,7 +393,7 @@ public class DQLMapper extends AbstractDQLEvaluator implements IDQLEvaluator {
             if (parent == null) {
                 break;
             }
-            if (DQLExpression.isDyadicNot(parent)) {
+            if (Expressions.isDyadicNot(parent)) {
                 parity = !parity;
             }
         }

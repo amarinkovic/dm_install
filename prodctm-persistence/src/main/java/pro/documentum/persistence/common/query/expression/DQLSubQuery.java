@@ -17,9 +17,6 @@ public final class DQLSubQuery extends DQLExpression {
     private static DQLSubQuery evaluate(final VariableExpression expression,
             final IDQLEvaluator evaluator) {
         String name = expression.getId();
-        if (!evaluator.hasSubQuery(name)) {
-            return null;
-        }
         return null;
     }
 

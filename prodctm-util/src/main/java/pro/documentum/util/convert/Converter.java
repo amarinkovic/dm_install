@@ -1,16 +1,12 @@
 package pro.documentum.util.convert;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
@@ -30,6 +26,7 @@ import pro.documentum.util.convert.java.DoubleJavaConverter;
 import pro.documentum.util.convert.java.IJavaConverter;
 import pro.documentum.util.convert.java.IntegerJavaConverter;
 import pro.documentum.util.convert.java.StringJavaConverter;
+import pro.documentum.util.java.Classes;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -100,40 +97,6 @@ public final class Converter {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Collection<T> newCollection(
-            final Class<? extends Collection<?>> collectionCass) {
-        // noinspection TryWithIdenticalCatches
-        try {
-            Constructor<? extends Collection<?>> ctor = getDefaultCtor(collectionCass);
-            if (ctor != null) {
-                return (Collection<T>) ctor.newInstance();
-            }
-            if (List.class.isAssignableFrom(collectionCass)) {
-                return new ArrayList<>();
-            }
-            if (Set.class.isAssignableFrom(collectionCass)) {
-                return new HashSet<>();
-            }
-            throw new IllegalArgumentException(
-                    "Unable to create collection with class: " + collectionCass);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static <T> Constructor<T> getDefaultCtor(final Class<T> cls) {
-        try {
-            return cls.getConstructor();
-        } catch (NoSuchMethodException ex) {
-            return null;
-        }
-    }
-
-    @SuppressWarnings("unchecked")
     public <T> T toDataStore(final Object value, final int type)
         throws ParseException {
         if (value == null) {
@@ -182,7 +145,7 @@ public final class Converter {
             final Class<? extends Collection<?>> containerClass)
         throws DfException, ParseException {
         IConverter<IDfValue, T> converter = getConverter(elementClass);
-        Collection<T> result = newCollection(containerClass);
+        Collection<T> result = Classes.newCollection(containerClass);
         for (int i = 0, n = object.getValueCount(attrName); i < n; i++) {
             IDfValue value = object.getRepeatingValue(attrName, i);
             result.add(converter.convert(value));
@@ -207,8 +170,9 @@ public final class Converter {
     private <T> Collection<T> collection2DataStore(final Collection<?> values,
             final int type) throws ParseException {
         IConverter<Object, T> converter = getConverter(type);
-        Collection<T> result = newCollection((Class<? extends Collection<?>>) values
-                .getClass());
+        Collection<T> result = Classes
+                .newCollection((Class<? extends Collection<?>>) values
+                        .getClass());
         for (Object value : values) {
             result.add(converter.convert(value));
         }

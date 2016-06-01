@@ -9,6 +9,7 @@ import org.datanucleus.query.expression.PrimaryExpression;
 
 import pro.documentum.persistence.common.query.IDQLEvaluator;
 import pro.documentum.persistence.common.query.expression.DQLField;
+import pro.documentum.persistence.common.query.expression.Expressions;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -26,23 +27,23 @@ public class DQLFieldFunc extends DQLField {
         List<Expression> argExprs = invokeExpr.getArguments();
         PrimaryExpression primaryExpression = null;
         if (StringUtils.isNotBlank(outer) && outer.equalsIgnoreCase(op)) {
-            if (!hasRequiredArgs(argExprs, 1)) {
+            if (!Expressions.hasRequiredArgs(argExprs, 1)) {
                 return null;
             }
-            if (!isPrimary(argExprs.get(0))) {
+            if (!Expressions.isPrimary(argExprs.get(0))) {
                 return null;
             }
-            primaryExpression = asPrimary(argExprs.get(0));
+            primaryExpression = Expressions.asPrimary(argExprs.get(0));
         }
 
         if (StringUtils.isNotBlank(right) && right.equalsIgnoreCase(op)) {
-            if (!hasRequiredArgs(argExprs, 0)) {
+            if (!Expressions.hasRequiredArgs(argExprs, 0)) {
                 return null;
             }
-            if (!isPrimary(invokeExpr.getLeft())) {
+            if (!Expressions.isPrimary(invokeExpr.getLeft())) {
                 return null;
             }
-            primaryExpression = asPrimary(invokeExpr.getLeft());
+            primaryExpression = Expressions.asPrimary(invokeExpr.getLeft());
         }
 
         if (primaryExpression == null) {

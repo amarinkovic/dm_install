@@ -18,6 +18,7 @@ import pro.documentum.persistence.common.query.IDQLEvaluator;
 import pro.documentum.persistence.common.query.IInvokeEvaluator;
 import pro.documentum.persistence.common.query.IVariableEvaluator;
 import pro.documentum.persistence.common.query.expression.DQLExpression;
+import pro.documentum.persistence.common.query.expression.Expressions;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -121,11 +122,12 @@ public class DQLDate extends DQLLiteral<Date> {
         }
 
         List<Expression> dateExprs = invokeExpr.getArguments();
-        if (hasRequiredArgs(dateExprs, 1)) {
-            if (!isVariable(dateExprs.get(0))) {
+        if (Expressions.hasRequiredArgs(dateExprs, 1)) {
+            if (!Expressions.isVariable(dateExprs.get(0))) {
                 return null;
             }
-            VariableExpression varExpr = asVariable(dateExprs.get(0));
+            VariableExpression varExpr = Expressions.asVariable(dateExprs
+                    .get(0));
             if (!isDateVar(varExpr)) {
                 return null;
             }
@@ -135,11 +137,11 @@ public class DQLDate extends DQLLiteral<Date> {
             return evaluator.popExpression();
         }
 
-        if (hasRequiredArgs(dateExprs, 2)) {
-            if (!isLiteralOrParameter(dateExprs.get(0))) {
+        if (Expressions.hasRequiredArgs(dateExprs, 2)) {
+            if (!Expressions.isLiteralOrParameter(dateExprs.get(0))) {
                 return null;
             }
-            if (!isLiteralOrParameter(dateExprs.get(1))) {
+            if (!Expressions.isLiteralOrParameter(dateExprs.get(1))) {
                 return null;
             }
 

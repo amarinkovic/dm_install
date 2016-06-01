@@ -1,9 +1,11 @@
 package pro.documentum.persistence.common.query;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.datanucleus.ExecutionContext;
+import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.connection.ManagedConnection;
 import org.datanucleus.store.query.AbstractJavaQuery;
@@ -17,7 +19,8 @@ import pro.documentum.persistence.common.util.DNQueries;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DQLQuery<T> extends AbstractJavaQuery<T> {
+public class DQLQuery<R, E> extends AbstractJavaQuery<E> implements
+        IDocumentumQuery<R> {
 
     private static final long serialVersionUID = -6611727771695158834L;
 
@@ -34,7 +37,7 @@ public class DQLQuery<T> extends AbstractJavaQuery<T> {
     }
 
     public DQLQuery(final StoreManager storeMgr, final ExecutionContext ec,
-            final DQLQuery<T> dqlQuery) {
+            final DQLQuery<R, E> dqlQuery) {
         super(storeMgr, ec);
         _dql = dqlQuery._dql;
     }
@@ -67,8 +70,7 @@ public class DQLQuery<T> extends AbstractJavaQuery<T> {
                 NucleusLogger.QUERY.debug(Localiser.msg("021046",
                         getLanguage(), getSingleStringQuery(), null));
             }
-            List results = DNQueries.executeDqlQuery(this, session, _dql,
-                    getCandidateClassMetaData());
+            List results = DNQueries.executeDqlQuery(this, session, _dql);
             if (NucleusLogger.QUERY.isDebugEnabled()) {
                 NucleusLogger.QUERY.debug(Localiser.msg("021074",
                         getLanguage(), ""
@@ -78,6 +80,31 @@ public class DQLQuery<T> extends AbstractJavaQuery<T> {
         } finally {
             mconn.release();
         }
+    }
+
+    @Override
+    public Collection<R> getCandidateCollection() {
+        return null;
+    }
+
+    @Override
+    public String getCandidateAlias() {
+        return null;
+    }
+
+    @Override
+    public boolean evaluateInMemory() {
+        return false;
+    }
+
+    @Override
+    public AbstractClassMetaData getCandidateMetaData() {
+        return super.getCandidateClassMetaData();
+    }
+
+    @Override
+    public DQLQueryCompilation getDatastoreCompilation() {
+        return null;
     }
 
 }
