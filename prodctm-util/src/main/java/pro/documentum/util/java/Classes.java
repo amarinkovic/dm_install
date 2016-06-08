@@ -8,11 +8,11 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -22,7 +22,7 @@ public final class Classes {
     private static final Map<String, Class<?>> BUILTIN_CLASSES;
 
     static {
-        BUILTIN_CLASSES = new HashMap<>();
+        BUILTIN_CLASSES = new ConcurrentHashMap<>();
         putBuiltIn(boolean.class);
         putBuiltIn(int.class);
         putBuiltIn(double.class);
@@ -41,12 +41,28 @@ public final class Classes {
         putBuiltIn(GregorianCalendar.class);
     }
 
+    private static final Map<Class<?>, Class<?>> ARRAY_CLASSES;
+
+    static {
+        ARRAY_CLASSES = new ConcurrentHashMap<>();
+        for (Class<?> buildIn : BUILTIN_CLASSES.values()) {
+            putArray(buildIn);
+        }
+    }
+
     private Classes() {
         super();
     }
 
-    private static void putBuiltIn(final Class<?> cls) {
+    private static Class<?> putBuiltIn(final Class<?> cls) {
         BUILTIN_CLASSES.put(cls.getName(), cls);
+        return cls;
+    }
+
+    private static Class<?> putArray(final Class<?> cls) {
+        Class<?> arrayClass = Array.newInstance(cls, 0).getClass();
+        ARRAY_CLASSES.put(cls, arrayClass);
+        return arrayClass;
     }
 
     public static Class<?> getClass(final String name) {
@@ -55,7 +71,7 @@ public final class Classes {
             if (result != null) {
                 return result;
             }
-            return Class.forName(name);
+            return putBuiltIn(Class.forName(name));
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
         }
@@ -66,7 +82,11 @@ public final class Classes {
     }
 
     public static Class<?> getArrayClass(final Class<?> cls) {
-        return Array.newInstance(cls).getClass();
+        Class<?> result = ARRAY_CLASSES.get(cls);
+        if (result != null) {
+            return result;
+        }
+        return putArray(cls);
     }
 
     @SuppressWarnings("unchecked")

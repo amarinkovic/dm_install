@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.jdo.annotations.Column;
-import javax.jdo.annotations.Element;
+import javax.jdo.annotations.Columns;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
@@ -43,10 +43,9 @@ public class DmSysobject extends AbstractPersistent {
     private DmSysobject chronicle;
 
     @Column(name = "i_folder_id")
-    @Element(types = {DmFolder.class, })
     @Setter
     @Getter
-    private List<DmFolder> folders;
+    private DmFolder[] folders;
 
     @Column(name = "r_version_label")
     @Persistent(defaultFetchGroup = "true", serialized = "true")
@@ -75,7 +74,8 @@ public class DmSysobject extends AbstractPersistent {
     @Getter
     private String creatorName;
 
-    @Column
+    @Columns(value = {@Column(name = "acl_name", targetMember = "objectName"),
+        @Column(name = "acl_domain", targetMember = "ownerName") })
     @Getter
     @Setter
     private DmAcl acl;

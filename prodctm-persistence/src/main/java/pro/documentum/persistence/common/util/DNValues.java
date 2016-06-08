@@ -18,6 +18,7 @@ import pro.documentum.persistence.common.fieldmanager.FetchFieldManager;
 import pro.documentum.persistence.common.fieldmanager.StoreFieldManager;
 import pro.documentum.util.IDfSessionInvoker;
 import pro.documentum.util.convert.Converter;
+import pro.documentum.util.java.Classes;
 import pro.documentum.util.objects.changes.ChangesProcessor;
 import pro.documentum.util.sessions.Sessions;
 
@@ -52,9 +53,8 @@ public final class DNValues {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Collection<T> getAsCollection(
-            final IDfTypedObject object, final String attrName,
-            final Class<T> type,
+    public static <T> Collection<T> getCollection(final IDfTypedObject object,
+            final String attrName, final Class<T> type,
             final Class<? extends Collection<?>> collectionType) {
         try {
             return (Collection<T>) CONVERTER.toJava(object, attrName, type,
@@ -64,11 +64,11 @@ public final class DNValues {
         }
     }
 
-    public static <T> Object getAsArray(final IDfTypedObject object,
-            final String attrName, final Class<T> type) {
+    public static <T> T[] getArray(final IDfTypedObject object,
+            final String attrName, final Class<T> elementClass) {
         try {
-            Class<?> component = type.getComponentType();
-            return CONVERTER.toJava(object, attrName, component, type);
+            return CONVERTER.toJava(object, attrName, elementClass,
+                    Classes.getArrayClass(elementClass));
         } catch (DfException ex) {
             throw DfExceptions.dataStoreException(ex);
         }

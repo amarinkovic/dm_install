@@ -137,29 +137,15 @@ public class FetchFieldManager extends AbstractFetchFieldManager implements
         return columnMetaDatum[0].getName();
     }
 
-    protected <T> Collection<T> fetchAsCollection(final int fieldNumber,
+    protected <T> Collection<T> fetchCollection(final String fieldName,
             final Class<T> type,
             final Class<? extends Collection<?>> collectionType) {
-        String fieldName = getFieldName(fieldNumber);
-        return fetchAsCollection(fieldName, type, collectionType);
+        return DNValues.getCollection(_object, fieldName, type, collectionType);
     }
 
-    protected <T> Collection<T> fetchAsCollection(final String fieldName,
-            final Class<T> type,
-            final Class<? extends Collection<?>> collectionType) {
-        return DNValues.getAsCollection(_object, fieldName, type,
-                collectionType);
-    }
-
-    protected <T> Object fetchAsArray(final int fieldNumber,
-            final Class<T> arrayClass) {
-        String fieldName = getFieldName(fieldNumber);
-        return fetchAsArray(fieldName, arrayClass);
-    }
-
-    protected <T> Object fetchAsArray(final String fieldName,
-            final Class<T> arrayClass) {
-        return DNValues.getAsArray(_object, fieldName, arrayClass);
+    protected <T> Object fetchArray(final String fieldName,
+            final Class<T> elementClass) {
+        return DNValues.getArray(_object, fieldName, elementClass);
     }
 
     @Override
@@ -218,7 +204,7 @@ public class FetchFieldManager extends AbstractFetchFieldManager implements
         if (!mmd.hasContainer()) {
             result = fetchSingleField(fieldNumber, elementClass);
         } else if (mmd.hasArray() || mmd.hasCollection()) {
-            result = fetchAsCollectionOrArray(fieldNumber, mmd, elementClass);
+            result = fetchCollectionOrArray(fieldNumber, mmd, elementClass);
         } else {
             result = null;
         }
@@ -258,15 +244,15 @@ public class FetchFieldManager extends AbstractFetchFieldManager implements
         return DNMetaData.getElementClass(ec, mmd);
     }
 
-    protected Object fetchAsCollectionOrArray(final int fieldNumber,
+    protected Object fetchCollectionOrArray(final int fieldNumber,
             final AbstractMemberMetaData mmd, final Class<?> elementClass) {
+        String fieldName = getFieldName(fieldNumber);
         if (mmd.hasArray()) {
-            return fetchAsArray(fieldNumber,
-                    Classes.getArrayClass(elementClass));
+            return fetchArray(fieldName, elementClass);
         }
         @SuppressWarnings("unchecked")
         Class<? extends Collection<?>> containerType = mmd.getType();
-        return fetchAsCollection(fieldNumber, elementClass, containerType);
+        return fetchCollection(fieldName, elementClass, containerType);
     }
 
     protected Object getValueForMultiRelationField(
