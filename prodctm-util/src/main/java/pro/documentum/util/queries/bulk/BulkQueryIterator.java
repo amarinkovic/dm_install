@@ -1,6 +1,6 @@
 package pro.documentum.util.queries.bulk;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class BulkQueryIterator<O extends IDfPersistentObject> extends
             query.append(" WHERE r_object_id IN (");
             query.append(param).append(") ");
             query.append(getOrderBy(attributes));
-            return Arrays.asList(query.toString()).iterator();
+            return Collections.singletonList(query.toString()).iterator();
         } catch (DfException ex) {
             throw new RuntimeException(ex);
         }

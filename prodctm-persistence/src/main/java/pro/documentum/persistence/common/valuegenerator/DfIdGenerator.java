@@ -11,6 +11,7 @@ import org.datanucleus.store.valuegenerator.ValueGenerationBlock;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfException;
 
+import pro.documentum.persistence.common.util.DNMetaData;
 import pro.documentum.util.objects.DfObjects;
 
 /**
@@ -25,7 +26,7 @@ public class DfIdGenerator extends AbstractDatastoreGenerator<String> {
     @Override
     protected ValueGenerationBlock<String> reserveBlock(final long size) {
         String className = properties.getProperty("class-name");
-        Table table = storeMgr.getStoreDataForClass(className).getTable();
+        Table table = DNMetaData.getTable(storeMgr, className);
         String typeName = table.getName();
         try {
             ManagedConnection conn = connectionProvider.retrieveConnection();

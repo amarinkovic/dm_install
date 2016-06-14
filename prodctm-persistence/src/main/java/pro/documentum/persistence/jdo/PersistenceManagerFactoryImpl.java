@@ -9,21 +9,20 @@ import org.datanucleus.metadata.PersistenceUnitMetaData;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DocumentumPersistenceManagerFactory extends
-        JDOPersistenceManagerFactory {
+public class PersistenceManagerFactoryImpl extends JDOPersistenceManagerFactory {
 
     private static final long serialVersionUID = 1947522885236246186L;
 
-    public DocumentumPersistenceManagerFactory() {
+    public PersistenceManagerFactoryImpl() {
         super();
     }
 
-    public DocumentumPersistenceManagerFactory(
-            final PersistenceUnitMetaData pumd, final Map<?, ?> overrideProps) {
+    public PersistenceManagerFactoryImpl(final PersistenceUnitMetaData pumd,
+            final Map<?, ?> overrideProps) {
         super(pumd, overrideProps);
     }
 
-    public DocumentumPersistenceManagerFactory(final Map<?, ?> props) {
+    public PersistenceManagerFactoryImpl(final Map<?, ?> props) {
         super(props);
     }
 
@@ -31,7 +30,7 @@ public class DocumentumPersistenceManagerFactory extends
     protected JDOPersistenceManager newPM(
             final JDOPersistenceManagerFactory jdoPmf, final String userName,
             final String password) {
-        return new DocumentumPersistenceManager(jdoPmf, userName, password);
+        return new PersistenceManagerImpl(jdoPmf, userName, password);
     }
 
 }

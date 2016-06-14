@@ -1,11 +1,11 @@
 package pro.documentum.persistence.common;
 
-import org.apache.commons.lang.StringUtils;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.datanucleus.ExecutionContext;
-import org.datanucleus.exceptions.NucleusException;
 import org.datanucleus.exceptions.NucleusObjectNotFoundException;
-import org.datanucleus.identity.IdentityManager;
-import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.state.ObjectProvider;
 import org.datanucleus.store.AbstractPersistenceHandler;
@@ -16,18 +16,22 @@ import org.datanucleus.store.schema.table.Table;
 
 import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSession;
+import com.documentum.fc.common.DfException;
 
 import pro.documentum.persistence.common.util.DNMetaData;
 import pro.documentum.persistence.common.util.DNValues;
+import pro.documentum.persistence.common.util.DfExceptions;
 import pro.documentum.persistence.common.util.Nucleus;
-import pro.documentum.util.ids.DfIdUtil;
+import pro.documentum.util.queries.bulk.BulkCompositeKeyIterator;
+import pro.documentum.util.queries.keys.CompositeKey;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DocumentumPersistenceHandler extends AbstractPersistenceHandler {
+public class PersistenceHandlerImpl extends AbstractPersistenceHandler
+        implements IPersistenceHandler {
 
-    public DocumentumPersistenceHandler(final StoreManager storeMgr) {
+    public PersistenceHandlerImpl(final StoreManager storeMgr) {
         super(storeMgr);
     }
 
@@ -67,8 +71,7 @@ public class DocumentumPersistenceHandler extends AbstractPersistenceHandler {
         Object objectId = op.getExternalObjectId();
         ManagedConnection mconn = storeMgr.getConnection(ec);
         try {
-            Table table = storeMgr.getStoreDataForClass(cmd.getFullClassName())
-                    .getTable();
+            Table table = DNMetaData.getTable(storeMgr, cmd.getFullClassName());
             IDfSession session = (IDfSession) mconn.getConnection();
             IDfPersistentObject dbObject = Nucleus.getObject(session, objectId);
             DNValues.setFields(dbObject, op, ints, table, false);
@@ -91,14 +94,13 @@ public class DocumentumPersistenceHandler extends AbstractPersistenceHandler {
         ExecutionContext ec = op.getExecutionContext();
         ManagedConnection mconn = storeMgr.getConnection(ec);
         try {
+            Object id = op.getExternalObjectId();
             IDfSession session = (IDfSession) mconn.getConnection();
-            IDfPersistentObject dbObject = Nucleus.getObject(session,
-                    op.getExternalObjectId());
+            IDfPersistentObject dbObject = Nucleus.getObject(session, id);
             DNValues.loadNonRelationalFields(op, dbObject, ints);
         } finally {
             mconn.release();
         }
-
     }
 
     @Override
@@ -118,34 +120,55 @@ public class DocumentumPersistenceHandler extends AbstractPersistenceHandler {
             throw new NucleusObjectNotFoundException("Invalid objectId");
         }
 
-        String targetClass = IdentityUtils
-                .getTargetClassNameForIdentitySimple(id);
-        if (StringUtils.isNotBlank(targetClass)) {
+        if (Nucleus.hasTargetClass(id)) {
             return null;
         }
 
-        String objectId = String.valueOf(IdentityUtils
-                .getTargetKeyForDatastoreIdentity(id));
-
-        if (DfIdUtil.isNotObjectId(objectId)) {
-            throw new NucleusObjectNotFoundException("Invalid objectId: "
-                    + objectId);
-        }
+        String objectId = Nucleus.getDocumentumId(id);
 
         ManagedConnection mconn = storeMgr.getConnection(ec);
         try {
             IDfSession session = (IDfSession) mconn.getConnection();
             IDfPersistentObject object = Nucleus.getObject(session, objectId);
-            String className = DNMetaData.getClassNameForObject(ec, object);
-            if (className == null) {
-                throw new NucleusException("No class for object: " + objectId);
-            }
-            IdentityManager im = ec.getNucleusContext().getIdentityManager();
-            Object targetId = im.getDatastoreId(className, objectId);
-            return ec.findObject(targetId, true);
+            return makeObject(ec, null, object);
         } finally {
             mconn.release();
         }
+    }
+
+    @Override
+    public <T extends CompositeKey> List<Object> selectObjects(
+            final ExecutionContext ec, final AbstractClassMetaData cmd,
+            final List<T> keys) {
+        ManagedConnection mconn = storeMgr.getConnection(ec);
+        try {
+            IDfSession session = (IDfSession) mconn.getConnection();
+            Table table = DNMetaData.getTable(ec, cmd.getFullClassName());
+            Iterator<IDfPersistentObject> objects = BulkCompositeKeyIterator
+                    .select(session, table.getName(), keys);
+            return makeObjects(ec, cmd, objects);
+        } catch (DfException ex) {
+            throw DfExceptions.dataStoreException(ex);
+        } finally {
+            mconn.release();
+        }
+    }
+
+    private List<Object> makeObjects(final ExecutionContext ec,
+            final AbstractClassMetaData cmd,
+            final Iterator<IDfPersistentObject> objects) {
+        List<Object> result = new ArrayList<>();
+        while (objects.hasNext()) {
+            result.add(makeObject(ec, cmd, objects.next()));
+        }
+        return result;
+    }
+
+    private Object makeObject(final ExecutionContext context,
+            final AbstractClassMetaData cmd, final IDfPersistentObject object) {
+        Object identity = Nucleus.getIdentity(context,
+                DNMetaData.getActual(object, context, cmd), object);
+        return context.findObject(identity, true);
     }
 
 }

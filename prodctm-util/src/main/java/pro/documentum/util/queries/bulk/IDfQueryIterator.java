@@ -7,12 +7,14 @@ import java.util.Iterator;
 import org.apache.commons.io.IOUtils;
 
 import com.documentum.fc.client.DfQuery;
+import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfQuery;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
 
 import pro.documentum.util.queries.DfIterator;
+import pro.documentum.util.queries.Queries;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -23,11 +25,19 @@ public final class IDfQueryIterator implements Iterator<IDfTypedObject>,
     private DfIterator _iterator;
 
     public IDfQueryIterator(final IDfSession session, final String query) {
+        boolean success = false;
+        IDfCollection collection = null;
         try {
-            _iterator = new DfIterator(getQuery(query).execute(session,
-                    IDfQuery.DF_EXEC_QUERY));
+            collection = getQuery(query).execute(session,
+                    IDfQuery.DF_EXEC_QUERY);
+            _iterator = new DfIterator(collection);
+            success = true;
         } catch (DfException ex) {
             throw new RuntimeException(ex);
+        } finally {
+            if (!success) {
+                Queries.close(collection);
+            }
         }
     }
 

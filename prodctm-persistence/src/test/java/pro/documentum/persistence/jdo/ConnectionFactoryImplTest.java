@@ -16,7 +16,7 @@ import pro.documentum.util.sessions.Sessions;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DocumentumConnectionFactoryTest extends JDOTestSupport {
+public class ConnectionFactoryImplTest extends JDOTestSupport {
 
     @Test(expected = JDODataStoreException.class)
     public void testWrongLogin() throws Exception {

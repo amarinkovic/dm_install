@@ -33,7 +33,7 @@ public final class DNFind {
             final IDfTypedObject dbObject, final ExecutionContext ec,
             final AbstractClassMetaData classMetaData, final int[] fpMembers,
             final boolean ignoreCache) {
-        AbstractClassMetaData cmd = DNMetaData.getActualMetaData(dbObject, ec,
+        AbstractClassMetaData cmd = DNMetaData.getActual(dbObject, ec,
                 classMetaData);
         T pojo = null;
         if (cmd.getIdentityType() == IdentityType.APPLICATION) {

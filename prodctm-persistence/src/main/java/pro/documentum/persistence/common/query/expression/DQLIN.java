@@ -71,7 +71,7 @@ public final class DQLIN extends DQLBoolean {
             booleans.add(DQLBoolean.getInstance(field, literal,
                     Expression.OP_EQ));
         }
-        SubIterator<DQLLiteral<?>> sub = new SubIterator<DQLLiteral<?>>(
+        SubIterator<DQLLiteral<?>> sub = new SubIterator<>(
                 collection.getNotNullElements(), 250);
         StringBuilder builder = new StringBuilder();
         builder.append(field.getText()).append(IN_Q);

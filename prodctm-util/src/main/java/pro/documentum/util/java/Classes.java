@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class Classes {
 
     private static final Map<String, Class<?>> BUILTIN_CLASSES;
+    private static final Map<Class<?>, Class<?>> ARRAY_CLASSES;
 
     static {
         BUILTIN_CLASSES = new ConcurrentHashMap<>();
@@ -40,8 +41,6 @@ public final class Classes {
         putBuiltIn(Calendar.class);
         putBuiltIn(GregorianCalendar.class);
     }
-
-    private static final Map<Class<?>, Class<?>> ARRAY_CLASSES;
 
     static {
         ARRAY_CLASSES = new ConcurrentHashMap<>();
@@ -90,11 +89,11 @@ public final class Classes {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Collection<T> newCollection(
-            final Class<? extends Collection<?>> collectionCass) {
+    public static <T, C extends Collection<?>> Collection<T> newCollection(
+            final Class<C> collectionCass) {
         // noinspection TryWithIdenticalCatches
         try {
-            Constructor<? extends Collection<?>> ctor = getDefaultCtor(collectionCass);
+            Constructor<C> ctor = getDefaultCtor(collectionCass);
             if (ctor != null) {
                 return (Collection<T>) ctor.newInstance();
             }

@@ -112,27 +112,29 @@ public final class Converter {
         return Converter.<T> getConverter(type).convert(value);
     }
 
-    public <T> T toJava(final IDfTypedObject object, final String attrName,
-            final Class<T> targetClass) throws DfException {
-        return toJava(object, attrName, targetClass, null);
+    public <T> T fromDataStore(final IDfTypedObject object,
+            final String attrName, final int index, final Class<T> targetClass)
+        throws DfException {
+        try {
+            IConverter<IDfValue, T> converter = getConverter(targetClass);
+            IDfValue value = object.getRepeatingValue(attrName, index);
+            return converter.convert(value);
+        } catch (ParseException ex) {
+            throw new DfException(ex);
+        }
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T toJava(final IDfTypedObject object, final String attrName,
-            final Class<?> elementClass, final Class<?> containerClass)
-        throws DfException {
+    public <T> T fromDataStore(final IDfTypedObject object,
+            final String attrName, final Class<?> elementClass,
+            final Class<?> containerClass) throws DfException {
         try {
-            if (containerClass == null) {
-                IConverter<IDfValue, T> converter = getConverter(elementClass);
-                IDfValue value = object.getRepeatingValue(attrName, 0);
-                return converter.convert(value);
-            }
             if (Collection.class.isAssignableFrom(containerClass)) {
-                return (T) toJavaCollection(object, attrName, elementClass,
+                return (T) asCollection(object, attrName, elementClass,
                         (Class<? extends Collection<?>>) containerClass);
             }
             if (containerClass.isArray()) {
-                return (T) toJavaArray(object, attrName, elementClass);
+                return (T) asArray(object, attrName, elementClass);
             }
             return null;
         } catch (ParseException ex) {
@@ -140,28 +142,26 @@ public final class Converter {
         }
     }
 
-    private <T> Collection<T> toJavaCollection(final IDfTypedObject object,
-            final String attrName, final Class<T> elementClass,
-            final Class<? extends Collection<?>> containerClass)
+    @SuppressWarnings("unchecked")
+    private <T, C extends Collection<?>> Collection<T> asCollection(
+            final IDfTypedObject object, final String attrName,
+            final Class<T> elementClass, final Class<C> containerClass)
         throws DfException, ParseException {
-        IConverter<IDfValue, T> converter = getConverter(elementClass);
         Collection<T> result = Classes.newCollection(containerClass);
         for (int i = 0, n = object.getValueCount(attrName); i < n; i++) {
-            IDfValue value = object.getRepeatingValue(attrName, i);
-            result.add(converter.convert(value));
+            result.add(fromDataStore(object, attrName, i, elementClass));
         }
         return result;
     }
 
-    private <T> Object toJavaArray(final IDfTypedObject object,
+    private <T> Object asArray(final IDfTypedObject object,
             final String attrName, final Class<T> elementClass)
         throws DfException, ParseException {
-        IConverter<IDfValue, T> converter = getConverter(elementClass);
         int valueCount = object.getValueCount(attrName);
         Object array = Array.newInstance(elementClass, valueCount);
         for (int i = 0; i < valueCount; i++) {
-            IDfValue value = object.getRepeatingValue(attrName, i);
-            Array.set(array, i, converter.convert(value));
+            Object value = fromDataStore(object, attrName, i, elementClass);
+            Array.set(array, i, value);
         }
         return array;
     }

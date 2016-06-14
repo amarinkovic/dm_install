@@ -33,6 +33,15 @@ public final class DNValues {
         super();
     }
 
+    public static int getValueCount(final IDfTypedObject object,
+            final String attrName) {
+        try {
+            return object.getValueCount(attrName);
+        } catch (DfException ex) {
+            throw DfExceptions.dataStoreException(ex);
+        }
+    }
+
     public static String getObjectId(final IDfTypedObject object) {
         return getString(object, DfDocbaseConstants.R_OBJECT_ID);
     }
@@ -42,23 +51,28 @@ public final class DNValues {
         return getSingleValue(object, attrName, String.class);
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T getSingleValue(final IDfTypedObject object,
             final String attrName, final Class<?> type) {
+        return getSingleValue(object, attrName, 0, type);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T getSingleValue(final IDfTypedObject object,
+            final String attrName, final int index, final Class<?> type) {
         try {
-            return (T) CONVERTER.toJava(object, attrName, type);
+            return (T) CONVERTER.fromDataStore(object, attrName, index, type);
         } catch (DfException ex) {
             throw DfExceptions.dataStoreException(ex);
         }
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Collection<T> getCollection(final IDfTypedObject object,
-            final String attrName, final Class<T> type,
-            final Class<? extends Collection<?>> collectionType) {
+    public static <T, C extends Collection<?>> Collection<T> getCollection(
+            final IDfTypedObject object, final String attrName,
+            final Class<T> type, final Class<C> collectionType) {
         try {
-            return (Collection<T>) CONVERTER.toJava(object, attrName, type,
-                    collectionType);
+            return (Collection<T>) CONVERTER.fromDataStore(object, attrName,
+                    type, collectionType);
         } catch (DfException ex) {
             throw DfExceptions.dataStoreException(ex);
         }
@@ -67,7 +81,7 @@ public final class DNValues {
     public static <T> T[] getArray(final IDfTypedObject object,
             final String attrName, final Class<T> elementClass) {
         try {
-            return CONVERTER.toJava(object, attrName, elementClass,
+            return CONVERTER.fromDataStore(object, attrName, elementClass,
                     Classes.getArrayClass(elementClass));
         } catch (DfException ex) {
             throw DfExceptions.dataStoreException(ex);
@@ -121,8 +135,7 @@ public final class DNValues {
             op.replaceField(fieldNumber, op.provideField(fieldNumber));
         }
         StoreManager storeMgr = op.getStoreManager();
-        Table table = storeMgr.getStoreDataForClass(cmd.getFullClassName())
-                .getTable();
+        Table table = DNMetaData.getTable(storeMgr, cmd.getFullClassName());
         FetchFieldManager fieldManager = new FetchFieldManager(op, object,
                 table);
         op.replaceFields(persistent, fieldManager);

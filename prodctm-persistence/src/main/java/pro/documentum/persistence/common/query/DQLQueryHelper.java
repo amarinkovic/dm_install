@@ -35,7 +35,7 @@ public class DQLQueryHelper<R, T extends Query<?> & IDocumentumQuery<R>> {
     }
 
     public void compileQueryFull(final Map<?, ?> parameters) {
-        DQLMapper<R, T> mapper = new DQLMapper<R, T>(_query, parameters);
+        DQLMapper<R, T> mapper = new DQLMapper<>(_query, parameters);
         mapper.compile(_query.getDatastoreCompilation());
     }
 
@@ -115,7 +115,7 @@ public class DQLQueryHelper<R, T extends Query<?> & IDocumentumQuery<R>> {
             return results;
         }
         QueryResult<R> queryResult = (QueryResult<R>) results;
-        ManagedConnectionResourceListener listener = new QueryResultResourceListener<R, T>(
+        ManagedConnectionResourceListener listener = new QueryResultResourceListener<>(
                 _query, queryResult, mconn);
         mconn.addListener(listener);
         if (queryResult instanceof AbstractQueryResult) {

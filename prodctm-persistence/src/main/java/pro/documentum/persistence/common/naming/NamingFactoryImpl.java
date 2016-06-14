@@ -14,9 +14,9 @@ import com.documentum.fc.common.DfDocbaseConstants;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DocumentumNamingFactory extends AbstractNamingFactory {
+public class NamingFactoryImpl extends AbstractNamingFactory {
 
-    public DocumentumNamingFactory(final NucleusContext nucCtx) {
+    public NamingFactoryImpl(final NucleusContext nucCtx) {
         super(nucCtx);
     }
 

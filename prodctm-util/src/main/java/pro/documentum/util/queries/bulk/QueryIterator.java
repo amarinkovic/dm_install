@@ -10,18 +10,23 @@ import org.apache.commons.io.IOUtils;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-final class QueryIterator implements Iterator<String>, Closeable {
+final class QueryIterator<T> implements Iterator<String>, Closeable {
 
     public static final int MAX_OBJECTS_IN_QUERY = 500;
 
-    private final IQueryBuilder<List<String>> _queryBuilder;
+    private final IQueryBuilder<List<T>> _queryBuilder;
 
-    private SubIterator<String> _iterator;
+    private SubIterator<T> _iterator;
 
-    QueryIterator(final IQueryBuilder<List<String>> queryBuilder,
-            final Iterator<String> keys) {
+    QueryIterator(final IQueryBuilder<List<T>> queryBuilder,
+            final Iterator<T> keys, final int maxKeysInQuery) {
         _queryBuilder = queryBuilder;
-        _iterator = new SubIterator<>(keys, MAX_OBJECTS_IN_QUERY);
+        _iterator = new SubIterator<>(keys, maxKeysInQuery);
+    }
+
+    QueryIterator(final IQueryBuilder<List<T>> queryBuilder,
+            final Iterator<T> keys) {
+        this(queryBuilder, keys, MAX_OBJECTS_IN_QUERY);
     }
 
     @Override

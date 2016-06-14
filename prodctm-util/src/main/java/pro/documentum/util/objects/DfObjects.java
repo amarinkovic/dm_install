@@ -91,9 +91,8 @@ public final class DfObjects {
         ISession session = (ISession) dfSession;
         IDfId objectId = data.getId(DfDocbaseConstants.R_OBJECT_ID);
         int vStamp = data.getInt(DfDocbaseConstants.I_VSTAMP);
-        PersistentObjectManager objectManager = session.getObjectManager();
         // check cache first
-        IPersistentObject object = objectManager.getObjectFromCache(objectId);
+        IPersistentObject object = getObjectFromCache(session, objectId);
         if (object != null) {
             object.setObjectSession(session);
             object.setOriginalSession(session);
@@ -120,6 +119,13 @@ public final class DfObjects {
                 true);
         objectData.setAutoFill(false);
         return (T) buildObject(session, objectData, true);
+    }
+
+    public static IPersistentObject getObjectFromCache(
+            final IDfSession session, final IDfId objectId) throws DfException {
+        PersistentObjectManager objectManager = ((ISession) session)
+                .getObjectManager();
+        return objectManager.getObjectFromCache(objectId);
     }
 
     public static <T extends IDfPersistentObject> T newObject(

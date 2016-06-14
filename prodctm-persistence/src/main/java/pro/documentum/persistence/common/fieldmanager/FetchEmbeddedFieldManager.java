@@ -20,7 +20,7 @@ public class FetchEmbeddedFieldManager extends FetchFieldManager {
 
     private final Table _table;
 
-    public FetchEmbeddedFieldManager(final ObjectProvider op,
+    public FetchEmbeddedFieldManager(final ObjectProvider<?> op,
             final IDfTypedObject dbObject,
             final List<AbstractMemberMetaData> mmds, final Table table) {
         super(op, dbObject, table);

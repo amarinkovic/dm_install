@@ -1,17 +1,21 @@
 package pro.documentum.util.queries;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
 import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfQuery;
 import com.documentum.fc.client.IDfSession;
+import com.documentum.fc.common.DfDocbaseConstants;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfUtil;
 
+import pro.documentum.util.queries.keys.CompositeKey;
 import pro.documentum.util.sessions.Sessions;
 
 /**
@@ -51,6 +55,10 @@ public final class Queries {
         IDfQuery dfQuery = Sessions.getClientX().getQuery();
         dfQuery.setDQL(query);
         return new DfIterator(dfQuery.execute(session, queryType));
+    }
+
+    public static String createInClause(final Collection<String> values) {
+        return createInClause(DfDocbaseConstants.R_OBJECT_ID, 250, values);
     }
 
     public static String createInClause(final String attrName,
@@ -96,6 +104,77 @@ public final class Queries {
         }
         stringBuilder.append("))");
         return stringBuilder.toString();
+    }
+
+    public static String createClause(final CompositeKey key) {
+        Map<String, Object> mapping = key.getMapping();
+        if (mapping.isEmpty()) {
+            throw new IllegalArgumentException("mapping is blank");
+        }
+        StringBuilder stringBuilder = new StringBuilder(32 * mapping.size());
+        for (String attrName : mapping.keySet()) {
+            if (stringBuilder.length() > 0) {
+                stringBuilder.append(" AND ");
+            }
+            stringBuilder.append(attrName);
+            Object value = mapping.get(attrName);
+            if (value == null) {
+                stringBuilder.append(" IS NULL");
+                continue;
+            }
+            stringBuilder.append("=");
+            if (value instanceof String) {
+                stringBuilder.append("'");
+                stringBuilder.append(DfUtil.escapeQuotedString((String) value));
+                stringBuilder.append("'");
+                continue;
+            }
+            if (value instanceof Number) {
+                stringBuilder.append(String.valueOf(value));
+                continue;
+            }
+            throw new IllegalArgumentException(
+                    "Currently only strings and numbers are supported");
+        }
+        return stringBuilder.toString();
+    }
+
+    public static <T extends CompositeKey> String createClause(
+            final Collection<T> keys) {
+        StringBuilder stringBuilder = new StringBuilder(keys.size() * 32);
+        stringBuilder.append("(");
+        for (Iterator<T> iter = keys.iterator(); iter.hasNext();) {
+            stringBuilder.append("(");
+            stringBuilder.append(createClause(iter.next()));
+            stringBuilder.append(")");
+            if (iter.hasNext()) {
+                stringBuilder.append(" OR ");
+            }
+        }
+        stringBuilder.append(")");
+        return stringBuilder.toString();
+    }
+
+    public static <T extends CompositeKey> String createClause(
+            final String attrName, final Collection<T> keys) {
+        Collection<String> values = new ArrayList<>();
+        boolean quoted = false;
+        for (CompositeKey key : keys) {
+            Map<String, Object> mapping = key.getMapping();
+            Object value = mapping.get(attrName);
+            if (value instanceof String) {
+                values.add((String) value);
+                quoted = true;
+                continue;
+            }
+            if (value instanceof Number) {
+                values.add(String.valueOf(value));
+                continue;
+            }
+            throw new IllegalArgumentException(
+                    "Currently only strings and numbers are supported");
+        }
+        return createInClause(attrName, 250, values, quoted);
     }
 
 }

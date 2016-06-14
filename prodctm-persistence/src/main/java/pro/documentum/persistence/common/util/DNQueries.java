@@ -16,6 +16,7 @@ import org.datanucleus.store.schema.table.Column;
 import org.datanucleus.store.schema.table.Table;
 
 import com.documentum.fc.client.IDfSession;
+import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
 
 import pro.documentum.persistence.common.query.IDocumentumQuery;
@@ -85,7 +86,7 @@ public final class DNQueries {
         boolean processed = false;
         List<DfIterator> collections = new ArrayList<>();
         try {
-            DQLQueryResult<R, T> result = new DQLQueryResult<R, T>(query);
+            DQLQueryResult<R, T> result = new DQLQueryResult<>(query);
             DfIterator cursor = Queries.execute(session, dqlText);
             collections.add(cursor);
             result.addCandidateResult(cursor, getObjectFactory(query, cursor));
@@ -114,12 +115,12 @@ public final class DNQueries {
         int[] members = query.getFetchPlan().getFetchPlanForClass(candidateCmd)
                 .getMemberNumbers();
         members = getPresentMembers(members, candidateCmd, cursor);
-        return new PersistentObjectFactory<R>(query.getCandidateMetaData(),
+        return new PersistentObjectFactory<>(query.getCandidateMetaData(),
                 members, query.getIgnoreCache());
     }
 
-    private static int[] getPresentMembers(final int[] members,
-            final AbstractClassMetaData cmd, final DfIterator cursor)
+    public static int[] getPresentMembers(final int[] members,
+            final AbstractClassMetaData cmd, final IDfTypedObject cursor)
         throws DfException {
         int[] result = new int[members.length];
         int i = 0;

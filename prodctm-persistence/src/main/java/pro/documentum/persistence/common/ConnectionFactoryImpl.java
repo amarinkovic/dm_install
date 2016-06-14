@@ -29,13 +29,13 @@ import pro.documentum.util.sessions.Sessions;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DocumentumConnectionFactory extends AbstractConnectionFactory {
+public class ConnectionFactoryImpl extends AbstractConnectionFactory {
 
     private final String _docbaseName;
 
     private final IDfSessionManager _sessionManager;
 
-    public DocumentumConnectionFactory(final StoreManager storeMgr,
+    public ConnectionFactoryImpl(final StoreManager storeMgr,
             final String resourceName) {
         super(storeMgr, resourceName);
         try {
@@ -45,7 +45,7 @@ public class DocumentumConnectionFactory extends AbstractConnectionFactory {
                 throw DNExceptions
                         .noPropertySpecified(PropertyNames.PROPERTY_CONNECTION_URL);
             }
-            _docbaseName = DocumentumStoreManager.getDocbaseName(url);
+            _docbaseName = StoreManagerImpl.getDocbaseName(url);
             String userName = storeMgr.getConnectionUserName();
             String password = storeMgr.getConnectionPassword();
             if (StringUtils.isNotBlank(userName)) {
@@ -67,7 +67,7 @@ public class DocumentumConnectionFactory extends AbstractConnectionFactory {
         IDfLoginInfo loginInfo = Nucleus.extractLoginInfo(executionContext);
         if (loginInfo == null) {
             loginInfo = (IDfLoginInfo) map
-                    .get(IDocumentumCredentialsHolder.OPTION_LOGININFO);
+                    .get(ICredentialsHolder.OPTION_LOGININFO);
         }
         return new ManagedConnectionImpl(loginInfo);
     }

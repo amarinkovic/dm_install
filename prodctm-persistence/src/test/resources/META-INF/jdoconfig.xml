@@ -2,7 +2,7 @@
 <jdoconfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/jdo/jdoconfig" xsi:noNamespaceSchemaLocation="http://java.sun.com/xml/ns/jdo/jdoconfig">
 
     <persistence-manager-factory name="JDOTesting">
-        <property name="javax.jdo.PersistenceManagerFactoryClass" value="pro.documentum.persistence.jdo.DocumentumPersistenceManagerFactory" />
+        <property name="javax.jdo.PersistenceManagerFactoryClass" value="pro.documentum.persistence.jdo.PersistenceManagerFactoryImpl" />
         <property name="javax.jdo.option.Optimistic" value="false" />
         <property name="javax.jdo.option.ConnectionURL" value="dctm:DCTM_DEV" />
         <property name="datanucleus.nontx.atomic" value="false" />

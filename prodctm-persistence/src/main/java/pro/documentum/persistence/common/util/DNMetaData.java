@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
@@ -15,19 +14,19 @@ import org.datanucleus.metadata.CollectionMetaData;
 import org.datanucleus.metadata.ColumnMetaData;
 import org.datanucleus.metadata.ElementMetaData;
 import org.datanucleus.metadata.FieldPersistenceModifier;
-import org.datanucleus.metadata.MetaDataManager;
 import org.datanucleus.store.StoreData;
+import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.schema.table.Column;
 import org.datanucleus.store.schema.table.MemberColumnMapping;
 import org.datanucleus.store.schema.table.Table;
 
-import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfType;
 import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
 
-import pro.documentum.persistence.common.DocumentumStoreManager;
+import pro.documentum.persistence.common.StoreManagerImpl;
 import pro.documentum.util.java.Classes;
+import pro.documentum.util.types.DfTypes;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -40,8 +39,7 @@ public final class DNMetaData {
 
     public static StoreData getStoreData(final ExecutionContext ec,
             final String className) {
-        DocumentumStoreManager storeMgr = (DocumentumStoreManager) ec
-                .getStoreManager();
+        StoreManagerImpl storeMgr = (StoreManagerImpl) ec.getStoreManager();
         StoreData sd = storeMgr.getStoreDataForClass(className);
         if (sd == null) {
             storeMgr.manageClasses(ec, className);
@@ -50,37 +48,31 @@ public final class DNMetaData {
         return sd;
     }
 
-    public static AbstractClassMetaData getElementMetadata(
-            final ExecutionContext ec, final AbstractMemberMetaData mmd) {
-        ClassLoaderResolver clr = ec.getClassLoaderResolver();
-        MetaDataManager mdm = ec.getMetaDataManager();
-        if (mmd.hasCollection()) {
-            CollectionMetaData collmd = mmd.getCollection();
-            if (collmd.elementIsPersistent()) {
-                return collmd.getElementClassMetaData(clr, mdm);
-            }
-        } else if (mmd.hasArray()) {
-            ArrayMetaData amd = mmd.getArray();
-            if (amd.elementIsPersistent()) {
-                return amd.getElementClassMetaData(clr, mdm);
-            }
-        }
-        return null;
+    public static Table getTable(final StoreManager storeManager,
+            final String className) {
+        return storeManager.getStoreDataForClass(className).getTable();
     }
 
-    public static Class<?> getElementClass(final ExecutionContext ec,
-            final AbstractMemberMetaData mmd) {
-        return Classes.getClass(getElementClassName(ec, mmd));
+    public static Table getTable(final ExecutionContext ec,
+            final String className) {
+        return getStoreData(ec, className).getTable();
     }
 
-    public static String getElementClassName(final ExecutionContext ec,
-            final AbstractMemberMetaData mmd) {
-        if (mmd.hasCollection()) {
-            CollectionMetaData collmd = mmd.getCollection();
-            return collmd.getElementType();
-        } else if (mmd.hasArray()) {
-            ArrayMetaData amd = mmd.getArray();
-            return amd.getElementType();
+    public static Class<?> getElementClass(final AbstractMemberMetaData mmd) {
+        return Classes.getClass(getElementClassName(mmd));
+    }
+
+    public static String getElementClassName(final AbstractMemberMetaData mmd) {
+        if (mmd.hasContainer()) {
+            if (mmd.hasCollection()) {
+                CollectionMetaData collmd = mmd.getCollection();
+                return collmd.getElementType();
+            } else if (mmd.hasArray()) {
+                ArrayMetaData amd = mmd.getArray();
+                return amd.getElementType();
+            }
+        } else {
+            return mmd.getTypeName();
         }
         return null;
     }
@@ -103,9 +95,13 @@ public final class DNMetaData {
     }
 
     public static String getClassNameForObject(final ExecutionContext ec,
-            final IDfPersistentObject object) {
+            final IDfTypedObject object) {
         try {
-            return getClassNameForType(ec, object.getType());
+            IDfType type = DfTypes.getType(object);
+            if (type != null) {
+                return getClassNameForType(ec, type);
+            }
+            return null;
         } catch (DfException ex) {
             throw DfExceptions.dataStoreException(ex);
         }
@@ -184,25 +180,39 @@ public final class DNMetaData {
         return result;
     }
 
-    public static AbstractClassMetaData getActualMetaData(
+    public static AbstractClassMetaData getActual(
             final IDfTypedObject dbObject, final ExecutionContext ec,
             final AbstractClassMetaData classMetaData) {
         AbstractClassMetaData cmd = classMetaData;
-        if (!cmd.hasDiscriminatorStrategy()) {
+        String className;
+        if (cmd == null || !cmd.hasDiscriminatorStrategy()) {
+            className = getClassNameForObject(ec, dbObject);
+        } else {
+            Table table = getStoreData(ec, classMetaData).getTable();
+            String propName = table.getDiscriminatorColumn().getName();
+            String value = DNValues.getString(dbObject, propName);
+            className = getClassNameFromDiscriminator(ec, cmd, value);
+        }
+        if (className == null) {
             return cmd;
         }
-        Table table = getStoreData(ec, classMetaData).getTable();
-        String discriminatorProperty = table.getDiscriminatorColumn().getName();
-        String discriminatorValue = DNValues.getString(dbObject,
-                discriminatorProperty);
-        String className = ec.getMetaDataManager()
-                .getClassNameFromDiscriminatorValue(discriminatorValue,
-                        cmd.getDiscriminatorMetaData());
-        if (!cmd.getFullClassName().equals(className)) {
-            cmd = ec.getMetaDataManager().getMetaDataForClass(className,
-                    ec.getClassLoaderResolver());
+        if (cmd == null || !className.equals(cmd.getFullClassName())) {
+            cmd = getMetaDataForClass(ec, className);
         }
         return cmd;
+    }
+
+    public static String getClassNameFromDiscriminator(
+            final ExecutionContext ec, final AbstractClassMetaData cmd,
+            final String discriminatorValue) {
+        return ec.getMetaDataManager().getClassNameFromDiscriminatorValue(
+                discriminatorValue, cmd.getDiscriminatorMetaData());
+    }
+
+    public static AbstractClassMetaData getMetaDataForClass(
+            final ExecutionContext ec, final String className) {
+        return ec.getMetaDataManager().getMetaDataForClass(className,
+                ec.getClassLoaderResolver());
     }
 
     public static boolean isPersistent(final AbstractMemberMetaData mmd) {
@@ -219,6 +229,10 @@ public final class DNMetaData {
             columnName = embMmd.getName();
         }
         return columnName;
+    }
+
+    public static int[] getPersistentMembers(final AbstractClassMetaData cmd) {
+        return DNArrays.getPersistentFields(cmd, cmd.getAllMemberPositions());
     }
 
 }

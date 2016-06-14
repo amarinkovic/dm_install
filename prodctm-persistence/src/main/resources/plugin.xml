@@ -4,7 +4,7 @@
 
     <!-- STORE MANAGER -->
     <extension point="org.datanucleus.store_manager">
-        <store-manager class-name="pro.documentum.persistence.common.DocumentumStoreManager" key="dctm" url-key="dctm" />
+        <store-manager class-name="pro.documentum.persistence.common.StoreManagerImpl" key="dctm" url-key="dctm" />
     </extension>
 
     <!-- QUERY LANGUAGES -->
@@ -16,7 +16,7 @@
 
     <!-- CONNECTION FACTORY -->
     <extension point="org.datanucleus.store_connectionfactory">
-        <connectionfactory name="dctm" class-name="pro.documentum.persistence.common.DocumentumConnectionFactory" transactional="true" datastore="dctm" />
+        <connectionfactory name="dctm" class-name="pro.documentum.persistence.common.ConnectionFactoryImpl" transactional="true" datastore="dctm" />
     </extension>
 
     <!-- DATASTORE IDENTITY -->
@@ -26,7 +26,7 @@
 
     <!-- NAMING FACTORY -->
     <extension point="org.datanucleus.identifier_namingfactory">
-        <identifierfactory name="dctm" class-name="pro.documentum.persistence.common.naming.DocumentumNamingFactory" />
+        <identifierfactory name="dctm" class-name="pro.documentum.persistence.common.naming.NamingFactoryImpl" />
     </extension>
 
     <!-- VALUE GENERATORS -->

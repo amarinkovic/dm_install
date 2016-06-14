@@ -33,7 +33,7 @@ import pro.documentum.persistence.common.util.Nucleus;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class DocumentumStoreManager extends AbstractStoreManager {
+public class StoreManagerImpl extends AbstractStoreManager {
 
     public static final String TRANSLATOR_TYPE = PropertyNames.PROPERTY_IDENTITY_STRING_TRANSLATOR_TYPE;
 
@@ -43,12 +43,16 @@ public class DocumentumStoreManager extends AbstractStoreManager {
 
     public static final String PREFIX = "dctm";
 
-    public DocumentumStoreManager(final ClassLoaderResolver clr,
+    public StoreManagerImpl(final ClassLoaderResolver clr,
             final PersistenceNucleusContext nucleusContext,
             final Map<String, Object> props) {
         super(PREFIX, clr, nucleusContext, props);
         setConfiguration(nucleusContext);
-        persistenceHandler = new DocumentumPersistenceHandler(this);
+        persistenceHandler = new PersistenceHandlerImpl(this);
+    }
+
+    public static String getDocbaseName(final String url) {
+        return url.substring(StoreManagerImpl.PREFIX.length() + 1);
     }
 
     private void setConfiguration(final PersistenceNucleusContext nucleusContext) {
@@ -58,10 +62,6 @@ public class DocumentumStoreManager extends AbstractStoreManager {
         configuration.setProperty(NAMING_FACTORY, PREFIX);
     }
 
-    public static String getDocbaseName(final String url) {
-        return url.substring(DocumentumStoreManager.PREFIX.length() + 1);
-    }
-
     @Override
     public NucleusConnection getNucleusConnection(
             final ExecutionContext executionContext) {
@@ -69,7 +69,7 @@ public class DocumentumStoreManager extends AbstractStoreManager {
                 .lookupConnectionFactory(primaryConnectionFactoryName);
         ExecutionContext connectionContext = executionContext;
         Map<String, Object> options = new HashMap<>();
-        options.put(IDocumentumCredentialsHolder.OPTION_LOGININFO,
+        options.put(ICredentialsHolder.OPTION_LOGININFO,
                 Nucleus.extractLoginInfo(executionContext));
         Transaction transaction = null;
         final boolean enlisted = executionContext.getTransaction().isActive();

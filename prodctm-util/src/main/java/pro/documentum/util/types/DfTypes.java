@@ -3,6 +3,7 @@ package pro.documentum.util.types;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfType;
 import com.documentum.fc.client.IDfTypedObject;
@@ -77,6 +78,19 @@ public final class DfTypes {
         if (type.findTypeAttrIndex(attrName) > 0 && !object.hasAttr(attrName)) {
             throw new MissingAttributeException(attrName);
         }
+    }
+
+    public static IDfType getType(final IDfTypedObject object)
+        throws DfException {
+        if (object.hasAttr(DfDocbaseConstants.R_OBJECT_TYPE)) {
+            String typeName = object
+                    .getString(DfDocbaseConstants.R_OBJECT_TYPE);
+            return object.getSession().getType(typeName);
+        }
+        if (object instanceof IDfPersistentObject) {
+            return ((IDfPersistentObject) object).getType();
+        }
+        return null;
     }
 
 }

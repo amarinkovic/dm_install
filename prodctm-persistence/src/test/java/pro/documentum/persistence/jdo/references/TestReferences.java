@@ -12,6 +12,7 @@ import pro.documentum.persistence.jdo.JDOTestSupport;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
+@SuppressWarnings("unchecked")
 public class TestReferences extends JDOTestSupport {
 
     @Test
@@ -26,7 +27,7 @@ public class TestReferences extends JDOTestSupport {
         assertNotNull(folder.getFolders());
         assertNotNull(folder.getCabinet());
         assertNotNull(folder.getChronicle());
-        // assertNotNull(folder.getAcl());
+        assertNotNull(folder.getAcl());
         assertEquals(folder, folder.getChronicle());
         assertTrue(folder.getFolderPaths().contains(path));
     }

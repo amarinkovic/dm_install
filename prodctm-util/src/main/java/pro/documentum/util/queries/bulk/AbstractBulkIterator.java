@@ -74,7 +74,11 @@ public abstract class AbstractBulkIterator<O extends IDfPersistentObject, T>
             if (current == null) {
                 throw new IllegalStateException("Empty iterator");
             }
-            return (O) DfObjects.buildObject(_session, current, _objectType);
+            String typeName = _objectType;
+            if (current.hasAttr(DfDocbaseConstants.R_OBJECT_TYPE)) {
+                typeName = current.getString(DfDocbaseConstants.R_OBJECT_TYPE);
+            }
+            return (O) DfObjects.buildObject(_session, current, typeName);
         } catch (DfException ex) {
             throw new RuntimeException(ex);
         }

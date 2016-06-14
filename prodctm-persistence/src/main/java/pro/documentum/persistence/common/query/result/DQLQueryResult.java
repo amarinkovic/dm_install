@@ -26,8 +26,8 @@ import com.documentum.fc.common.DfException;
 import pro.documentum.persistence.common.query.IDocumentumQuery;
 import pro.documentum.util.queries.DfIterator;
 
-public class DQLQueryResult<R, T extends Query<?> & IDocumentumQuery<R>> extends
-        AbstractQueryResult<R> {
+public class DQLQueryResult<R, T extends Query<?> & IDocumentumQuery<R>>
+        extends AbstractQueryResult<R> {
 
     private static final long serialVersionUID = -8682935620558424082L;
 
@@ -69,7 +69,7 @@ public class DQLQueryResult<R, T extends Query<?> & IDocumentumQuery<R>> extends
 
     public void addCandidateResult(final DfIterator cursor,
             final IResultObjectFactory<R> objectFactory) throws DfException {
-        _results.add(new CandidateClassResult<R>(cursor, objectFactory));
+        _results.add(new CandidateClassResult<>(cursor, objectFactory));
     }
 
     @Override
@@ -199,7 +199,7 @@ public class DQLQueryResult<R, T extends Query<?> & IDocumentumQuery<R>> extends
     public boolean containsAll(final Collection c) {
         loadRemainingResults();
         for (Object o : c) {
-            if (!_itemsByIndex.containsKey(o)) {
+            if (!_itemsByIndex.containsValue(o)) {
                 return false;
             }
         }
@@ -207,11 +207,13 @@ public class DQLQueryResult<R, T extends Query<?> & IDocumentumQuery<R>> extends
     }
 
     @Override
+    @SuppressWarnings("NullableProblems")
     public Iterator<R> iterator() {
         return new QueryResultIterator();
     }
 
     @Override
+    @SuppressWarnings("NullableProblems")
     public ListIterator<R> listIterator() {
         return new QueryResultIterator();
     }

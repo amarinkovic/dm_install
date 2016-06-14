@@ -18,7 +18,7 @@ import pro.documentum.junit.DfcTestSupport;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class BulkCollectionIteratorTest extends DfcTestSupport {
+public class BulkIdentityIteratorTest extends DfcTestSupport {
 
     @Test
     public void testSingleSysObject() throws Exception {
@@ -27,7 +27,7 @@ public class BulkCollectionIteratorTest extends DfcTestSupport {
         object.save();
         List<String> ids = Collections.singletonList(object.getObjectId()
                 .getId());
-        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<>(session,
+        Iterator<IDfSysObject> iterator = new BulkIdentityIterator<>(session,
                 "dm_document", ids);
         assertTrue(iterator.hasNext());
         assertEquals(object, iterator.next());
@@ -42,7 +42,7 @@ public class BulkCollectionIteratorTest extends DfcTestSupport {
         session.flushObject(object.getObjectId());
         List<String> ids = Collections.singletonList(object.getObjectId()
                 .getId());
-        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<>(session,
+        Iterator<IDfSysObject> iterator = new BulkIdentityIterator<>(session,
                 "dm_document", ids);
         assertTrue(iterator.hasNext());
         assertNotEquals(object, iterator.next());
@@ -57,7 +57,7 @@ public class BulkCollectionIteratorTest extends DfcTestSupport {
         session.flushObject(object.getObjectId());
         List<String> ids = Collections.singletonList(object.getObjectId()
                 .getId());
-        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<>(session,
+        Iterator<IDfSysObject> iterator = new BulkIdentityIterator<>(session,
                 "dm_document", ids);
         object = (IDfSysObject) session.getObject(object.getObjectId());
         object.setObjectName("test");
@@ -73,7 +73,7 @@ public class BulkCollectionIteratorTest extends DfcTestSupport {
         object.save();
         List<String> ids = Collections.singletonList(object.getObjectId()
                 .getId());
-        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<>(session,
+        Iterator<IDfSysObject> iterator = new BulkIdentityIterator<>(session,
                 "dm_document", ids);
         object.destroy();
         assertFalse(iterator.hasNext());
@@ -94,7 +94,7 @@ public class BulkCollectionIteratorTest extends DfcTestSupport {
         session.flushObject(object.getObjectId());
         List<String> ids = Collections.singletonList(object.getObjectId()
                 .getId());
-        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<>(session,
+        Iterator<IDfSysObject> iterator = new BulkIdentityIterator<>(session,
                 "dm_document", ids);
         assertTrue(iterator.hasNext());
         object = iterator.next();
@@ -115,7 +115,7 @@ public class BulkCollectionIteratorTest extends DfcTestSupport {
                 0, false, null, null);
         IDfQueueItem queueItem = (IDfQueueItem) session.getObject(queueItemId);
         List<String> ids = Collections.singletonList(queueItemId.getId());
-        Iterator<IDfQueueItem> iterator = new BulkCollectionIterator<>(session,
+        Iterator<IDfQueueItem> iterator = new BulkIdentityIterator<>(session,
                 "dmi_queue_item", ids);
         assertTrue(iterator.hasNext());
         assertEquals(queueItem, iterator.next());
@@ -132,12 +132,13 @@ public class BulkCollectionIteratorTest extends DfcTestSupport {
             object.save();
             ids.add(object.getObjectId().getId());
         }
-        Iterator<IDfSysObject> iterator = new BulkCollectionIterator<>(session,
-                "dm_document", ids);
+        Iterator<IDfSysObject> iterator = new BulkIdentityIterator<>(session,
+                "dm_document", new ArrayList<>(ids));
         for (int i = 0; i < 500; i++) {
             assertTrue(iterator.hasNext());
             assertTrue(ids.remove(iterator.next().getObjectId().getId()));
         }
         assertTrue(ids.isEmpty());
     }
+
 }
