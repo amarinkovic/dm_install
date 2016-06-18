@@ -4,15 +4,21 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
+import com.documentum.fc.client.IDfACL;
 import com.documentum.fc.client.IDfFolder;
+import com.documentum.fc.client.IDfPersistentObject;
+import com.documentum.fc.client.IDfQueueItem;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSysObject;
-import com.documentum.fc.common.DfId;
+import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.IDfId;
 
 import pro.documentum.junit.DfcTestSupport;
+import pro.documentum.util.ids.DfIdUtil;
+import pro.documentum.util.queries.Queries;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -26,9 +32,9 @@ public class DfObjectsTest extends DfcTestSupport {
         assertEquals(100, ids.length);
         assertEquals(100, new HashSet<>(Arrays.asList(ids)).size());
         for (String id : ids) {
-            assertEquals(IDfId.DM_QUEUE_ITEM, DfId.valueOf(id).getTypePart());
-            assertEquals(Long.valueOf(session.getDocbaseId()).longValue(), DfId
-                    .valueOf(id).getNumericDocbaseId());
+            assertEquals(IDfId.DM_QUEUE_ITEM, DfIdUtil.getId(id).getTypePart());
+            assertEquals(Long.valueOf(session.getDocbaseId()).longValue(),
+                    DfIdUtil.getId(id).getNumericDocbaseId());
         }
     }
 
@@ -60,6 +66,34 @@ public class DfObjectsTest extends DfcTestSupport {
         assertNotEquals(proxy, imp);
         assertNotNull(DfObjects.getImp(imp));
         assertEquals(imp, DfObjects.getImp(imp));
+    }
+
+    @Test
+    public void testGuessingType1() throws Exception {
+        IDfSession session = getSession();
+        String query = "SELECT r_object_id, i_vstamp, i_is_replica FROM dm_acl";
+        IDfTypedObject data = Queries.execute(session, query).next();
+        IDfPersistentObject object = DfObjects.buildObject(session, data, null);
+        assertTrue(object instanceof IDfACL);
+    }
+
+    @Test
+    public void testGuessingType2() throws Exception {
+        IDfSession session = getSession();
+        // todo: make source_docbase mandatory when building query
+        String query = "SELECT r_object_id, i_vstamp, i_is_replica, source_docbase FROM dmi_queue_item";
+        IDfTypedObject data = Queries.execute(session, query).next();
+        IDfPersistentObject object = DfObjects.buildObject(session, data, null);
+        assertTrue(object instanceof IDfQueueItem);
+    }
+
+    @Test
+    public void testGuessingType3() throws Exception {
+        IDfSession session = getSession();
+        String query = "SELECT r_object_id, i_vstamp, r_object_type, i_is_replica, i_is_reference, r_aspect_name FROM dm_server_config";
+        IDfTypedObject data = Queries.execute(session, query).next();
+        IDfPersistentObject object = DfObjects.buildObject(session, data, null);
+        assertTrue(StringUtils.isNotBlank(object.getString("object_name")));
     }
 
 }

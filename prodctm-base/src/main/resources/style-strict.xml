@@ -168,7 +168,7 @@
             <property name="max" value="150" />
         </module-->
         <module name="JavaNCSS">
-            <property name="methodMaximum" value="80" />
+            <property name="methodMaximum" value="100" />
         </module>
         <!-- Miscellaneous -->
         <module name="TodoComment" />
@@ -238,7 +238,7 @@
         </module>
         <!-- Size Violations -->
         <module name="ExecutableStatementCount">
-            <property name="max" value="80" />
+            <property name="max" value="100" />
         </module>
         <module name="LineLength">
             <property name="ignorePattern" value="^(import|package|(public (final )?)?class) " />

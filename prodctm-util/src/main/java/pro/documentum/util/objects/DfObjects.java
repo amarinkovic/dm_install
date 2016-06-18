@@ -31,6 +31,7 @@ import com.documentum.fc.common.DfId;
 import com.documentum.fc.common.IDfId;
 import com.documentum.fc.impl.util.reflection.proxy.IProxyHandler;
 
+import pro.documentum.util.constants.DfConstants;
 import pro.documentum.util.ids.DfIdUtil;
 import pro.documentum.util.types.DfTypes;
 
@@ -46,6 +47,7 @@ public final class DfObjects {
         MANDATORY_ATTRIBUTES.add(DfDocbaseConstants.I_VSTAMP);
         MANDATORY_ATTRIBUTES.add(DfDocbaseConstants.I_IS_REPLICA);
         MANDATORY_ATTRIBUTES.add(DfDocbaseConstants.R_ASPECT_NAME);
+        MANDATORY_ATTRIBUTES.add("source_docbase");
     }
 
     private DfObjects() {
@@ -92,6 +94,12 @@ public final class DfObjects {
         IDfId objectId = data.getId(DfDocbaseConstants.R_OBJECT_ID);
         int vStamp = data.getInt(DfDocbaseConstants.I_VSTAMP);
         // check cache first
+
+        String objectType = typeName;
+        if (data.hasAttr(DfDocbaseConstants.R_OBJECT_TYPE)) {
+            objectType = data.getString(DfDocbaseConstants.R_OBJECT_TYPE);
+        }
+
         IPersistentObject object = getObjectFromCache(session, objectId);
         if (object != null) {
             object.setObjectSession(session);
@@ -99,12 +107,16 @@ public final class DfObjects {
             if (object.getVStamp() == vStamp || object.isDirty()) {
                 return (T) object;
             }
+            objectType = object.getTypeName();
         }
 
-        String objectType = typeName;
-        // todo: guess type using r_object_id
         if (StringUtils.isBlank(objectType)) {
-            objectType = data.getString(DfDocbaseConstants.R_OBJECT_TYPE);
+            objectType = DfConstants.getBaseType(objectId);
+        }
+
+        if (StringUtils.isBlank(objectType)) {
+            throw new IllegalArgumentException(
+                    "Unable to determine object type");
         }
 
         ILiteType type = session.getLiteType(objectType);
@@ -114,11 +126,11 @@ public final class DfObjects {
 
         PersistentDataManager dataManager = session.getDataManager();
         ITypedData objectData = dataManager.newData(type, objectId,
-                (IDfId) null);
-        objectData.copyValuesFrom(((ITypedObject) data).getData(false), null,
-                true);
+                DfId.DF_NULLID);
+        ITypedData sourceData = ((ITypedObject) data).getData(false);
+        objectData.copyValuesFrom(sourceData, null, true);
         objectData.setAutoFill(false);
-        return (T) buildObject(session, objectData, true);
+        return (T) buildObject(session, objectData, true, false);
     }
 
     public static IPersistentObject getObjectFromCache(
@@ -155,11 +167,11 @@ public final class DfObjects {
     @SuppressWarnings("unchecked")
     private static <T extends IDfPersistentObject> T buildObject(
             final IDfSession dfSession, final ITypedData data,
-            final boolean cached) throws DfException {
+            final boolean cached, final boolean isNew) throws DfException {
         ISession session = (ISession) dfSession;
         PersistentObjectManager objectManager = session.getObjectManager();
         IPersistentObjectFactory factory = objectManager.getObjectFactory();
-        IPersistentObject persistentObject = factory.makeObject(data, true,
+        IPersistentObject persistentObject = factory.makeObject(data, isNew,
                 session, session);
         if (cached) {
             persistentObject.setCached(true);
@@ -181,8 +193,8 @@ public final class DfObjects {
             throw DfException.newInvalidNewObjectException(typeName);
         }
         ITypedData typedData = dataManager.newData(type,
-                DfId.valueOf(objectId), (IDfId) null);
-        return buildObject(session, typedData, true);
+                DfIdUtil.getId(objectId), DfId.DF_NULLID);
+        return buildObject(session, typedData, true, true);
     }
 
     public static boolean isAttrChanged(final IDfPersistentObject object,

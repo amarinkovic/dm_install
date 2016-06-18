@@ -16,7 +16,6 @@ import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
-import com.documentum.fc.common.DfId;
 import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
 
@@ -137,7 +136,7 @@ public final class Nucleus {
     public static IDfPersistentObject getObject(final IDfSession session,
             final String objectId) {
         try {
-            return session.getObject(DfId.valueOf(objectId));
+            return session.getObject(DfIdUtil.getId(objectId));
         } catch (DfObjectNotFoundException ex) {
             throw DfExceptions.notFoundException(ex);
         } catch (DfException ex) {

@@ -19,16 +19,34 @@ public final class DfIdUtil {
     }
 
     public static boolean isNullId(final String objectId) {
-        return StringUtils.isBlank(objectId)
-                || DfId.DF_NULLID_STR.equals(objectId);
+        if (StringUtils.isBlank(objectId)) {
+            return true;
+        }
+        return DfId.DF_NULLID_STR.equals(objectId);
     }
 
     public static boolean isObjectId(final IDfId id) {
-        return id != null && id.isObjectId();
+        if (id == null) {
+            return false;
+        }
+        return isObjectIdInternal(id);
+    }
+
+    private static boolean isObjectIdInternal(final IDfId objectId) {
+        if (!objectId.isObjectId()) {
+            return false;
+        }
+        if (objectId.getTypePart() > 0x70) {
+            return false;
+        }
+        return objectId.getNumericDocbaseId() <= 0xFFFFFF;
     }
 
     public static boolean isObjectId(final String id) {
-        return !StringUtils.isBlank(id) && DfId.isObjectId(id);
+        if (StringUtils.isBlank(id)) {
+            return false;
+        }
+        return isObjectIdInternal(getId(id));
     }
 
     public static boolean isNotObjectId(final String id) {
@@ -36,54 +54,80 @@ public final class DfIdUtil {
     }
 
     public static boolean isNotObjectId(final IDfId id) {
-        return !DfId.isObjectId(id.getId());
+        return !isObjectId(id);
     }
 
     public static boolean isPackageId(final IDfId packageId) {
-        return isObjectId(packageId)
-                && packageId.getTypePart() == IDfId.DM_PACKAGE;
+        if (!isObjectId(packageId)) {
+            return false;
+        }
+        return packageId.getTypePart() == IDfId.DM_PACKAGE;
+    }
+
+    public static boolean isPackageId(final String packageId) {
+        return isPackageId(getId(packageId));
     }
 
     public static boolean isWorkitemId(final IDfId workitemId) {
-        return isObjectId(workitemId)
-                && workitemId.getTypePart() == IDfId.DM_WORKITEM;
+        if (!isObjectId(workitemId)) {
+            return false;
+        }
+        return workitemId.getTypePart() == IDfId.DM_WORKITEM;
     }
 
     public static boolean isWorkitemId(final String workitemId) {
         return isWorkitemId(getId(workitemId));
     }
 
+    public static boolean isWorkflowId(final IDfId workflowId) {
+        if (!isObjectId(workflowId)) {
+            return false;
+        }
+        return workflowId.getTypePart() == IDfId.DM_WORKFLOW;
+    }
+
     public static boolean isWorkflowId(final String workflowId) {
         return isWorkflowId(getId(workflowId));
     }
 
-    public static boolean isWorkflowId(final IDfId workflowId) {
-        return isObjectId(workflowId)
-                && workflowId.getTypePart() == IDfId.DM_WORKFLOW;
+    public static boolean isQueueItemId(final IDfId queueItemId) {
+        if (!isObjectId(queueItemId)) {
+            return false;
+        }
+        return queueItemId.getTypePart() == IDfId.DM_QUEUE_ITEM;
     }
 
     public static boolean isQueueItemId(final String queueItemId) {
         return isQueueItemId(getId(queueItemId));
     }
 
-    public static boolean isQueueItemId(final IDfId queueItemId) {
-        return isObjectId(queueItemId)
-                && queueItemId.getTypePart() == IDfId.DM_QUEUE_ITEM;
+    public static boolean isProcessId(final IDfId processId) {
+        if (!isObjectId(processId)) {
+            return false;
+        }
+        return processId.getTypePart() == IDfId.DM_PROCESS;
     }
 
-    public static boolean isProcessId(final IDfId processId) {
-        return isObjectId(processId)
-                && processId.getTypePart() == IDfId.DM_PROCESS;
+    public static boolean isProcessId(final String processId) {
+        return isObjectId(getId(processId));
     }
 
     public static boolean isActivityId(final IDfId activityId) {
-        return isObjectId(activityId)
-                && activityId.getTypePart() == IDfId.DM_ACTIVITY;
+        if (!isObjectId(activityId)) {
+            return false;
+        }
+        return activityId.getTypePart() == IDfId.DM_ACTIVITY;
+    }
+
+    public static boolean isActivityId(final String activityId) {
+        return isActivityId(getId(activityId));
     }
 
     public static boolean isFolderId(final IDfId folderId) {
-        return isObjectId(folderId)
-                && folderId.getTypePart() == IDfId.DM_FOLDER;
+        if (!isObjectId(folderId)) {
+            return false;
+        }
+        return folderId.getTypePart() == IDfId.DM_FOLDER;
     }
 
     public static boolean isFolderId(final String folderId) {
@@ -91,42 +135,58 @@ public final class DfIdUtil {
     }
 
     public static boolean isAliasSetId(final IDfId aliasSetId) {
-        return isObjectId(aliasSetId)
-                && aliasSetId.getTypePart() == IDfId.DM_ALIAS_SET;
+        if (!isObjectId(aliasSetId)) {
+            return false;
+        }
+        return aliasSetId.getTypePart() == IDfId.DM_ALIAS_SET;
+    }
+
+    public static boolean isAliasSetId(final String aliasSetId) {
+        return isAliasSetId(getId(aliasSetId));
     }
 
     public static boolean isDmDocumentId(final IDfId documentId) {
-        return isObjectId(documentId)
-                && documentId.getTypePart() == IDfId.DM_DOCUMENT;
+        if (!isObjectId(documentId)) {
+            return false;
+        }
+        return documentId.getTypePart() == IDfId.DM_DOCUMENT;
     }
 
     public static boolean isDmDocumentId(final String documentId) {
-        return isObjectId(documentId)
-                && getId(documentId).getTypePart() == IDfId.DM_DOCUMENT;
+        return isDmDocumentId(getId(documentId));
     }
 
     public static boolean isDmSysobjectId(final IDfId documentId) {
-        return isObjectId(documentId)
-                && documentId.getTypePart() == IDfId.DM_SYSOBJECT;
+        if (!isObjectId(documentId)) {
+            return false;
+        }
+        return documentId.getTypePart() == IDfId.DM_SYSOBJECT;
     }
 
     public static boolean isDmSysobjectId(final String documentId) {
-        return isObjectId(documentId)
-                && getId(documentId).getTypePart() == IDfId.DM_SYSOBJECT;
+        return isObjectId(getId(documentId));
     }
 
-    public static boolean isDmRelationtId(final String documentId) {
-        return isObjectId(documentId)
-                && getId(documentId).getTypePart() == IDfId.DM_RELATION;
+    public static boolean isDmRelationId(final IDfId relationId) {
+        if (!isObjectId(relationId)) {
+            return false;
+        }
+        return relationId.getTypePart() == IDfId.DM_RELATION;
+    }
+
+    public static boolean isDmRelationId(final String relationId) {
+        return isDmRelationId(getId(relationId));
     }
 
     public static boolean isCabinetId(final IDfId cabinetId) {
-        return isObjectId(cabinetId)
-                && cabinetId.getTypePart() == IDfId.DM_CABINET;
+        if (!isObjectId(cabinetId)) {
+            return false;
+        }
+        return cabinetId.getTypePart() == IDfId.DM_CABINET;
     }
 
     public static boolean isCabinetId(final String cabinetId) {
-        return isFolderId(getId(cabinetId));
+        return isCabinetId(getId(cabinetId));
     }
 
     public static boolean isCabinetOrFolderId(final IDfId objectId) {
@@ -134,19 +194,18 @@ public final class DfIdUtil {
     }
 
     public static boolean isCabinetOrFolderId(final String objectId) {
-        IDfId folderId = getId(objectId);
-        return isFolderId(folderId) || isCabinetId(folderId);
+        return isFolderId(objectId) || isCabinetId(objectId);
     }
 
     public static boolean isPolicyId(final IDfId policyId) {
-        return isObjectId(policyId)
-                && policyId.getTypePart() == IDfId.DM_POLICY;
+        if (!isObjectId(policyId)) {
+            return false;
+        }
+        return policyId.getTypePart() == IDfId.DM_POLICY;
     }
 
     public static boolean isPolicyId(final String objectId) {
-        IDfId policyId = getId(objectId);
-        return isObjectId(objectId)
-                && policyId.getTypePart() == IDfId.DM_POLICY;
+        return isPolicyId(getId(objectId));
     }
 
 }

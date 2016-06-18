@@ -10,6 +10,7 @@ import com.documentum.fc.common.IDfId;
 import com.documentum.fc.common.IDfValue;
 
 import pro.documentum.util.convert.IConverter;
+import pro.documentum.util.ids.DfIdUtil;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -61,7 +62,7 @@ public class IDfIdDataStoreConverter<F> extends
 
         @Override
         public IDfId convert(final String obj) {
-            return DfId.valueOf(obj);
+            return DfIdUtil.getId(obj);
         }
 
     }
