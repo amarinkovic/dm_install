@@ -1,5 +1,7 @@
 package pro.documentum.model.jdo.embedded;
 
+import java.util.Date;
+
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
@@ -10,38 +12,23 @@ import lombok.experimental.Accessors;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-@PersistenceCapable(embeddedOnly = "true")
+@PersistenceCapable(embeddedOnly = "true", detachable = "true")
 @Accessors(chain = true)
-public class DmPermit {
+public class DmLockInfo {
 
     @Persistent
     @Getter
     @Setter
-    private String accessorName;
+    private String lockOwner;
 
     @Persistent
     @Getter
     @Setter
-    private int accessorPermit;
+    private String lockMachine;
 
     @Persistent
     @Getter
     @Setter
-    private int accessorXPermit;
-
-    @Persistent
-    @Getter
-    @Setter
-    private boolean group;
-
-    @Persistent
-    @Getter
-    @Setter
-    private int permitType;
-
-    @Persistent
-    @Getter
-    @Setter
-    private String applicationPermit;
+    private Date lockDate;
 
 }

@@ -84,7 +84,16 @@ public class VersionHandler extends AbstractSysObjectAttributeHandler {
             return false;
         }
 
+        setVersionLabel(object, values);
+
+        removeKey(values, VERSION_ATTRIBUTES);
+
         return false;
+    }
+
+    protected void setVersionLabel(final IDfSysObject object,
+            final Map<String, ?> values) throws DfException {
+        // todo
     }
 
     private boolean isLastOp(final IDfSysObject object,

@@ -18,22 +18,26 @@ public class FetchEmbeddedFieldManager extends FetchFieldManager {
 
     private final List<AbstractMemberMetaData> _mmds;
 
-    private final Table _table;
-
     public FetchEmbeddedFieldManager(final ObjectProvider<?> op,
             final IDfTypedObject dbObject,
             final List<AbstractMemberMetaData> mmds, final Table table) {
         super(op, dbObject, table);
         _mmds = mmds;
-        _table = table;
+    }
+
+    protected MemberColumnMapping getColumnMapping(
+            final AbstractMemberMetaData mmd) {
+        List<AbstractMemberMetaData> embMmds = new ArrayList<>(_mmds);
+        embMmds.add(mmd);
+        return getMemberColumnMappingForEmbeddedMember(embMmds);
     }
 
     @Override
-    protected MemberColumnMapping getColumnMapping(final int fieldNumber) {
-        List<AbstractMemberMetaData> embMmds = new ArrayList<>(_mmds);
-        AbstractMemberMetaData mmd = getMemberMetadata(fieldNumber);
-        embMmds.add(mmd);
-        return _table.getMemberColumnMappingForEmbeddedMember(embMmds);
+    protected <T> T getSingle(final AbstractMemberMetaData mmd,
+            final Class<T> type) {
+        MemberColumnMapping columnMapping = getColumnMapping(mmd);
+        String fieldName = columnMapping.getColumn(0).getName();
+        return getSingle(fieldName, type);
     }
 
     @Override

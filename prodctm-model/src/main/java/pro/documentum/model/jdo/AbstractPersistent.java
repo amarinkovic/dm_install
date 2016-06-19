@@ -29,14 +29,18 @@ import pro.documentum.model.IPersistent;
 @Accessors(chain = true)
 public abstract class AbstractPersistent implements IPersistent {
 
+    @Column(name = "r_object_id")
+    @Getter
+    @Setter
+    private String objectId;
+
     @Column(name = "i_vstamp")
     @Getter
     @Setter
     private int vStamp;
 
-    @Column(name = "r_object_id")
+    @Column(name = "i_is_replica")
     @Getter
-    @Setter
-    private String objectId;
+    private boolean replica;
 
 }

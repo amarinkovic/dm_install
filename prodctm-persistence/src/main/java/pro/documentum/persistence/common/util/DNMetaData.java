@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang.StringUtils;
 import org.datanucleus.ExecutionContext;
@@ -56,6 +57,11 @@ public final class DNMetaData {
     public static Table getTable(final ExecutionContext ec,
             final String className) {
         return getStoreData(ec, className).getTable();
+    }
+
+    public static Table getTable(final ExecutionContext ec,
+            final AbstractClassMetaData cmd) {
+        return getStoreData(ec, cmd).getTable();
     }
 
     public static Class<?> getElementClass(final AbstractMemberMetaData mmd) {
@@ -219,20 +225,43 @@ public final class DNMetaData {
         return mmd.getPersistenceModifier() == FieldPersistenceModifier.PERSISTENT;
     }
 
-    public static String getFieldName(final AbstractMemberMetaData embMmd) {
-        String columnName = null;
-        ColumnMetaData[] colmds = embMmd.getColumnMetaData();
-        if (colmds != null && colmds.length > 0) {
-            columnName = colmds[0].getName();
+    public static String getColumnName(final AbstractMemberMetaData embMmd) {
+        List<String> names = getColumnNames(embMmd);
+        if (names == null || names.isEmpty()) {
+            throw new IllegalStateException("No columnMapping for "
+                    + embMmd.getName());
         }
-        if (columnName == null) {
-            columnName = embMmd.getName();
-        }
-        return columnName;
+        return names.get(0);
     }
 
     public static int[] getPersistentMembers(final AbstractClassMetaData cmd) {
         return DNArrays.getPersistentFields(cmd, cmd.getAllMemberPositions());
+    }
+
+    public static ColumnMetaData[] getColumnMetaData(
+            final AbstractMemberMetaData mmd) {
+        ColumnMetaData[] columnMetaDatum = null;
+        ElementMetaData emd = mmd.getElementMetaData();
+        if (emd != null) {
+            ColumnMetaData[] cmd = emd.getColumnMetaData();
+            if (cmd != null && cmd.length > 0) {
+                columnMetaDatum = cmd;
+            }
+        }
+        if (columnMetaDatum == null) {
+            columnMetaDatum = mmd.getColumnMetaData();
+        }
+        return columnMetaDatum;
+    }
+
+    public static List<String> getColumnNames(final AbstractMemberMetaData mmd) {
+        List<String> result = new ArrayList<>();
+        ColumnMetaData[] columnMetaData = Objects
+                .requireNonNull(getColumnMetaData(mmd));
+        for (ColumnMetaData cmd : columnMetaData) {
+            result.add(cmd.getName());
+        }
+        return result;
     }
 
 }

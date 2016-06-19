@@ -58,7 +58,9 @@ public abstract class AbstractPersistentAttributeHandler<T extends IDfPersistent
     private void checkState(final Map<String, ?> values) {
         if (doAccept(values.keySet())) {
             throw new IllegalStateException(
-                    "Object handler must delete attributes");
+                    "Object handler must delete attributes, "
+                            + "last object handler was: " + getClass()
+                            + ", remaining attributes are: " + values.keySet());
         }
     }
 

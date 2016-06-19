@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang.StringUtils;
 import org.datanucleus.ClassLoaderResolver;
@@ -14,7 +15,6 @@ import org.datanucleus.exceptions.NucleusUserException;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.ColumnMetaData;
-import org.datanucleus.metadata.ElementMetaData;
 import org.datanucleus.metadata.EmbeddedMetaData;
 import org.datanucleus.metadata.FieldRole;
 import org.datanucleus.metadata.IdentityStrategy;
@@ -29,7 +29,6 @@ import org.datanucleus.store.schema.table.Table;
 
 import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfDocbaseConstants;
-import com.documentum.fc.common.DfException;
 
 import pro.documentum.persistence.common.util.DNMetaData;
 import pro.documentum.persistence.common.util.DNRelation;
@@ -71,9 +70,9 @@ public abstract class AbstractFetchFieldManager extends
         _object = object;
     }
 
-    protected MemberColumnMapping getColumnMapping(final int fieldNumber) {
-        AbstractMemberMetaData mmd = getMemberMetadata(fieldNumber);
-        return _table.getMemberColumnMappingForMember(mmd);
+    MemberColumnMapping getMemberColumnMappingForEmbeddedMember(
+            final List<AbstractMemberMetaData> mmds) {
+        return _table.getMemberColumnMappingForEmbeddedMember(mmds);
     }
 
     @Override
@@ -109,10 +108,10 @@ public abstract class AbstractFetchFieldManager extends
         return getSingle(getMemberMetadata(fieldNumber), type);
     }
 
-    protected final <T> T getSingle(final AbstractMemberMetaData mmd,
+    protected <T> T getSingle(final AbstractMemberMetaData mmd,
             final Class<T> type) {
-        String fieldName = getFieldNames(mmd).get(0);
-        return getSingle(fieldName, type);
+        String attrName = DNMetaData.getColumnName(mmd);
+        return getSingle(attrName, type);
     }
 
     protected final <T> T getSingle(final String fieldName, final Class<T> type) {
@@ -134,12 +133,12 @@ public abstract class AbstractFetchFieldManager extends
 
     protected List<Reference> getReferences(final AbstractMemberMetaData mmd) {
         if (isIdentityMapping(mmd)) {
-            Reference reference = new Reference(getFieldNames(mmd).get(0),
+            Reference reference = new Reference(DNMetaData.getColumnName(mmd),
                     String.class, DfDocbaseConstants.R_OBJECT_ID);
             return Collections.singletonList(reference);
         }
         List<Reference> result = new ArrayList<>();
-        List<String> names = getFieldNames(mmd);
+        List<String> names = DNMetaData.getColumnNames(mmd);
         List<Class<?>> classes = getFieldClasses(mmd);
         List<String> targets = getFieldTargets(mmd);
         for (int i = 0, n = names.size(); i < n; i++) {
@@ -151,7 +150,8 @@ public abstract class AbstractFetchFieldManager extends
     }
 
     protected boolean isIdentityMapping(final AbstractMemberMetaData mmd) {
-        ColumnMetaData[] columnMetaDatum = getColumnMetaDatum(mmd);
+        ColumnMetaData[] columnMetaDatum = Objects.requireNonNull(DNMetaData
+                .getColumnMetaData(mmd));
         if (columnMetaDatum.length != 1) {
             return false;
         }
@@ -165,14 +165,6 @@ public abstract class AbstractFetchFieldManager extends
         return false;
     }
 
-    protected List<String> getFieldNames(final AbstractMemberMetaData mmd) {
-        List<String> result = new ArrayList<>();
-        for (ColumnMetaData cmd : getColumnMetaDatum(mmd)) {
-            result.add(cmd.getName());
-        }
-        return result;
-    }
-
     protected List<Class<?>> getFieldClasses(final AbstractMemberMetaData mmd) {
         Class<?> targetType = DNMetaData.getElementClass(mmd);
         RelationType relationType = getRelationType(mmd);
@@ -181,7 +173,9 @@ public abstract class AbstractFetchFieldManager extends
         }
         AbstractClassMetaData cmd = getMetaDataForClass(targetType);
         List<Class<?>> result = new ArrayList<>();
-        for (ColumnMetaData col : getColumnMetaDatum(mmd)) {
+        ColumnMetaData[] columnMetaData = Objects.requireNonNull(DNMetaData
+                .getColumnMetaData(mmd));
+        for (ColumnMetaData col : columnMetaData) {
             String targetMember = col.getTargetMember();
             AbstractMemberMetaData tmmd = cmd
                     .getMetaDataForMember(targetMember);
@@ -194,7 +188,9 @@ public abstract class AbstractFetchFieldManager extends
         Class<?> targetType = DNMetaData.getElementClass(mmd);
         AbstractClassMetaData cmd = getMetaDataForClass(targetType);
         List<String> result = new ArrayList<>();
-        for (ColumnMetaData col : getColumnMetaDatum(mmd)) {
+        ColumnMetaData[] columnMetaData = Objects.requireNonNull(DNMetaData
+                .getColumnMetaData(mmd));
+        for (ColumnMetaData col : columnMetaData) {
             String targetField = col.getTarget();
             if (StringUtils.isNotBlank(targetField)) {
                 result.add(targetField);
@@ -203,25 +199,9 @@ public abstract class AbstractFetchFieldManager extends
             String targetMember = col.getTargetMember();
             AbstractMemberMetaData tmmd = cmd
                     .getMetaDataForMember(targetMember);
-            result.add(getFieldNames(tmmd).get(0));
+            result.add(DNMetaData.getColumnName(tmmd));
         }
         return result;
-    }
-
-    protected ColumnMetaData[] getColumnMetaDatum(
-            final AbstractMemberMetaData mmd) {
-        ColumnMetaData[] columnMetaDatum = null;
-        ElementMetaData emd = mmd.getElementMetaData();
-        if (emd != null) {
-            ColumnMetaData[] cmd = emd.getColumnMetaData();
-            if (cmd != null && cmd.length > 0) {
-                columnMetaDatum = cmd;
-            }
-        }
-        if (columnMetaDatum == null) {
-            columnMetaDatum = mmd.getColumnMetaData();
-        }
-        return columnMetaDatum;
     }
 
     private <T, C extends Collection<?>> Collection<T> getCollection(
@@ -291,20 +271,18 @@ public abstract class AbstractFetchFieldManager extends
         return cmd.getMetaDataForManagedMemberAtAbsolutePosition(fieldNumber);
     }
 
-    protected Object fetchSingleEmbedded(final AbstractMemberMetaData mmd)
-        throws DfException {
+    protected Object fetchSingleEmbedded(final AbstractMemberMetaData mmd) {
         AbstractClassMetaData embcmd = getMetaDataForClass(mmd);
         if (embcmd == null) {
             throw new NucleusUserException("Field " + mmd.getFullFieldName()
                     + " marked as embedded but no such metadata");
         }
-        embcmd = DNMetaData.getActual(_object, ec, embcmd);
         EmbeddedMetaData embmd = mmd.getEmbeddedMetaData();
         AbstractMemberMetaData[] embmmds = embmd.getMemberMetaData();
         boolean hasAllAttrs = true;
         for (AbstractMemberMetaData embmmd : embmmds) {
-            String embFieldName = DNMetaData.getFieldName(embmmd);
-            if (_object.hasAttr(embFieldName)) {
+            String attrName = DNMetaData.getColumnName(embmmd);
+            if (DNValues.hasAttr(_object, attrName)) {
                 continue;
             }
             hasAllAttrs = false;
@@ -324,6 +302,26 @@ public abstract class AbstractFetchFieldManager extends
                 _table);
         eop.replaceFields(embcmd.getAllMemberPositions(), ffm);
         return eop.getObject();
+    }
+
+    protected Object fetchMultipleEmbedded(final AbstractMemberMetaData mmd) {
+        if (mmd.hasContainer()) {
+            if (mmd.hasCollection()) {
+                return fetchEmbeddedCollection(mmd);
+            }
+            if (mmd.hasArray()) {
+                return fetchEmbeddedArray(mmd);
+            }
+        }
+        return null;
+    }
+
+    protected Object fetchEmbeddedCollection(final AbstractMemberMetaData mmd) {
+        return null;
+    }
+
+    protected Object fetchEmbeddedArray(final AbstractMemberMetaData mmd) {
+        return null;
     }
 
     protected String[] getImplementationsForReferenceField(

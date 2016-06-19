@@ -24,6 +24,7 @@ public class TestReferences extends JDOTestSupport {
         assertNotNull(results);
         assertEquals(1, results.size());
         DmFolder folder = results.get(0);
+        assertNotNull(folder.getLockInfo());
         assertNotNull(folder.getFolders());
         assertNotNull(folder.getCabinet());
         assertNotNull(folder.getChronicle());

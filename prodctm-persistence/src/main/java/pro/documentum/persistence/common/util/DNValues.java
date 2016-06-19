@@ -42,6 +42,15 @@ public final class DNValues {
         }
     }
 
+    public static boolean hasAttr(final IDfTypedObject object,
+            final String attrName) {
+        try {
+            return object.hasAttr(attrName);
+        } catch (DfException ex) {
+            throw DfExceptions.dataStoreException(ex);
+        }
+    }
+
     public static String getObjectId(final IDfTypedObject object) {
         return getString(object, DfDocbaseConstants.R_OBJECT_ID);
     }

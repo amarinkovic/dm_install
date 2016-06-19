@@ -313,7 +313,7 @@ public final class DfObjects {
 
     public static void removeVersionLabels(final IDfSysObject object)
         throws DfException {
-        for (int i = object.getVersionLabelCount() - 1; i >= 0; i++) {
+        for (int i = object.getVersionLabelCount() - 1; i >= 0; i--) {
             object.unmark(object.getVersionLabel(i));
         }
     }

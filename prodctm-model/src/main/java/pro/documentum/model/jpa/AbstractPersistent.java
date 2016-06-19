@@ -34,4 +34,8 @@ public abstract class AbstractPersistent {
     @Setter
     private int vStamp;
 
+    @Column(name = "i_is_replica")
+    @Getter
+    private boolean replica;
+
 }

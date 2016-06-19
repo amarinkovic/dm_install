@@ -13,12 +13,10 @@ import org.datanucleus.state.ObjectProvider;
 import org.datanucleus.store.schema.table.Table;
 
 import com.documentum.fc.client.IDfTypedObject;
-import com.documentum.fc.common.DfException;
 
 import pro.documentum.persistence.common.IPersistenceHandler;
 import pro.documentum.persistence.common.util.DNMetaData;
 import pro.documentum.persistence.common.util.DNRelation;
-import pro.documentum.persistence.common.util.DfExceptions;
 import pro.documentum.util.java.Classes;
 import pro.documentum.util.queries.keys.CompositeKey;
 
@@ -40,31 +38,26 @@ public class FetchFieldManager extends AbstractFetchFieldManager {
 
     @Override
     public Object fetchObjectField(final int fieldNumber) {
-        try {
-            AbstractMemberMetaData mmd = getMemberMetadata(fieldNumber);
-            if (!DNMetaData.isPersistent(mmd)) {
-                return op.provideField(fieldNumber);
-            }
-
-            boolean isEmbedded = isEmbedded(mmd);
-            RelationType relationType = getRelationType(mmd);
-
-            if (!isEmbedded) {
-                return fetchNonEmbedded(mmd);
-            }
-
-            if (RelationType.isRelationSingleValued(relationType)) {
-                return fetchSingleEmbedded(mmd);
-            }
-
-            if (RelationType.isRelationMultiValued(relationType)) {
-                return null;
-            }
-
-            return null;
-        } catch (DfException ex) {
-            throw DfExceptions.dataStoreException(ex);
+        AbstractMemberMetaData mmd = getMemberMetadata(fieldNumber);
+        if (!DNMetaData.isPersistent(mmd)) {
+            return op.provideField(fieldNumber);
         }
+
+        boolean isEmbedded = isEmbedded(mmd);
+        RelationType relationType = getRelationType(mmd);
+
+        if (!isEmbedded) {
+            return fetchNonEmbedded(mmd);
+        }
+
+        if (RelationType.isRelationSingleValued(relationType)) {
+            return fetchSingleEmbedded(mmd);
+        }
+
+        if (RelationType.isRelationMultiValued(relationType)) {
+            return fetchMultipleEmbedded(mmd);
+        }
+        return null;
     }
 
     protected Object fetchNonEmbedded(final AbstractMemberMetaData mmd) {
@@ -122,8 +115,8 @@ public class FetchFieldManager extends AbstractFetchFieldManager {
 
     protected Object fetchNonPersistent(final AbstractMemberMetaData mmd,
             final Class<?> elementClass) {
-        String fieldName = getFieldNames(mmd).get(0);
-        return getValue(mmd, fieldName, elementClass);
+        String attrName = DNMetaData.getColumnName(mmd);
+        return getValue(mmd, attrName, elementClass);
     }
 
     protected Object fetchNonPersistent(final AbstractMemberMetaData mmd) {
