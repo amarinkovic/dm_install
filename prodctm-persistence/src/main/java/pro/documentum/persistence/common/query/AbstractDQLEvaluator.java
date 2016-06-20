@@ -285,7 +285,7 @@ public abstract class AbstractDQLEvaluator<R, T extends Query<?> & IDocumentumQu
                         return name;
                     }
                     throw new NucleusUserException(
-                            "Do not support _query joining to related object at "
+                            "Do not support query joining to related object at "
                                     + mmd.getFullFieldName() + " in "
                                     + StringUtils.collectionToString(tuples));
                 }

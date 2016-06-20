@@ -29,6 +29,7 @@ public class TestReferences extends JDOTestSupport {
         assertNotNull(folder.getCabinet());
         assertNotNull(folder.getChronicle());
         assertNotNull(folder.getAcl());
+        assertNotNull(folder.getAcl().getPermits());
         assertEquals(folder, folder.getChronicle());
         assertTrue(folder.getFolderPaths().contains(path));
     }

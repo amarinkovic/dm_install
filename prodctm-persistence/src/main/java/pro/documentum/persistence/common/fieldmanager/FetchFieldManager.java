@@ -1,8 +1,6 @@
 package pro.documentum.persistence.common.fieldmanager;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.datanucleus.ExecutionContext;
@@ -17,7 +15,6 @@ import com.documentum.fc.client.IDfTypedObject;
 import pro.documentum.persistence.common.IPersistenceHandler;
 import pro.documentum.persistence.common.util.DNMetaData;
 import pro.documentum.persistence.common.util.DNRelation;
-import pro.documentum.util.java.Classes;
 import pro.documentum.util.queries.keys.CompositeKey;
 
 /**
@@ -38,30 +35,20 @@ public class FetchFieldManager extends AbstractFetchFieldManager {
 
     @Override
     public Object fetchObjectField(final int fieldNumber) {
-        AbstractMemberMetaData mmd = getMemberMetadata(fieldNumber);
+        AbstractMemberMetaData mmd = getFieldHelper().getMemberMetadata(
+                fieldNumber);
         if (!DNMetaData.isPersistent(mmd)) {
             return op.provideField(fieldNumber);
         }
-
-        boolean isEmbedded = isEmbedded(mmd);
-        RelationType relationType = getRelationType(mmd);
-
+        boolean isEmbedded = getFieldHelper().isEmbedded(mmd);
         if (!isEmbedded) {
             return fetchNonEmbedded(mmd);
         }
-
-        if (RelationType.isRelationSingleValued(relationType)) {
-            return fetchSingleEmbedded(mmd);
-        }
-
-        if (RelationType.isRelationMultiValued(relationType)) {
-            return fetchMultipleEmbedded(mmd);
-        }
-        return null;
+        return fetchEmbedded(mmd);
     }
 
     protected Object fetchNonEmbedded(final AbstractMemberMetaData mmd) {
-        RelationType relationType = getRelationType(mmd);
+        RelationType relationType = getFieldHelper().getRelationType(mmd);
         if (DNRelation.isNone(relationType)) {
             return fetchNonPersistent(mmd);
         }
@@ -71,35 +58,18 @@ public class FetchFieldManager extends AbstractFetchFieldManager {
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Object fetchPersistent(final AbstractMemberMetaData mmd) {
         List<CompositeKey> keys = getCompositeKeys(mmd);
-        AbstractClassMetaData cmd = getMetaDataForClass(DNMetaData
-                .getElementClass(mmd));
+        AbstractClassMetaData cmd = getFieldHelper().getMetaDataForClass(
+                DNMetaData.getElementClass(mmd));
         IPersistenceHandler persistenceHandler = (IPersistenceHandler) ec
                 .getStoreManager().getPersistenceHandler();
         List<?> result = persistenceHandler.selectObjects(ec, cmd, keys);
-        if (!mmd.hasContainer()) {
-            return result.get(0);
-        }
-        if (mmd.hasCollection()) {
-            Collection collection = Classes.newCollection(mmd.getType());
-            collection.addAll(result);
-            return collection;
-        }
-        if (mmd.hasArray()) {
-            int length = result.size();
-            Class elementClass = DNMetaData.getElementClass(mmd);
-            Object array = Array.newInstance(elementClass, length);
-            for (int i = 0; i < length; i++) {
-                Array.set(array, i, result.get(i));
-            }
-            return array;
-        }
-        return null;
+        return asRequiredType(mmd, result);
     }
 
     protected List<CompositeKey> getCompositeKeys(
             final AbstractMemberMetaData mmd) {
         List<CompositeKey> result = new ArrayList<>();
-        List<Reference> references = getReferences(mmd);
+        List<Reference> references = getFieldHelper().getReferences(mmd);
         int count = getValueCount(references.get(0).getColumnName());
         for (int i = 0; i < count; i++) {
             CompositeKey key = new CompositeKey();

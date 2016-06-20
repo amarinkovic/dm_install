@@ -54,7 +54,10 @@ public class DmAcl extends AbstractPersistent {
     @Element(types = {DmPermit.class, }, embedded = "true", embeddedMapping = {@Embedded(members = {
         @Persistent(name = "accessorName", columns = @Column(name = "r_accessor_name")),
         @Persistent(name = "accessorPermit", columns = @Column(name = "r_accessor_permit")),
-        @Persistent(name = "accessorXPermit", columns = @Column(name = "r_accessor_xpermit")), }) })
+        @Persistent(name = "accessorXPermit", columns = @Column(name = "r_accessor_xpermit")),
+        @Persistent(name = "applicationPermit", columns = @Column(name = "r_application_permit")),
+        @Persistent(name = "group", columns = @Column(name = "r_is_group")),
+        @Persistent(name = "permitType", columns = @Column(name = "r_permit_type")), }) })
     @Persistent(defaultFetchGroup = "true", serialized = "true")
     @Getter
     @Setter

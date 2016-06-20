@@ -15,6 +15,7 @@ import pro.documentum.util.convert.Converter;
 import pro.documentum.util.logger.Logger;
 import pro.documentum.util.objects.changes.attributes.IAttributeHandler;
 import pro.documentum.util.objects.changes.attributes.PersistentHandler;
+import pro.documentum.util.objects.changes.attributes.acl.PermitHandler;
 import pro.documentum.util.objects.changes.attributes.content.ContentReadOnlyHandler;
 import pro.documentum.util.objects.changes.attributes.content.ParentIdHandler;
 import pro.documentum.util.objects.changes.attributes.persistent.AspectNameHandler;
@@ -57,6 +58,8 @@ public final class ChangesProcessor {
         addAttributeHandler(UserPermitHandler.class);
         // content
         addAttributeHandler(ParentIdHandler.class);
+        // acls
+        addAttributeHandler(PermitHandler.class);
         // read-only
         addAttributeHandler(ReadOnlyHandler.class);
         addAttributeHandler(UserReadOnlyHandler.class);

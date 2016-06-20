@@ -14,6 +14,7 @@ import org.datanucleus.metadata.ArrayMetaData;
 import org.datanucleus.metadata.CollectionMetaData;
 import org.datanucleus.metadata.ColumnMetaData;
 import org.datanucleus.metadata.ElementMetaData;
+import org.datanucleus.metadata.EmbeddedMetaData;
 import org.datanucleus.metadata.FieldPersistenceModifier;
 import org.datanucleus.store.StoreData;
 import org.datanucleus.store.StoreManager;
@@ -167,19 +168,8 @@ public final class DNMetaData {
                 return result;
             }
         }
-        ColumnMetaData[] columnMetaDatum = null;
-        if (mmd.hasContainer()) {
-            ElementMetaData emd = mmd.getElementMetaData();
-            if (emd != null) {
-                ColumnMetaData[] data = emd.getColumnMetaData();
-                if (data != null && data.length > 0) {
-                    columnMetaDatum = data;
-                }
-            }
-        }
-        if (columnMetaDatum == null) {
-            columnMetaDatum = mmd.getColumnMetaData();
-        }
+        ColumnMetaData[] columnMetaDatum = Objects
+                .requireNonNull(getColumnMetaData(mmd));
         for (ColumnMetaData c : columnMetaDatum) {
             result.add(c.getName());
         }
@@ -240,18 +230,34 @@ public final class DNMetaData {
 
     public static ColumnMetaData[] getColumnMetaData(
             final AbstractMemberMetaData mmd) {
-        ColumnMetaData[] columnMetaDatum = null;
-        ElementMetaData emd = mmd.getElementMetaData();
-        if (emd != null) {
-            ColumnMetaData[] cmd = emd.getColumnMetaData();
-            if (cmd != null && cmd.length > 0) {
-                columnMetaDatum = cmd;
+        ColumnMetaData[] cmd = null;
+        ElementMetaData elmd = mmd.getElementMetaData();
+        if (elmd != null) {
+            cmd = elmd.getColumnMetaData();
+        }
+        if (cmd == null || cmd.length == 0) {
+            cmd = mmd.getColumnMetaData();
+        }
+        return cmd;
+    }
+
+    public static AbstractMemberMetaData[] getEmbeddedMemberMetaData(
+            final AbstractMemberMetaData mmd) {
+        ElementMetaData elmd = mmd.getElementMetaData();
+        AbstractMemberMetaData[] ammd = null;
+        if (elmd != null) {
+            EmbeddedMetaData emmd = elmd.getEmbeddedMetaData();
+            if (emmd != null) {
+                ammd = emmd.getMemberMetaData();
             }
         }
-        if (columnMetaDatum == null) {
-            columnMetaDatum = mmd.getColumnMetaData();
+        if (ammd == null || ammd.length == 0) {
+            EmbeddedMetaData emmd = mmd.getEmbeddedMetaData();
+            if (emmd != null) {
+                ammd = emmd.getMemberMetaData();
+            }
         }
-        return columnMetaDatum;
+        return ammd;
     }
 
     public static List<String> getColumnNames(final AbstractMemberMetaData mmd) {

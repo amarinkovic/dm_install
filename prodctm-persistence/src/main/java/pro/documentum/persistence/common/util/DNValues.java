@@ -1,7 +1,5 @@
 package pro.documentum.persistence.common.util;
 
-import java.util.Collection;
-
 import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.state.ObjectProvider;
@@ -18,7 +16,6 @@ import pro.documentum.persistence.common.fieldmanager.FetchFieldManager;
 import pro.documentum.persistence.common.fieldmanager.StoreFieldManager;
 import pro.documentum.util.IDfSessionInvoker;
 import pro.documentum.util.convert.Converter;
-import pro.documentum.util.java.Classes;
 import pro.documentum.util.objects.changes.ChangesProcessor;
 import pro.documentum.util.sessions.Sessions;
 
@@ -69,29 +66,7 @@ public final class DNValues {
     public static <T> T getSingleValue(final IDfTypedObject object,
             final String attrName, final int index, final Class<?> type) {
         try {
-            return (T) CONVERTER.fromDataStore(object, attrName, index, type);
-        } catch (DfException ex) {
-            throw DfExceptions.dataStoreException(ex);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T, C extends Collection<?>> Collection<T> getCollection(
-            final IDfTypedObject object, final String attrName,
-            final Class<T> type, final Class<C> collectionType) {
-        try {
-            return (Collection<T>) CONVERTER.fromDataStore(object, attrName,
-                    type, collectionType);
-        } catch (DfException ex) {
-            throw DfExceptions.dataStoreException(ex);
-        }
-    }
-
-    public static <T> T[] getArray(final IDfTypedObject object,
-            final String attrName, final Class<T> elementClass) {
-        try {
-            return CONVERTER.fromDataStore(object, attrName, elementClass,
-                    Classes.getArrayClass(elementClass));
+            return (T) CONVERTER.fromDataStore(object, attrName, type, index);
         } catch (DfException ex) {
             throw DfExceptions.dataStoreException(ex);
         }
@@ -130,7 +105,7 @@ public final class DNValues {
     private static void doSetFields(final IDfPersistentObject object,
             final ObjectProvider<?> op, final int[] fields, final Table table,
             final boolean insert) throws DfException {
-        StoreFieldManager fm = new StoreFieldManager(op, insert, table);
+        StoreFieldManager fm = new StoreFieldManager(op, object, insert, table);
         op.provideFields(fields, fm);
         ChangesProcessor.process(object, fm.getValues());
     }

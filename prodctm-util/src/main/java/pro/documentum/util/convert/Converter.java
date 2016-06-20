@@ -113,7 +113,7 @@ public final class Converter {
     }
 
     public <T> T fromDataStore(final IDfTypedObject object,
-            final String attrName, final int index, final Class<T> targetClass)
+            final String attrName, final Class<T> targetClass, final int index)
         throws DfException {
         try {
             IConverter<IDfValue, T> converter = getConverter(targetClass);
@@ -122,48 +122,6 @@ public final class Converter {
         } catch (ParseException ex) {
             throw new DfException(ex);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T fromDataStore(final IDfTypedObject object,
-            final String attrName, final Class<?> elementClass,
-            final Class<?> containerClass) throws DfException {
-        try {
-            if (Collection.class.isAssignableFrom(containerClass)) {
-                return (T) asCollection(object, attrName, elementClass,
-                        (Class<? extends Collection<?>>) containerClass);
-            }
-            if (containerClass.isArray()) {
-                return (T) asArray(object, attrName, elementClass);
-            }
-            return null;
-        } catch (ParseException ex) {
-            throw new DfException(ex);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T, C extends Collection<?>> Collection<T> asCollection(
-            final IDfTypedObject object, final String attrName,
-            final Class<T> elementClass, final Class<C> containerClass)
-        throws DfException, ParseException {
-        Collection<T> result = Classes.newCollection(containerClass);
-        for (int i = 0, n = object.getValueCount(attrName); i < n; i++) {
-            result.add(fromDataStore(object, attrName, i, elementClass));
-        }
-        return result;
-    }
-
-    private <T> Object asArray(final IDfTypedObject object,
-            final String attrName, final Class<T> elementClass)
-        throws DfException, ParseException {
-        int valueCount = object.getValueCount(attrName);
-        Object array = Array.newInstance(elementClass, valueCount);
-        for (int i = 0; i < valueCount; i++) {
-            Object value = fromDataStore(object, attrName, i, elementClass);
-            Array.set(array, i, value);
-        }
-        return array;
     }
 
     @SuppressWarnings("unchecked")

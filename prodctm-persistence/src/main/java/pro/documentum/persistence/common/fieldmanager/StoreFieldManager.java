@@ -7,6 +7,8 @@ import org.datanucleus.metadata.RelationType;
 import org.datanucleus.state.ObjectProvider;
 import org.datanucleus.store.schema.table.Table;
 
+import com.documentum.fc.client.IDfPersistentObject;
+
 import pro.documentum.persistence.common.util.DNMetaData;
 import pro.documentum.persistence.common.util.DNRelation;
 
@@ -16,47 +18,35 @@ import pro.documentum.persistence.common.util.DNRelation;
 public class StoreFieldManager extends AbstractStoreFieldManager {
 
     public StoreFieldManager(final ExecutionContext ec,
-            final AbstractClassMetaData cmd, final boolean insert,
-            final Table table) {
-        super(ec, cmd, insert, table);
+            final IDfPersistentObject object, final AbstractClassMetaData cmd,
+            final boolean insert, final Table table) {
+        super(ec, object, cmd, insert, table);
     }
 
-    public StoreFieldManager(final ObjectProvider<?> op, final boolean insert,
+    public StoreFieldManager(final ObjectProvider<?> op,
+            final IDfPersistentObject object, final boolean insert,
             final Table table) {
-        super(op, insert, table);
+        super(op, object, insert, table);
     }
 
     @Override
     public void storeObjectField(final int fieldNumber, final Object value) {
-        AbstractMemberMetaData mmd = getMemberMetadata(fieldNumber);
+        AbstractMemberMetaData mmd = getFieldHelper().getMemberMetadata(
+                fieldNumber);
         if (!DNMetaData.isPersistent(mmd)) {
             return;
         }
-        boolean isEmbedded = isEmbedded(mmd);
-        RelationType relationType = getRelationType(mmd);
-
+        boolean isEmbedded = getFieldHelper().isEmbedded(mmd);
         if (!isEmbedded) {
             storeNonEmbedded(mmd, value);
-        }
-
-        if (RelationType.isRelationSingleValued(relationType)) {
-            storeSingleEmbedded(mmd, value);
             return;
         }
-
-        if (RelationType.isRelationMultiValued(relationType)) {
-            storeMultipleEmbedded(mmd, value);
-        }
-    }
-
-    protected void storeMultipleEmbedded(final AbstractMemberMetaData mmd,
-            final Object value) {
-        // todo
+        storeEmbedded(mmd, value);
     }
 
     protected void storeNonEmbedded(final AbstractMemberMetaData mmd,
             final Object value) {
-        RelationType relationType = getRelationType(mmd);
+        RelationType relationType = getFieldHelper().getRelationType(mmd);
         if (DNRelation.isNone(relationType)) {
             storeNonPersistent(mmd, value);
             return;
@@ -64,7 +54,7 @@ public class StoreFieldManager extends AbstractStoreFieldManager {
         storePersistent(mmd, value);
     }
 
-    private void storeNonPersistent(final AbstractMemberMetaData mmd,
+    protected void storeNonPersistent(final AbstractMemberMetaData mmd,
             final Object value) {
         storeSingleField(mmd, value);
     }

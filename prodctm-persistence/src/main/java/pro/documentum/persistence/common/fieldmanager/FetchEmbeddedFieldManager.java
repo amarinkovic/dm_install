@@ -14,15 +14,19 @@ import com.documentum.fc.client.IDfTypedObject;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class FetchEmbeddedFieldManager extends FetchFieldManager {
+class FetchEmbeddedFieldManager extends FetchFieldManager {
 
     private final List<AbstractMemberMetaData> _mmds;
 
-    public FetchEmbeddedFieldManager(final ObjectProvider<?> op,
+    private final int _index;
+
+    FetchEmbeddedFieldManager(final ObjectProvider<?> op,
             final IDfTypedObject dbObject,
-            final List<AbstractMemberMetaData> mmds, final Table table) {
+            final List<AbstractMemberMetaData> mmds, final Table table,
+            final int index) {
         super(op, dbObject, table);
         _mmds = mmds;
+        _index = index;
     }
 
     protected MemberColumnMapping getColumnMapping(
@@ -37,11 +41,13 @@ public class FetchEmbeddedFieldManager extends FetchFieldManager {
             final Class<T> type) {
         MemberColumnMapping columnMapping = getColumnMapping(mmd);
         String fieldName = columnMapping.getColumn(0).getName();
-        return getSingle(fieldName, type);
+        return getRepeating(fieldName, type, _index);
     }
 
     @Override
     public Object fetchObjectField(final int fieldNumber) {
+        AbstractMemberMetaData mmd = getFieldHelper().getMemberMetadata(
+                fieldNumber);
         if (isSameOwner(fieldNumber)) {
             ObjectProvider[] ownerOps = ec
                     .getOwnersForEmbeddedObjectProvider(op);
@@ -50,11 +56,20 @@ public class FetchEmbeddedFieldManager extends FetchFieldManager {
             }
             return ownerOps[0].getObject();
         }
-        return null;
+        return fetchNonPersistent(mmd);
+    }
+
+    @Override
+    protected Object fetchNonPersistent(final AbstractMemberMetaData mmd,
+            final Class<?> elementClass) {
+        MemberColumnMapping columnMapping = getColumnMapping(mmd);
+        String attrName = columnMapping.getColumn(0).getName();
+        return getValue(mmd, attrName, elementClass);
     }
 
     private boolean isSameOwner(final int fieldNumber) {
-        AbstractMemberMetaData mmd = getMemberMetadata(fieldNumber);
+        AbstractMemberMetaData mmd = getFieldHelper().getMemberMetadata(
+                fieldNumber);
         if (_mmds.size() != 1) {
             return false;
         }

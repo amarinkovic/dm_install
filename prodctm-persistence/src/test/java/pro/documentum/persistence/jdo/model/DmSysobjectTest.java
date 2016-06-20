@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.jdo.Query;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.documentum.fc.client.IDfSysObject;
@@ -22,7 +21,6 @@ import pro.documentum.persistence.jdo.JDOTestSupport;
 public class DmSysobjectTest extends JDOTestSupport {
 
     @Test
-    @Ignore
     public void testCheckOut() throws Exception {
         String objectName = RandomStringUtils.randomAscii(100);
         IDfSysObject object = (IDfSysObject) getSession().newObject(

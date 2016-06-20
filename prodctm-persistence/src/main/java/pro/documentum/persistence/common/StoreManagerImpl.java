@@ -97,6 +97,8 @@ public class StoreManagerImpl extends AbstractStoreManager {
     public Collection<String> getSupportedOptions() {
         Set<String> result = new HashSet<>();
         result.add(StoreManager.OPTION_DATASTORE_ID);
+        result.add(StoreManager.OPTION_ORM_EMBEDDED_COLLECTION_NESTED);
+        result.add(StoreManager.OPTION_ORM_EMBEDDED_ARRAY_NESTED);
         return result;
     }
 
