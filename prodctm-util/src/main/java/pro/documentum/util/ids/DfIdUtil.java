@@ -109,7 +109,7 @@ public final class DfIdUtil {
     }
 
     public static boolean isProcessId(final String processId) {
-        return isObjectId(getId(processId));
+        return isProcessId(getId(processId));
     }
 
     public static boolean isActivityId(final IDfId activityId) {
@@ -164,7 +164,7 @@ public final class DfIdUtil {
     }
 
     public static boolean isDmSysobjectId(final String documentId) {
-        return isObjectId(getId(documentId));
+        return isDmSysobjectId(getId(documentId));
     }
 
     public static boolean isDmRelationId(final IDfId relationId) {
