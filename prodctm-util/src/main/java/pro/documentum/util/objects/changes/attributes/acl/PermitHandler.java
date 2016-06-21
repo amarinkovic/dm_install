@@ -24,6 +24,10 @@ public class PermitHandler extends AbstractAclPermitHandler {
         PERMIT_ATTRIBUTES.add("r_application_permit");
     }
 
+    public PermitHandler() {
+        super();
+    }
+
     @Override
     protected boolean doAccept(final Set<String> attrNames) {
         return containsKey(attrNames, PERMIT_ATTRIBUTES);

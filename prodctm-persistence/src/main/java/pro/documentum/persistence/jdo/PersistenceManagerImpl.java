@@ -11,6 +11,12 @@ import pro.documentum.persistence.common.ICredentialsHolder;
 public class PersistenceManagerImpl extends JDOPersistenceManager implements
         ICredentialsHolder {
 
+    public static final ThreadLocal<ICredentialsHolder> CREDENTIAL_HOLDER;
+
+    static {
+        CREDENTIAL_HOLDER = new ThreadLocal<>();
+    }
+
     private final String _userName;
 
     private final String _password;
@@ -30,6 +36,51 @@ public class PersistenceManagerImpl extends JDOPersistenceManager implements
     @Override
     public String getPassword() {
         return _password;
+    }
+
+    private <T> T withCredentials(final IInvoker<T> invoker) {
+        boolean remove = putCredentials();
+        try {
+            return invoker.invoke();
+        } finally {
+            if (remove) {
+                remove();
+            }
+        }
+    }
+
+    @Override
+    public final Object newObjectIdInstance(final Class pcClass,
+            final Object key) {
+        return withCredentials(new IInvoker<Object>() {
+            @Override
+            public Object invoke() {
+                return PersistenceManagerImpl.super.newObjectIdInstance(
+                        pcClass, key);
+            }
+        });
+    }
+
+    private boolean putCredentials() {
+        if (CREDENTIAL_HOLDER.get() != null) {
+            return false;
+        }
+        CREDENTIAL_HOLDER.set(this);
+        return true;
+    }
+
+    private void remove() {
+        CREDENTIAL_HOLDER.remove();
+    }
+
+    public static ICredentialsHolder getCredentialHolder() {
+        return CREDENTIAL_HOLDER.get();
+    }
+
+    private interface IInvoker<T> {
+
+        T invoke();
+
     }
 
 }

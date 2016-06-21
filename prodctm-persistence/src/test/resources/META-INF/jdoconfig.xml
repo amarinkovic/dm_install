@@ -5,8 +5,6 @@
         <property name="javax.jdo.PersistenceManagerFactoryClass" value="pro.documentum.persistence.jdo.PersistenceManagerFactoryImpl" />
         <property name="javax.jdo.option.Optimistic" value="false" />
         <property name="javax.jdo.option.ConnectionURL" value="dctm:DCTM_DEV" />
-        <property name="datanucleus.ConnectionUserName" value="dmadmin" />
-        <property name="datanucleus.ConnectionPassword" value="dmadmin" />
         <property name="datanucleus.nontx.atomic" value="false" />
     </persistence-manager-factory>
 
