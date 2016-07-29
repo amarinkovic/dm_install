@@ -24,7 +24,7 @@ public abstract class JPATestSupport extends DfcTestSupport {
 
     private EntityManager _em;
 
-    private IDfSession _session;
+    private IDfSession _underneathSession;
 
     @Override
     protected void doPostSetup() throws Exception {
@@ -38,7 +38,7 @@ public abstract class JPATestSupport extends DfcTestSupport {
         EntityTransaction tr = _em.getTransaction();
         tr.begin();
         NucleusConnection connection = _em.unwrap(NucleusConnection.class);
-        _session = (IDfSession) connection.getNativeConnection();
+        _underneathSession = (IDfSession) connection.getNativeConnection();
         connection.close();
     }
 
@@ -57,9 +57,8 @@ public abstract class JPATestSupport extends DfcTestSupport {
         return _emf;
     }
 
-    @Override
-    protected IDfSession getSession() {
-        return _session;
+    protected IDfSession getUnderneathSession() {
+        return _underneathSession;
     }
 
 }

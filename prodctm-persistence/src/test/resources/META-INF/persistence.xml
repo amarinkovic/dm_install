@@ -3,8 +3,17 @@
         http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd" version="2.0">
 
     <persistence-unit name="JDOTesting">
+        <class>pro.documentum.model.jdo.DmUser</class>
+        <class>pro.documentum.model.jdo.DmSysobject</class>
         <class>pro.documentum.model.jdo.DmFolder</class>
+        <class>pro.documentum.model.jdo.DmCabinet</class>
+        <class>pro.documentum.model.jdo.DmAcl</class>
         <exclude-unlisted-classes />
+        <properties>
+            <property name="javax.jdo.option.Optimistic" value="true" />
+            <property name="datanucleus.nontx.atomic" value="false" />
+            <property name="javax.jdo.option.ConnectionURL" value="dctm:DCTM_DEV" />
+        </properties>
     </persistence-unit>
 
     <persistence-unit name="JPATesting">

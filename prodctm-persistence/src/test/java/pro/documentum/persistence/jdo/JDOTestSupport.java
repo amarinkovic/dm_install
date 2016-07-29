@@ -17,7 +17,7 @@ public abstract class JDOTestSupport extends DfcTestSupport {
 
     private PersistenceManager _pm;
 
-    private IDfSession _session;
+    private IDfSession _underneathSession;
 
     @Override
     protected void doPostSetup() throws Exception {
@@ -30,7 +30,7 @@ public abstract class JDOTestSupport extends DfcTestSupport {
         JDOConnection connection = _pm.getDataStoreConnection();
         // we need to create session within
         // existing transaction and use it
-        _session = ((IDfSession) connection.getNativeConnection());
+        _underneathSession = ((IDfSession) connection.getNativeConnection());
         connection.close();
     }
 
@@ -45,9 +45,8 @@ public abstract class JDOTestSupport extends DfcTestSupport {
         return _pm;
     }
 
-    @Override
-    protected IDfSession getSession() {
-        return _session;
+    protected IDfSession getUnderneathSession() {
+        return _underneathSession;
     }
 
 }

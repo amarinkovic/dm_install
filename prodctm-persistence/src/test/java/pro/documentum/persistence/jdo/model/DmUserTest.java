@@ -21,7 +21,7 @@ public class DmUserTest extends JDOTestSupport {
 
     @Test
     public void testQueryByName2() throws Exception {
-        String userName = getSession().getLoginUserName();
+        String userName = getUnderneathSession().getLoginUserName();
         String description = RandomStringUtils.randomAlphabetic(32);
         Query query = getPersistenceManager().newQuery(DmUser.class,
                 "(userName == :user_name || userLoginName == :user_name)");
@@ -46,7 +46,7 @@ public class DmUserTest extends JDOTestSupport {
 
     @Test
     public void testDetach() throws Exception {
-        String userName = getSession().getLoginUserName();
+        String userName = getUnderneathSession().getLoginUserName();
         String description = RandomStringUtils.randomAlphabetic(32);
         Query query = getPersistenceManager().newQuery(DmUser.class,
                 "(userName == :user_name || userLoginName == :user_name)");
@@ -69,7 +69,7 @@ public class DmUserTest extends JDOTestSupport {
 
     @Test(expected = JDODataStoreException.class)
     public void testCreateExistingUser() throws Exception {
-        String userName = getSession().getLoginUserName();
+        String userName = getUnderneathSession().getLoginUserName();
         DmUser user = getPersistenceManager().newInstance(DmUser.class);
         user.setUserName(userName);
         user.setUserLoginName(userName);
@@ -85,6 +85,7 @@ public class DmUserTest extends JDOTestSupport {
         user.setUserName(userName);
         user.setUserLoginName(userName);
         user = getPersistenceManager().makePersistent(user);
+        getPersistenceManager().flush();
         assertEquals(0, user.getVStamp());
         assertNotNull(user.getDefaultFolder());
         assertNotNull(user.getModifyDate());

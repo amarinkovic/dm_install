@@ -1,7 +1,6 @@
 package pro.documentum.persistence.jdo.model;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.documentum.fc.client.IDfFolder;
@@ -17,7 +16,7 @@ public class TestFetch extends JDOTestSupport {
 
     @Test
     public void testFolder1() throws Exception {
-        IDfSession session = getSession();
+        IDfSession session = getUnderneathSession();
         IDfFolder folder = (IDfFolder) session.newObject("dm_folder");
         folder.setObjectName(RandomStringUtils.randomAlphabetic(10));
         folder.save();
@@ -28,9 +27,8 @@ public class TestFetch extends JDOTestSupport {
     }
 
     @Test
-    @Ignore
     public void testFolder2() throws Exception {
-        IDfSession session = getSession();
+        IDfSession session = getUnderneathSession();
         IDfFolder folder = (IDfFolder) session.newObject("dm_folder");
         folder.setObjectName(RandomStringUtils.randomAlphabetic(10));
         folder.save();

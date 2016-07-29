@@ -10,6 +10,7 @@ import com.documentum.com.DfClientX;
 import com.documentum.fc.client.IDfClient;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSessionManager;
+import com.documentum.fc.client.impl.session.ISession;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
@@ -62,10 +63,11 @@ public abstract class DfcTestSupport extends Assert {
         IDocumentumCredentials credentials = new PropertiesCredentialManager(
                 null).getCredentials(null, null);
         IDfSessionManager sessionManager = CLIENT.newSessionManager();
-        _loginInfo = new DfLoginInfo(credentials.getUserName(), credentials
-                .getPassword());
+        _loginInfo = new DfLoginInfo(credentials.getUserName(),
+                credentials.getPassword());
         sessionManager.setIdentity(credentials.getDocbaseName(), _loginInfo);
-        _session = sessionManager.newSession(credentials.getDocbaseName());
+        _session = sessionManager.getSession(credentials.getDocbaseName());
+        ((ISession) _session).getDocbaseApi().disableTimeout();
         _session.beginTrans();
     }
 

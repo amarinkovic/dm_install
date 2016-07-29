@@ -25,7 +25,7 @@ public class TestEmbedded extends JDOTestSupport {
 
     @Test
     public void testLockInfo() throws Exception {
-        IDfSysObject object = (IDfSysObject) getSession().newObject(
+        IDfSysObject object = (IDfSysObject) getUnderneathSession().newObject(
                 "dm_document");
         object.save();
         object.checkout();
@@ -47,7 +47,8 @@ public class TestEmbedded extends JDOTestSupport {
         assertFalse(object.isCheckedOut());
 
         dmSysobject = getPersistenceManager().detachCopy(dmSysobject);
-        dmSysobject.getLockInfo().setLockOwner(getSession().getLoginUserName());
+        dmSysobject.getLockInfo().setLockOwner(
+                getUnderneathSession().getLoginUserName());
         dmSysobject = getPersistenceManager().makePersistent(dmSysobject);
         getPersistenceManager().flush();
         object.fetch(null);
@@ -63,7 +64,7 @@ public class TestEmbedded extends JDOTestSupport {
 
     @Test
     public void testAcl() throws Exception {
-        IDfACL object = (IDfACL) getSession().newObject("dm_acl");
+        IDfACL object = (IDfACL) getUnderneathSession().newObject("dm_acl");
         object.setObjectName(RandomStringUtils.randomAlphabetic(32));
         object.setDomain(getLoginName());
         object.save();

@@ -23,7 +23,7 @@ public class DmSysobjectTest extends JDOTestSupport {
     @Test
     public void testCheckOut() throws Exception {
         String objectName = RandomStringUtils.randomAscii(100);
-        IDfSysObject object = (IDfSysObject) getSession().newObject(
+        IDfSysObject object = (IDfSysObject) getUnderneathSession().newObject(
                 "dm_document");
         object.setObjectName(objectName);
         object.save();
@@ -41,7 +41,8 @@ public class DmSysobjectTest extends JDOTestSupport {
         assertEquals(objectId, sysobject.getObjectId());
         assertEquals(objectName, sysobject.getObjectName());
         sysobject = getPersistenceManager().detachCopy(sysobject);
-        sysobject.getLockInfo().setLockOwner(getSession().getLoginUserName());
+        sysobject.getLockInfo().setLockOwner(
+                getUnderneathSession().getLoginUserName());
         sysobject = getPersistenceManager().makePersistent(sysobject);
         getPersistenceManager().flush();
         assertEquals(objectId, sysobject.getObjectId());

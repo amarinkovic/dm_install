@@ -137,6 +137,7 @@ public final class Nucleus {
     public static IDfPersistentObject getObject(final IDfSession session,
             final String objectId) {
         try {
+            Logger.debug("Trying to fetch object with id {0}", objectId);
             return session.getObject(DfIdUtil.getId(objectId));
         } catch (DfObjectNotFoundException ex) {
             throw DfExceptions.notFoundException(ex);
