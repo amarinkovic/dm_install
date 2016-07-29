@@ -88,7 +88,7 @@ public final class DNValues {
             final ObjectProvider<?> op, final int[] fields, final Table table,
             final boolean insert) {
         try {
-            Sessions.inTransaction(object.getSession(),
+            Sessions.inTransaction(object.getObjectSession(),
                     new IDfSessionInvoker<Void>() {
                         @Override
                         public Void invoke(final IDfSession session)

@@ -91,7 +91,7 @@ public class RuntimeStateHandler extends AbstractWorkItemAttributeHandler {
 
     private IDfWorkflow getWorkflow(final IDfWorkitem workitem)
         throws DfException {
-        IDfSession session = workitem.getSession();
+        IDfSession session = workitem.getObjectSession();
         return (IDfWorkflow) session.getObject(workitem.getWorkflowId());
     }
 

@@ -36,7 +36,7 @@ public class PersistentObjectFactory<E> implements IResultObjectFactory<E> {
         Table table = DNMetaData.getTable(ec, _metaData);
         try {
             IDfPersistentObject persistent = DfObjects.buildObject(
-                    object.getSession(), object, table.getName());
+                    object.getObjectSession(), object, table.getName());
             return DNFind.getPojoForDBObjectForCandidate(persistent, ec,
                     _metaData, _members, _ignoreCache);
         } catch (DfException ex) {

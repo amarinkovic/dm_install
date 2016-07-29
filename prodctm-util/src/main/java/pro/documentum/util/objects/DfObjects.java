@@ -256,7 +256,7 @@ public final class DfObjects {
 
     public static <T extends IDfPersistentObject> T getUnCached(final T object)
         throws DfException {
-        return getUnCached(object.getSession(), object.getObjectId());
+        return getUnCached(object.getObjectSession(), object.getObjectId());
     }
 
     public static boolean hasBlankAcl(final IDfSysObject object)
@@ -366,7 +366,7 @@ public final class DfObjects {
         if (DfIdUtil.isNullId(path)) {
             return false;
         }
-        IDfSession session = object.getSession();
+        IDfSession session = object.getObjectSession();
         IDfFolder folder = session.getFolderByPath(path);
         return isLinkedToFolder(object, folder.getObjectId());
     }
@@ -378,7 +378,7 @@ public final class DfObjects {
 
     public static void link(final IDfContent content, final IDfId objectId,
             final int pageNo, final String pageModifier) throws DfException {
-        IDfSession session = content.getSession();
+        IDfSession session = content.getObjectSession();
         ((IContent) content).link((ISysObject) session.getObject(objectId),
                 pageNo, pageModifier);
     }

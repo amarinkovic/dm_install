@@ -67,7 +67,7 @@ public final class Nucleus {
 
     public static void save(final IDfPersistentObject object) {
         try {
-            Sessions.inTransaction(object.getSession(),
+            Sessions.inTransaction(object.getObjectSession(),
                     new IDfSessionInvoker<Void>() {
                         @Override
                         public Void invoke(final IDfSession session)

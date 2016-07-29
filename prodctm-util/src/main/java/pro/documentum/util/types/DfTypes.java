@@ -85,7 +85,7 @@ public final class DfTypes {
         if (object.hasAttr(DfDocbaseConstants.R_OBJECT_TYPE)) {
             String typeName = object
                     .getString(DfDocbaseConstants.R_OBJECT_TYPE);
-            return object.getSession().getType(typeName);
+            return object.getObjectSession().getType(typeName);
         }
         if (object instanceof IDfPersistentObject) {
             return ((IDfPersistentObject) object).getType();
