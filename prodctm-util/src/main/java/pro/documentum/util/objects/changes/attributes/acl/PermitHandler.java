@@ -1,11 +1,16 @@
 package pro.documentum.util.objects.changes.attributes.acl;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.documentum.fc.client.IDfACL;
+import com.documentum.fc.client.IDfPermit;
 import com.documentum.fc.common.DfException;
+
+import pro.documentum.util.objects.DfObjects;
+import pro.documentum.util.permits.PermitConverter;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -34,9 +39,31 @@ public class PermitHandler extends AbstractAclPermitHandler {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected boolean doApply(final IDfACL object, final Map<String, ?> values)
         throws DfException {
-        return false;
+        List<String> accessors = removeKey(values, "r_accessor_name");
+        List<Integer> accessPermits = removeKey(values, "r_accessor_permit");
+        List<Integer> xPermits = removeKey(values, "r_accessor_xpermit");
+        List<Integer> permitTypes = removeKey(values, "r_permit_type");
+        List<String> appPermits = removeKey(values, "r_application_permit");
+        DfObjects.resetAcl(object);
+        for (int i = 0, n = accessors.size(); i < n; i++) {
+            applyPermit(object, permitTypes.get(i), accessors.get(i),
+                    accessPermits.get(i), xPermits.get(i), appPermits.get(i));
+        }
+        removeKey(values, PERMIT_ATTRIBUTES);
+        return true;
+    }
+
+    private void applyPermit(final IDfACL object, final Integer permitType,
+            final String accessorName, final Integer accessPermit,
+            final Integer xPermit, final String applicationPermit)
+        throws DfException {
+        for (IDfPermit permit : PermitConverter.createPermits(permitType,
+                accessorName, accessPermit, xPermit, applicationPermit)) {
+            object.grantPermit(permit);
+        }
     }
 
 }

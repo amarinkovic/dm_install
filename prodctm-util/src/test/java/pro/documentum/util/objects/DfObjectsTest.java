@@ -96,4 +96,18 @@ public class DfObjectsTest extends DfcTestSupport {
         assertTrue(StringUtils.isNotBlank(object.getString("object_name")));
     }
 
+    @Test
+    public void testResetAcl() throws Exception {
+        IDfACL object = (IDfACL) getSession().newObject("dm_acl");
+        object.setObjectName(RandomStringUtils.randomAlphabetic(32));
+        object.setDomain(getLoginName());
+        object.grant(getLoginName(), 7, null);
+        object.save();
+        assertEquals(3, object.getAccessorCount());
+        DfObjects.resetAcl(object);
+        assertEquals(2, object.getAccessorCount());
+        object.save();
+        assertEquals(2, object.getAccessorCount());
+    }
+
 }

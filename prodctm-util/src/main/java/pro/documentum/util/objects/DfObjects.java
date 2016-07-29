@@ -7,7 +7,9 @@ import java.util.Objects;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.documentum.fc.client.IDfACL;
 import com.documentum.fc.client.IDfFolder;
+import com.documentum.fc.client.IDfPermit;
 import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSysObject;
@@ -29,10 +31,12 @@ import com.documentum.fc.common.DfDocbaseConstants;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfId;
 import com.documentum.fc.common.IDfId;
+import com.documentum.fc.common.IDfList;
 import com.documentum.fc.impl.util.reflection.proxy.IProxyHandler;
 
 import pro.documentum.util.constants.DfConstants;
 import pro.documentum.util.ids.DfIdUtil;
+import pro.documentum.util.permits.PermitConverter;
 import pro.documentum.util.types.DfTypes;
 
 /**
@@ -393,6 +397,19 @@ public final class DfObjects {
             object.setPageCount(1);
         }
         object.setContentType(content.getFullFormat());
+    }
+
+    public static void resetAcl(final IDfACL acl) throws DfException {
+        IDfList permissions = acl.getPermissions();
+        for (int i = 0, n = permissions.getCount(); i < n; i++) {
+            IDfPermit permit = (IDfPermit) permissions.get(i);
+            acl.revokePermit(permit);
+        }
+        for (String accessor : new String[] {"dm_world", "dm_owner", }) {
+            for (IDfPermit permit : PermitConverter.createDefault(accessor)) {
+                acl.grantPermit(permit);
+            }
+        }
     }
 
 }

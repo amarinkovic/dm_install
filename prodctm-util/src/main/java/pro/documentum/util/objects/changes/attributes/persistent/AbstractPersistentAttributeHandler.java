@@ -72,8 +72,10 @@ public abstract class AbstractPersistentAttributeHandler<T extends IDfPersistent
         }
     }
 
-    protected void removeKey(final Map<String, ?> values, final String attribute) {
-        values.remove(attribute);
+    @SuppressWarnings("unchecked")
+    protected <V> V removeKey(final Map<String, ?> values,
+            final String attribute) {
+        return (V) values.remove(attribute);
     }
 
     protected void removeKey(final Map<String, ?> values,
