@@ -1,7 +1,7 @@
 package pro.documentum.util.objects.changes.attributes.sysobject;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,12 +14,13 @@ import com.documentum.fc.common.IDfId;
  */
 public class PolicyHandler extends AbstractSysObjectAttributeHandler {
 
-    private static final List<String> POLICY_ATTRIBUTES;
+    public static final Set<String> POLICY_ATTRIBUTES;
 
     static {
-        POLICY_ATTRIBUTES = new ArrayList<>();
-        POLICY_ATTRIBUTES.add("r_policy_id");
-        POLICY_ATTRIBUTES.add("r_current_state");
+        Set<String> policyAttributes = new HashSet<>();
+        policyAttributes.add("r_policy_id");
+        policyAttributes.add("r_current_state");
+        POLICY_ATTRIBUTES = Collections.unmodifiableSet(policyAttributes);
     }
 
     public PolicyHandler() {
@@ -32,12 +33,12 @@ public class PolicyHandler extends AbstractSysObjectAttributeHandler {
     }
 
     @Override
-    public boolean doApply(final IDfSysObject object,
+    public boolean doApply(final IDfSysObject sysObject,
             final Map<String, ?> values) throws DfException {
         IDfId newPolicy = (IDfId) values.remove("r_policy_id");
         Integer newState = (Integer) values.remove("r_current_state");
         if (newPolicy.isNull()) {
-            object.detachPolicy();
+            sysObject.detachPolicy();
         }
         removeKey(values, POLICY_ATTRIBUTES);
         return false;

@@ -1,5 +1,6 @@
 package pro.documentum.util.objects.changes.attributes;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,8 +27,9 @@ public class PersistentHandler implements
     public static final Set<String> IGNORE_ATTRIBUTES;
 
     static {
-        IGNORE_ATTRIBUTES = new HashSet<>();
-        IGNORE_ATTRIBUTES.addAll(VersionHandler.VERSION_ATTRIBUTES);
+        Set<String> ignoreAttributes = new HashSet<>();
+        ignoreAttributes.addAll(VersionHandler.VERSION_ATTRIBUTES);
+        IGNORE_ATTRIBUTES = Collections.unmodifiableSet(ignoreAttributes);
     }
 
     public PersistentHandler() {
@@ -43,12 +45,13 @@ public class PersistentHandler implements
     public boolean apply(final IDfPersistentObject object,
             final Map<String, ?> values) throws DfException {
         List<String> toRemove = new ArrayList<>();
-        for (String attrName : values.keySet()) {
+        for (Map.Entry<String, ?> e : values.entrySet()) {
+            String attrName = e.getKey();
             if (ignore(attrName)) {
                 continue;
             }
             toRemove.add(attrName);
-            Object value = values.get(attrName);
+            Object value = e.getValue();
             Logger.debug("Setting {0} value of object {1} to {2}", attrName,
                     object.getObjectId(), value);
             int dataType = object.getAttrDataType(attrName);
@@ -56,12 +59,20 @@ public class PersistentHandler implements
                 setValue(object, attrName, value, dataType, 0);
                 continue;
             }
+
             object.removeAll(attrName);
+
             if (value instanceof Collection) {
                 int index = 0;
                 for (Object rValue : (Collection) value) {
                     setValue(object, attrName, rValue, dataType, index);
                     index++;
+                }
+            }
+
+            if (value.getClass().isArray()) {
+                for (int i = 0, n = Array.getLength(value); i < n; i++) {
+                    setValue(object, attrName, Array.get(value, i), dataType, i);
                 }
             }
         }

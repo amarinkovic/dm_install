@@ -1,5 +1,6 @@
 package pro.documentum.util.objects.changes.attributes.content;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -15,12 +16,13 @@ public class ContentReadOnlyHandler extends AbstractContentAttributeHandler {
     public static final Set<String> READONLY_ATTRS;
 
     static {
-        READONLY_ATTRS = new HashSet<>();
-        READONLY_ATTRS.add("data_ticket");
-        READONLY_ATTRS.add("other_ticket");
-        READONLY_ATTRS.add("content_size");
-        READONLY_ATTRS.add("full_content_size");
-        READONLY_ATTRS.add("set_time");
+        Set<String> readOnlyAttributes = new HashSet<>();
+        readOnlyAttributes.add("data_ticket");
+        readOnlyAttributes.add("other_ticket");
+        readOnlyAttributes.add("content_size");
+        readOnlyAttributes.add("full_content_size");
+        readOnlyAttributes.add("set_time");
+        READONLY_ATTRS = Collections.unmodifiableSet(readOnlyAttributes);
     }
 
     public ContentReadOnlyHandler() {
@@ -33,7 +35,7 @@ public class ContentReadOnlyHandler extends AbstractContentAttributeHandler {
     }
 
     @Override
-    public boolean doApply(final IDfContent object, final Map<String, ?> values)
+    public boolean doApply(final IDfContent content, final Map<String, ?> values)
         throws DfException {
         removeKey(values, READONLY_ATTRS);
         return false;

@@ -1,5 +1,6 @@
 package pro.documentum.util.objects.changes.attributes.group;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -16,14 +17,13 @@ public final class GroupReadOnlyHandler extends AbstractGroupAttributeHandler {
     public static final Set<String> READONLY_ATTRS;
 
     static {
-        READONLY_ATTRS = new HashSet<>();
-        READONLY_ATTRS.add(DfDocbaseConstants.R_OBJECT_ID);
-        READONLY_ATTRS.add(DfDocbaseConstants.I_VSTAMP);
-        READONLY_ATTRS.add("r_modify_date");
-        READONLY_ATTRS.add("r_has_events");
-        READONLY_ATTRS.add("i_all_users_names");
-        READONLY_ATTRS.add("i_supergroups_names");
-        READONLY_ATTRS.add("i_nondyn_supergroups_names");
+        Set<String> readOnlyAttributes = new HashSet<>();
+        readOnlyAttributes.add(DfDocbaseConstants.R_OBJECT_ID);
+        readOnlyAttributes.add(DfDocbaseConstants.I_VSTAMP);
+        readOnlyAttributes.add("i_all_users_names");
+        readOnlyAttributes.add("i_supergroups_names");
+        readOnlyAttributes.add("i_nondyn_supergroups_names");
+        READONLY_ATTRS = Collections.unmodifiableSet(readOnlyAttributes);
     }
 
     public GroupReadOnlyHandler() {
@@ -41,7 +41,7 @@ public final class GroupReadOnlyHandler extends AbstractGroupAttributeHandler {
     }
 
     @Override
-    public boolean doApply(final IDfGroup object, final Map<String, ?> values)
+    public boolean doApply(final IDfGroup group, final Map<String, ?> values)
         throws DfException {
         removeKey(values, READONLY_ATTRS);
         return false;

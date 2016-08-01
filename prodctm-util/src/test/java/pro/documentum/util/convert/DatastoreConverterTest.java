@@ -29,27 +29,32 @@ public class DatastoreConverterTest extends DfcTestSupport {
 
     @Test
     public void testString() throws Exception {
-        assertEquals(null, _converter.toDataStore(null, IDfValue.DF_STRING));
-        assertEquals("X", _converter.toDataStore("X", IDfValue.DF_STRING));
+        assertEquals(null,
+                _converter.toDataStore(null, IDfValue.DF_STRING, false));
         assertEquals("X",
-                _converter.toDataStore(new DfValue("X"), IDfValue.DF_STRING));
+                _converter.toDataStore("X", IDfValue.DF_STRING, false));
+        assertEquals("X", _converter.toDataStore(new DfValue("X"),
+                IDfValue.DF_STRING, false));
         IDfValue value = mock(IDfValue.class);
         when(value.asString()).thenReturn("X");
-        assertEquals("X", _converter.toDataStore(value, IDfValue.DF_STRING));
+        assertEquals("X",
+                _converter.toDataStore(value, IDfValue.DF_STRING, false));
     }
 
     @Test
     public void testStringArray() throws Exception {
-        assertEquals(null, _converter.toDataStore(null, IDfValue.DF_STRING));
+        assertEquals(new ArrayList<>(),
+                _converter.toDataStore(null, IDfValue.DF_STRING, true));
         assertEquals(Arrays.asList("X", "x", "1", "10", "1.1", "2147483647",
                 "-2147483648", null), _converter.toDataStore(new Object[] {"X",
             'x', 1, Integer.valueOf(10), 1.1, Integer.MAX_VALUE,
-            Integer.MIN_VALUE, null }, IDfValue.DF_STRING));
+            Integer.MIN_VALUE, null }, IDfValue.DF_STRING, true));
     }
 
     @Test
     public void testStringList() throws Exception {
-        assertEquals(null, _converter.toDataStore(null, IDfValue.DF_STRING));
+        assertEquals(new ArrayList<>(),
+                _converter.toDataStore(null, IDfValue.DF_STRING, true));
         List testList = new ArrayList();
         testList.add("X");
         testList.add('x');
@@ -61,18 +66,20 @@ public class DatastoreConverterTest extends DfcTestSupport {
         testList.add(null);
         assertEquals(Arrays.asList("X", "x", "1", "10", "1.1", "2147483647",
                 "-2147483648", null), _converter.toDataStore(testList,
-                IDfValue.DF_STRING));
+                IDfValue.DF_STRING, true));
     }
 
     @Test
     public void testInteger() throws Exception {
-        assertEquals(null, _converter.toDataStore(null, IDfValue.DF_INTEGER));
-        assertEquals(1, _converter.toDataStore("1", IDfValue.DF_INTEGER));
-        assertEquals(1,
-                _converter.toDataStore(new DfValue("1"), IDfValue.DF_INTEGER));
+        assertEquals(null,
+                _converter.toDataStore(null, IDfValue.DF_INTEGER, false));
+        assertEquals(1, _converter.toDataStore("1", IDfValue.DF_INTEGER, false));
+        assertEquals(1, _converter.toDataStore(new DfValue("1"),
+                IDfValue.DF_INTEGER, false));
         IDfValue value = mock(IDfValue.class);
         when(value.asInteger()).thenReturn(1);
-        assertEquals(1, _converter.toDataStore(value, IDfValue.DF_INTEGER));
+        assertEquals(1,
+                _converter.toDataStore(value, IDfValue.DF_INTEGER, false));
     }
 
 }

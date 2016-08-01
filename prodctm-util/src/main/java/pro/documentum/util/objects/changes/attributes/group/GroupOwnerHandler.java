@@ -21,9 +21,9 @@ public class GroupOwnerHandler extends AbstractGroupAttributeHandler {
     }
 
     @Override
-    public boolean doApply(final IDfGroup object, final Map<String, ?> values)
+    public boolean doApply(final IDfGroup group, final Map<String, ?> values)
         throws DfException {
-        object.setOwnerName((String) values.remove("owner_name"));
+        group.setOwnerName((String) values.remove("owner_name"));
         return false;
     }
 

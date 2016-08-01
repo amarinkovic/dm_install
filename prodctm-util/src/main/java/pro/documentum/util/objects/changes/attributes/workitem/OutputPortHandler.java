@@ -29,6 +29,9 @@ public class OutputPortHandler extends AbstractWorkItemAttributeHandler {
         throws DfException {
         IDfList list = new DfList(IDfList.DF_STRING);
         List<String> outputPorts = (List<String>) values.remove("r_port_name");
+        if (outputPorts == null) {
+            return false;
+        }
         for (String value : outputPorts) {
             list.append(value);
         }

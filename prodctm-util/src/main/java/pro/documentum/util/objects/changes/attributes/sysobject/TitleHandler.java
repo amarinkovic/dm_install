@@ -21,9 +21,9 @@ public class TitleHandler extends AbstractSysObjectAttributeHandler {
     }
 
     @Override
-    public boolean doApply(final IDfSysObject object,
+    public boolean doApply(final IDfSysObject sysObject,
             final Map<String, ?> values) throws DfException {
-        object.setTitle((String) values.remove("title"));
+        sysObject.setTitle((String) values.remove("title"));
         return false;
     }
 

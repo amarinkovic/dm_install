@@ -1,5 +1,6 @@
 package pro.documentum.util.objects.changes.attributes.sysobject;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,12 +17,13 @@ import pro.documentum.util.objects.DfObjects;
  */
 public class FolderHandler extends AbstractSysObjectAttributeHandler {
 
-    private static final Set<String> FOLDER_ATTRIBUTES;
+    public static final Set<String> FOLDER_ATTRIBUTES;
 
     static {
-        FOLDER_ATTRIBUTES = new HashSet<>();
-        FOLDER_ATTRIBUTES.add("i_folder_id");
-        FOLDER_ATTRIBUTES.add("r_folder_path");
+        Set<String> folderAttributes = new HashSet<>();
+        folderAttributes.add("i_folder_id");
+        folderAttributes.add("r_folder_path");
+        FOLDER_ATTRIBUTES = Collections.unmodifiableSet(folderAttributes);
     }
 
     public FolderHandler() {
@@ -35,15 +37,12 @@ public class FolderHandler extends AbstractSysObjectAttributeHandler {
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean doApply(final IDfSysObject object,
+    public boolean doApply(final IDfSysObject sysObject,
             final Map<String, ?> values) throws DfException {
         List<IDfId> newFolders = (List<IDfId>) values.remove("i_folder_id");
-        DfObjects.unlinkFromAllFolders(object);
-        if (newFolders == null) {
-            return false;
-        }
+        DfObjects.unlinkFromAllFolders(sysObject);
         for (IDfId folderId : newFolders) {
-            object.link(folderId.getId());
+            sysObject.link(folderId.getId());
         }
         return false;
     }

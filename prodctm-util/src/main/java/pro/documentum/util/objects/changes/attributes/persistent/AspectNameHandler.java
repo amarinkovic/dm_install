@@ -26,24 +26,21 @@ public class AspectNameHandler extends
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean doApply(final IDfPersistentObject object,
+    public boolean doApply(final IDfPersistentObject persistentObject,
             final Map<String, ?> values) throws DfException {
         List<String> aspects = (List<String>) values.remove("r_aspect_name");
-        IDfList current = ((IDfAspects) object).getAspects();
+        IDfList current = ((IDfAspects) persistentObject).getAspects();
         for (int i = current.getCount() - 1; i >= 0; i--) {
             String aspect = current.getString(i);
             if (!aspects.contains(aspect)) {
-                ((IDfAspects) object).detachAspect(aspect, null);
+                ((IDfAspects) persistentObject).detachAspect(aspect, null);
             }
-        }
-        if (aspects == null) {
-            return false;
         }
         for (String aspect : aspects) {
             if (current.findStringIndex(aspect) > -1) {
                 continue;
             }
-            ((IDfAspects) object).attachAspect(aspect, null);
+            ((IDfAspects) persistentObject).attachAspect(aspect, null);
         }
         return false;
     }

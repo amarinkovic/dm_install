@@ -1,5 +1,6 @@
 package pro.documentum.util.objects.changes.attributes.content;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -19,10 +20,11 @@ public class ParentIdHandler extends AbstractContentAttributeHandler {
     public static final Set<String> PARENT_ATTRS;
 
     static {
-        PARENT_ATTRS = new HashSet<>();
-        PARENT_ATTRS.add("parent_id");
-        PARENT_ATTRS.add("page");
-        PARENT_ATTRS.add("page_modifier");
+        Set<String> parentAttributes = new HashSet<>();
+        parentAttributes.add("parent_id");
+        parentAttributes.add("page");
+        parentAttributes.add("page_modifier");
+        PARENT_ATTRS = Collections.unmodifiableSet(parentAttributes);
     }
 
     public ParentIdHandler() {
@@ -36,19 +38,16 @@ public class ParentIdHandler extends AbstractContentAttributeHandler {
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean doApply(final IDfContent object, final Map<String, ?> values)
+    public boolean doApply(final IDfContent content, final Map<String, ?> values)
         throws DfException {
         List<IDfId> parentIds = (List<IDfId>) values.remove("parent_id");
         List<Integer> pageNos = (List<Integer>) values.remove("page");
         List<String> pageModifiers = (List<String>) values
                 .remove("page_modifier");
         checkConsistency(parentIds, pageNos, pageModifiers);
-        DfObjects.unlinkAllParents(object);
-        if (parentIds == null) {
-            return false;
-        }
+        DfObjects.unlinkAllParents(content);
         for (int i = 0, n = parentIds.size(); i < n; i++) {
-            DfObjects.link(object, parentIds.get(i), pageNos.get(i),
+            DfObjects.link(content, parentIds.get(i), pageNos.get(i),
                     pageModifiers.get(i));
         }
         return false;

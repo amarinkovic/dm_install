@@ -1,5 +1,6 @@
 package pro.documentum.util.objects.changes.attributes.user;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -15,10 +16,11 @@ public final class UserPermitHandler extends AbstractUserAttributeHandler {
     public static final Set<String> PERMIT_ATTRS;
 
     static {
-        PERMIT_ATTRS = new HashSet<>();
-        PERMIT_ATTRS.add("owner_def_permit");
-        PERMIT_ATTRS.add("group_def_permit");
-        PERMIT_ATTRS.add("world_def_permit");
+        Set<String> permitAttributes = new HashSet<>();
+        permitAttributes.add("owner_def_permit");
+        permitAttributes.add("group_def_permit");
+        permitAttributes.add("world_def_permit");
+        PERMIT_ATTRS = Collections.unmodifiableSet(permitAttributes);
     }
 
     public UserPermitHandler() {
@@ -31,14 +33,14 @@ public final class UserPermitHandler extends AbstractUserAttributeHandler {
     }
 
     @Override
-    protected boolean doApply(final IDfUser object, final Map<String, ?> values)
+    protected boolean doApply(final IDfUser user, final Map<String, ?> values)
         throws DfException {
         for (String attrName : PERMIT_ATTRS) {
             Integer permit = (Integer) values.remove(attrName);
             if (permit == null || permit < 1) {
                 continue;
             }
-            object.setInt(attrName, permit);
+            user.setInt(attrName, permit);
         }
         return false;
     }

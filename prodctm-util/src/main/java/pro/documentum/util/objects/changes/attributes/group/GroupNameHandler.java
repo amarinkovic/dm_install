@@ -21,9 +21,9 @@ public class GroupNameHandler extends AbstractGroupAttributeHandler {
     }
 
     @Override
-    public boolean doApply(final IDfGroup object, final Map<String, ?> values)
+    public boolean doApply(final IDfGroup group, final Map<String, ?> values)
         throws DfException {
-        object.setGroupName((String) values.remove("group_name"));
+        group.setGroupName((String) values.remove("group_name"));
         return false;
     }
 

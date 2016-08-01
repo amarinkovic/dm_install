@@ -127,8 +127,9 @@ public final class ChangesProcessor {
                     continue;
                 }
                 int dataType = object.getAttrDataType(attrName);
+                boolean isRepeating = object.isAttrRepeating(attrName);
                 Object value = converter.toDataStore(values.get(attrName),
-                        dataType);
+                        dataType, isRepeating);
                 result.put(attrName, value);
             }
             return result;

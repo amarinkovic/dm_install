@@ -23,15 +23,12 @@ public class GroupsNamesHandler extends AbstractGroupAttributeHandler {
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean doApply(final IDfGroup object, final Map<String, ?> values)
+    public boolean doApply(final IDfGroup group, final Map<String, ?> values)
         throws DfException {
         List<String> groups = (List<String>) values.remove("groups_names");
-        object.removeAllGroups();
-        if (groups == null) {
-            return false;
-        }
+        group.removeAllGroups();
         for (String groupName : groups) {
-            object.addGroup(groupName);
+            group.addGroup(groupName);
         }
         return false;
     }

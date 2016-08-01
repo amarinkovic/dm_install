@@ -1,5 +1,6 @@
 package pro.documentum.util.objects.changes.attributes.sysobject;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -16,14 +17,14 @@ public final class SysObjectReadOnlyHandler extends
     public static final Set<String> READONLY_ATTRS;
 
     static {
-        READONLY_ATTRS = new HashSet<>();
-        READONLY_ATTRS.add("r_creation_date");
-        READONLY_ATTRS.add("r_creator_name");
-        READONLY_ATTRS.add("r_modify_date");
-        READONLY_ATTRS.add("r_modifier");
-        READONLY_ATTRS.add("r_lock_date");
-        READONLY_ATTRS.add("r_lock_machine");
-        READONLY_ATTRS.add("r_object_type");
+        Set<String> readOnlyAttributes = new HashSet<>();
+        readOnlyAttributes.add("r_creation_date");
+        readOnlyAttributes.add("r_creator_name");
+        readOnlyAttributes.add("r_modifier");
+        readOnlyAttributes.add("r_lock_date");
+        readOnlyAttributes.add("r_lock_machine");
+        readOnlyAttributes.add("r_object_type");
+        READONLY_ATTRS = Collections.unmodifiableSet(readOnlyAttributes);
     }
 
     public SysObjectReadOnlyHandler() {
@@ -36,7 +37,7 @@ public final class SysObjectReadOnlyHandler extends
     }
 
     @Override
-    public boolean doApply(final IDfSysObject object,
+    public boolean doApply(final IDfSysObject sysObject,
             final Map<String, ?> values) throws DfException {
         removeKey(values, READONLY_ATTRS);
         return false;

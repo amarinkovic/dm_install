@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,9 +98,12 @@ public final class Converter {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T toDataStore(final Object value, final int type)
-        throws ParseException {
+    public <T> T toDataStore(final Object value, final int type,
+            final boolean isRepeating) throws ParseException {
         if (value == null) {
+            if (isRepeating) {
+                return (T) Collections.emptyList();
+            }
             return null;
         }
         Class<?> cls = value.getClass();
