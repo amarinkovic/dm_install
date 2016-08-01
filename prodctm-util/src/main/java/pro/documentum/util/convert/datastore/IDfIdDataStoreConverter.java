@@ -1,6 +1,5 @@
 package pro.documentum.util.convert.datastore;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,17 +40,6 @@ public class IDfIdDataStoreConverter<F> extends
     @Override
     protected Map<Class<?>, IConverter<?, IDfId>> getConverters() {
         return CONVERTERS;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    protected IDfId doConvert(final F value) throws ParseException {
-        IConverter<F, IDfId> converter = getConverter(value);
-        if (converter == null) {
-            throw new ParseException(
-                    "Unable to convert " + value + " to IDfId", 0);
-        }
-        return converter.convert(value);
     }
 
     static class StringToIDfId implements IConverter<String, IDfId> {

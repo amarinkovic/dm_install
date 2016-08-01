@@ -3,6 +3,7 @@ package pro.documentum.util.queries.bulk;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.io.IOUtils;
 
@@ -71,9 +72,7 @@ public abstract class AbstractBulkIterator<O extends IDfPersistentObject, T>
                 current = _next;
             }
             _next = null;
-            if (current == null) {
-                throw new IllegalStateException("Empty iterator");
-            }
+            Objects.requireNonNull(current, "Empty iterator");
             String typeName = _objectType;
             if (current.hasAttr(DfDocbaseConstants.R_OBJECT_TYPE)) {
                 typeName = current.getString(DfDocbaseConstants.R_OBJECT_TYPE);

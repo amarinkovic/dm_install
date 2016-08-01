@@ -195,16 +195,6 @@ public class IDfTimeDataStoreConverter<F> extends
         return CONVERTERS;
     }
 
-    @Override
-    protected IDfTime doConvert(final F value) throws ParseException {
-        IConverter<F, IDfTime> converter = getConverter(value);
-        if (converter == null) {
-            throw new ParseException("Unable to convert " + value
-                    + " to IDfTime", 0);
-        }
-        return converter.convert(value);
-    }
-
     static class IDfValueToIDfTime implements IConverter<IDfValue, IDfTime> {
 
         IDfValueToIDfTime() {

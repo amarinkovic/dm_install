@@ -17,10 +17,10 @@ public final class DNArrays {
     }
 
     private static int[] filter(final int[] current, final int[] required) {
-        int[] result = new int[current.length];
         if (required == null) {
             return new int[0];
         }
+        int[] result = new int[current.length];
         int i = 0;
         for (int fieldNumber : current) {
             boolean isRequired = false;

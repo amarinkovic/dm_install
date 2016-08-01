@@ -155,13 +155,14 @@ public class StoreManagerImpl extends AbstractStoreManager {
             }
 
             StoreData sd = storeDataMgr.get(fullClassName);
-            if (sd == null) {
-                CompleteClassTable table = new CompleteClassTable(this,
-                        classMetaData, null);
-                sd = newStoreData(classMetaData, clr);
-                sd.setTable(table);
-                registerStoreData(sd);
+            if (sd != null) {
+                continue;
             }
+            CompleteClassTable table = new CompleteClassTable(this,
+                    classMetaData, null);
+            sd = newStoreData(classMetaData, clr);
+            sd.setTable(table);
+            registerStoreData(sd);
         }
     }
 

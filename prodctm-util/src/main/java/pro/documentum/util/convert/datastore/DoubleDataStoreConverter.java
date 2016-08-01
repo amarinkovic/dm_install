@@ -1,6 +1,5 @@
 package pro.documentum.util.convert.datastore;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,16 +39,6 @@ public class DoubleDataStoreConverter<F> extends
     @Override
     protected Map<Class<?>, IConverter<?, Double>> getConverters() {
         return CONVERTERS;
-    }
-
-    @Override
-    protected Double doConvert(final F value) throws ParseException {
-        IConverter<F, Double> converter = getConverter(value);
-        if (converter == null) {
-            throw new ParseException("Unable to convert " + value
-                    + " to double", 0);
-        }
-        return converter.convert(value);
     }
 
     static class DoubleToDouble implements IConverter<Double, Double> {

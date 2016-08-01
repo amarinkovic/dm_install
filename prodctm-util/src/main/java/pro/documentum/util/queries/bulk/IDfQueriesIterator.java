@@ -3,6 +3,7 @@ package pro.documentum.util.queries.bulk;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Objects;
 
 import org.apache.commons.io.IOUtils;
 
@@ -59,9 +60,7 @@ public class IDfQueriesIterator implements Iterator<IDfTypedObject>, Closeable {
 
     @Override
     public IDfTypedObject next() {
-        if (_iterator == null) {
-            throw new IllegalStateException("Null iterator");
-        }
+        Objects.requireNonNull(_iterator, "Null iterator");
         if (!hasNext()) {
             throw new IllegalStateException("Empty iterator");
         }

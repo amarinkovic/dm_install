@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
@@ -30,58 +31,6 @@ public class PropertiesCredentialManager extends AbstractCredentialManager {
 
     public PropertiesCredentialManager(final String docbaseName) {
         super(docbaseName);
-    }
-
-    @Override
-    public IDocumentumCredentials getCredentials(final String userName,
-            final String password) {
-        return doGetCredentials();
-    }
-
-    private IDocumentumCredentials doGetCredentials() {
-        return getData(getProperties());
-    }
-
-    @Override
-    public String getDocbaseName() {
-        return doGetCredentials().getDocbaseName();
-    }
-
-    private IDocumentumCredentials getData(final Properties properties) {
-        if (properties == null) {
-            throw new NullPointerException("Empty properties");
-        }
-        String docbase = properties.getProperty(DOCBASE);
-        if (docbase == null) {
-            throw new NullPointerException("Empty docbaseName");
-        }
-        String userName = properties.getProperty(USERNAME);
-        if (userName == null) {
-            throw new NullPointerException("Empty userName");
-        }
-        String password = properties.getProperty(PASSWORD);
-        String domain = properties.getProperty(DOMAIN);
-        return new DocumentumCredentials(docbase, userName, password, domain);
-    }
-
-    private Properties getProperties() {
-        Properties properties = loadFromLocation();
-        if (properties == null) {
-            properties = loadFromClassPath();
-        }
-        return properties;
-    }
-
-    private Properties loadFromClassPath() {
-        InputStream stream = getResourceAsStream(PROPERTIES_FILE);
-        if (stream != null) {
-            return load(stream);
-        }
-        return null;
-    }
-
-    private InputStream getResourceAsStream(final String name) {
-        return getResourceAsStream(getClass(), name);
     }
 
     public static InputStream getResourceAsStream(final Class<?> clazz,
@@ -112,6 +61,52 @@ public class PropertiesCredentialManager extends AbstractCredentialManager {
             return stream;
         }
         return null;
+    }
+
+    @Override
+    public IDocumentumCredentials getCredentials(final String userName,
+            final String password) {
+        return doGetCredentials();
+    }
+
+    private IDocumentumCredentials doGetCredentials() {
+        return getData(getProperties());
+    }
+
+    @Override
+    public String getDocbaseName() {
+        return doGetCredentials().getDocbaseName();
+    }
+
+    private IDocumentumCredentials getData(final Properties properties) {
+        Objects.requireNonNull(properties, "Empty properties");
+        String docbase = properties.getProperty(DOCBASE);
+        Objects.requireNonNull(docbase, "Empty docbaseName");
+        String userName = properties.getProperty(USERNAME);
+        Objects.requireNonNull(userName, "Empty userName");
+        String password = properties.getProperty(PASSWORD);
+        String domain = properties.getProperty(DOMAIN);
+        return new DocumentumCredentials(docbase, userName, password, domain);
+    }
+
+    private Properties getProperties() {
+        Properties properties = loadFromLocation();
+        if (properties == null) {
+            properties = loadFromClassPath();
+        }
+        return properties;
+    }
+
+    private Properties loadFromClassPath() {
+        InputStream stream = getResourceAsStream(PROPERTIES_FILE);
+        if (stream != null) {
+            return load(stream);
+        }
+        return null;
+    }
+
+    private InputStream getResourceAsStream(final String name) {
+        return getResourceAsStream(getClass(), name);
     }
 
     private Properties loadFromLocation() {

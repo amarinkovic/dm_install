@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import com.documentum.fc.client.content.IDfContent;
@@ -58,15 +59,9 @@ public class ParentIdHandler extends AbstractContentAttributeHandler {
         if (parentIds == null && pageNos == null && pageModifiers == null) {
             return;
         }
-        if (parentIds == null) {
-            throw new IllegalArgumentException("parents are null");
-        }
-        if (pageNos == null) {
-            throw new IllegalArgumentException("pages are null");
-        }
-        if (pageModifiers == null) {
-            throw new IllegalArgumentException("page modifiers are null");
-        }
+        Objects.requireNonNull(parentIds, "parents are null");
+        Objects.requireNonNull(pageNos, "pages are null");
+        Objects.requireNonNull(pageModifiers, "pages are null");
         if (parentIds.size() == pageNos.size()
                 && pageNos.size() == pageModifiers.size()) {
             return;

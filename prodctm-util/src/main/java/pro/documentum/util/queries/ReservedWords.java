@@ -79,9 +79,8 @@ public final class ReservedWords {
         try {
             inputStream = ReservedWords.class
                     .getResourceAsStream("ReservedWords.txt");
-            if (inputStream == null) {
-                return;
-            }
+            Objects.requireNonNull(inputStream,
+                    "Unable to find ReservedWords.txt");
             for (String line : IOUtils.readLines(inputStream)) {
                 if (StringUtils.isBlank(line)) {
                     continue;

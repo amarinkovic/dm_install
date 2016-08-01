@@ -1,6 +1,5 @@
 package pro.documentum.util.convert.datastore;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,16 +39,6 @@ public class IntegerDataStoreConverter<F> extends
     @Override
     protected Map<Class<?>, IConverter<?, Integer>> getConverters() {
         return CONVERTERS;
-    }
-
-    @Override
-    protected Integer doConvert(final F value) throws ParseException {
-        IConverter<F, Integer> converter = getConverter(value);
-        if (converter == null) {
-            throw new ParseException("Unable to convert " + value
-                    + " to integer", 0);
-        }
-        return converter.convert(value);
     }
 
     static class IntegerToInteger implements IConverter<Integer, Integer> {

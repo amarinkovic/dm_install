@@ -25,10 +25,13 @@ abstract class AbstractDataStoreConverter<F, T> implements
         return null;
     }
 
-    protected abstract T doConvert(final F obj) throws ParseException;
+    protected T doConvert(final F obj) throws ParseException {
+        return getConverter(obj).convert(obj);
+    }
 
     @SuppressWarnings("unchecked")
-    protected final IConverter<F, T> getConverter(final F value) {
+    protected final IConverter<F, T> getConverter(final F value)
+        throws ParseException {
         Map<Class<?>, IConverter<?, T>> converters = getConverters();
         Class<?> cls = value.getClass();
         while (cls != Object.class) {
@@ -44,7 +47,8 @@ abstract class AbstractDataStoreConverter<F, T> implements
                 return (IConverter<F, T>) converter;
             }
         }
-        return null;
+        throw new ParseException("Unable to convert " + value + " of class "
+                + value.getClass(), 0);
     }
 
 }
