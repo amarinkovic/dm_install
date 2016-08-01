@@ -111,16 +111,7 @@ public class StoreManagerImpl extends AbstractStoreManager {
 
     public void manageClasses(final ClassLoaderResolver clr,
             final String... classNames) {
-        if (classNames == null) {
-            return;
-        }
-        ManagedConnection mconn = getConnection(-1);
-        try {
-            IDfSession session = (IDfSession) mconn.getConnection();
-            manageClasses(clr, session, classNames);
-        } finally {
-            mconn.release();
-        }
+        throw new UnsupportedOperationException();
     }
 
     public void manageClasses(final ExecutionContext ec,

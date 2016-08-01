@@ -5,8 +5,12 @@ import java.util.Map;
 import javax.transaction.xa.XAResource;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.pool2.ObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.datanucleus.ExecutionContext;
 import org.datanucleus.PropertyNames;
+import org.datanucleus.exceptions.NucleusException;
 import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.connection.AbstractConnectionFactory;
 import org.datanucleus.store.connection.AbstractManagedConnection;
@@ -31,33 +35,72 @@ import pro.documentum.util.sessions.Sessions;
  */
 public class ConnectionFactoryImpl extends AbstractConnectionFactory {
 
+    public static final String MAX_POOL_SIZE = "datanucleus.connectionPool.maxPoolSize";
+
+    public static final String MAX_IDLE = "datanucleus.connectionPool.maxIdle";
+
+    public static final String MIN_IDLE = "datanucleus.connectionPool.minIdle";
+
+    public static final String MAX_LIFE_TIME = "datanucleus.connectionPool.maxLifetime";
+
+    public static final String MAX_WAIT_TIME = "datanucleus.connectionPool.maxWaittime";
+
     private final String _docbaseName;
 
-    private final IDfSessionManager _sessionManager;
+    private final IDfLoginInfo _factoryLoginInfo;
+
+    private final ObjectPool<IDfSessionManager> _sessionManagerPool;
 
     public ConnectionFactoryImpl(final StoreManager storeMgr,
             final String resourceName) {
         super(storeMgr, resourceName);
-        try {
-            Logger.debug("Creating new connection factory");
-            String url = storeMgr.getConnectionURL();
-            if (StringUtils.isBlank(url)) {
-                throw DNExceptions
-                        .noPropertySpecified(PropertyNames.PROPERTY_CONNECTION_URL);
-            }
-            _docbaseName = StoreManagerImpl.getDocbaseName(url);
-            String userName = storeMgr.getConnectionUserName();
-            String password = storeMgr.getConnectionPassword();
-            if (StringUtils.isNotBlank(userName)) {
-                IDfLoginInfo loginInfo = new DfLoginInfo(userName, password);
-                _sessionManager = Sessions.newSessionManager(loginInfo,
-                        _docbaseName);
-            } else {
-                _sessionManager = null;
-            }
-        } catch (DfException e) {
-            throw DfExceptions.dataStoreException(e);
+        Logger.debug("Creating new connection factory");
+        String url = storeMgr.getConnectionURL();
+        if (StringUtils.isBlank(url)) {
+            throw DNExceptions
+                    .noPropertySpecified(PropertyNames.PROPERTY_CONNECTION_URL);
         }
+        _docbaseName = StoreManagerImpl.getDocbaseName(url);
+        String userName = storeMgr.getConnectionUserName();
+        String password = storeMgr.getConnectionPassword();
+        if (StringUtils.isNotBlank(userName)) {
+            _factoryLoginInfo = new DfLoginInfo(userName, password);
+        } else {
+            _factoryLoginInfo = null;
+        }
+        _sessionManagerPool = new GenericObjectPool<IDfSessionManager>(
+                new SessionManagerFactory(), createPoolConfig());
+    }
+
+    private GenericObjectPoolConfig createPoolConfig() {
+        GenericObjectPoolConfig config = new GenericObjectPoolConfig();
+        int maxPoolSize = storeMgr.getIntProperty(MAX_POOL_SIZE);
+        if (maxPoolSize > 0) {
+            config.setMaxTotal(maxPoolSize);
+        }
+        int maxIdle = storeMgr.getIntProperty(MAX_IDLE);
+        if (maxIdle > 0) {
+            config.setMaxIdle(maxIdle);
+        }
+        int minIdle = storeMgr.getIntProperty(MIN_IDLE);
+        if (minIdle > 0) {
+            config.setMinIdle(minIdle);
+        }
+        int lifeTime = storeMgr.getIntProperty(MAX_LIFE_TIME);
+        if (lifeTime > 0) {
+            config.setMinEvictableIdleTimeMillis(lifeTime * 1000);
+        }
+        int waitTime = storeMgr.getIntProperty(MAX_WAIT_TIME);
+        if (waitTime > 0) {
+            config.setMaxWaitMillis(waitTime * 1000);
+        }
+        return config;
+    }
+
+    @Override
+    public void close() {
+        super.close();
+        _sessionManagerPool.close();
     }
 
     @Override
@@ -74,12 +117,12 @@ public class ConnectionFactoryImpl extends AbstractConnectionFactory {
 
     public class ManagedConnectionImpl extends AbstractManagedConnection {
 
-        private final IDfLoginInfo _loginInfo;
+        private final IDfLoginInfo _connectionLoginInfo;
         private XAResource _xaRes;
 
         public ManagedConnectionImpl(final IDfLoginInfo loginInfo) {
             super();
-            _loginInfo = loginInfo;
+            _connectionLoginInfo = loginInfo;
         }
 
         @Override
@@ -94,40 +137,65 @@ public class ConnectionFactoryImpl extends AbstractConnectionFactory {
                 return conn;
             }
 
+            IDfSessionManager sessionManager = null;
             IDfSession session = null;
             try {
-                session = obtainNewDfSession();
+                sessionManager = obtainSessionManager();
+                session = sessionManager.getSession(_docbaseName);
                 Sessions.disableServerTimeout(session);
                 debug("Acquired new", session);
                 conn = session;
                 return conn;
             } catch (DfException ex) {
                 throw DfExceptions.dataStoreException(ex);
+            } catch (Exception ex) {
+                throw new NucleusException(ex.getMessage(), ex);
             } finally {
                 if (conn == null) {
                     Sessions.release(session);
+                    releaseSessionManager(sessionManager);
                 }
             }
         }
 
-        protected IDfSession obtainNewDfSession() throws DfException {
-            if (_loginInfo != null) {
-                return Sessions.brandNew(_loginInfo, _docbaseName);
+        protected IDfSessionManager obtainSessionManager() throws Exception {
+            IDfLoginInfo loginInfo = _connectionLoginInfo;
+            if (loginInfo == null) {
+                loginInfo = _factoryLoginInfo;
             }
-            if (_sessionManager != null) {
-                return Sessions.brandNew(_sessionManager, _docbaseName);
+
+            if (loginInfo == null) {
+                throw DNExceptions
+                        .noPropertySpecified(PropertyNames.PROPERTY_CONNECTION_USER_NAME);
             }
-            throw DNExceptions
-                    .noPropertySpecified(PropertyNames.PROPERTY_CONNECTION_USER_NAME);
+
+            IDfSessionManager sessionManager = _sessionManagerPool
+                    .borrowObject();
+            sessionManager.setIdentity(_docbaseName, loginInfo);
+            return sessionManager;
+        }
+
+        protected void releaseSessionManager(
+                final IDfSessionManager sessionManager) {
+            if (sessionManager == null) {
+                return;
+            }
+            try {
+                _sessionManagerPool.returnObject(sessionManager);
+            } catch (Exception ex) {
+                Logger.error(ex);
+            }
         }
 
         protected void releaseDfSession() {
             try {
                 IDfSession session = (IDfSession) conn;
+                IDfSessionManager sessionManager = session.getSessionManager();
                 debug("Releasing", session);
                 Sessions.enableServerTimeout((IDfSession) conn, true);
-                Sessions.release((IDfSession) conn);
-            } catch (DfException ex) {
+                Sessions.release(session);
+                releaseSessionManager(sessionManager);
+            } catch (Exception ex) {
                 Logger.error(ex);
             }
         }

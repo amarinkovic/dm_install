@@ -15,6 +15,7 @@ import com.documentum.fc.common.DfDocbaseConstants;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfUtil;
 
+import pro.documentum.util.logger.Logger;
 import pro.documentum.util.queries.keys.CompositeKey;
 import pro.documentum.util.sessions.Sessions;
 
@@ -41,7 +42,7 @@ public final class Queries {
         try {
             collection.close();
         } catch (DfException ex) {
-            // ignore
+            Logger.error(ex);
         }
     }
 

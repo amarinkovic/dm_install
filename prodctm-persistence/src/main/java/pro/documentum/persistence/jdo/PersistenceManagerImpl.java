@@ -2,20 +2,22 @@ package pro.documentum.persistence.jdo;
 
 import org.datanucleus.api.jdo.JDOPersistenceManager;
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
+import org.datanucleus.api.jdo.NucleusJDOHelper;
+import org.datanucleus.exceptions.NoPersistenceInformationException;
+import org.datanucleus.exceptions.NucleusException;
+import org.datanucleus.exceptions.NucleusUserException;
+import org.datanucleus.metadata.AbstractClassMetaData;
+import org.datanucleus.store.StoreData;
+import org.datanucleus.util.Localiser;
 
 import pro.documentum.persistence.common.ICredentialsHolder;
+import pro.documentum.persistence.common.util.DNMetaData;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
 public class PersistenceManagerImpl extends JDOPersistenceManager implements
         ICredentialsHolder {
-
-    public static final ThreadLocal<ICredentialsHolder> CREDENTIAL_HOLDER;
-
-    static {
-        CREDENTIAL_HOLDER = new ThreadLocal<>();
-    }
 
     private final String _userName;
 
@@ -38,49 +40,32 @@ public class PersistenceManagerImpl extends JDOPersistenceManager implements
         return _password;
     }
 
-    private <T> T withCredentials(final IInvoker<T> invoker) {
-        boolean remove = putCredentials();
-        try {
-            return invoker.invoke();
-        } finally {
-            if (remove) {
-                remove();
-            }
-        }
-    }
-
     @Override
     public final Object newObjectIdInstance(final Class pcClass,
             final Object key) {
-        return withCredentials(new IInvoker<Object>() {
-            @Override
-            public Object invoke() {
-                return PersistenceManagerImpl.super.newObjectIdInstance(
-                        pcClass, key);
+        assertIsOpen();
+        try {
+            if (pcClass == null) {
+                throw new NucleusUserException(Localiser.msg("010028"));
             }
-        });
-    }
+            ec.assertClassPersistable(pcClass);
+            AbstractClassMetaData cmd = ec.getMetaDataManager()
+                    .getMetaDataForClass(pcClass, ec.getClassLoaderResolver());
+            if (cmd == null) {
+                throw new NoPersistenceInformationException(pcClass.getName());
+            }
 
-    private boolean putCredentials() {
-        if (CREDENTIAL_HOLDER.get() != null) {
-            return false;
+            StoreData storeData = DNMetaData
+                    .getStoreData(ec, pcClass.getName());
+
+            if (storeData == null) {
+                throw new NoPersistenceInformationException(pcClass.getName());
+            }
+
+            return ec.newObjectId(pcClass, key);
+        } catch (NucleusException ne) {
+            throw NucleusJDOHelper.getJDOExceptionForNucleusException(ne);
         }
-        CREDENTIAL_HOLDER.set(this);
-        return true;
-    }
-
-    private void remove() {
-        CREDENTIAL_HOLDER.remove();
-    }
-
-    public static ICredentialsHolder getCredentialHolder() {
-        return CREDENTIAL_HOLDER.get();
-    }
-
-    private interface IInvoker<T> {
-
-        T invoke();
-
     }
 
 }

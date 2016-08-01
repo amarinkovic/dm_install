@@ -20,7 +20,6 @@ import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
 
 import pro.documentum.persistence.common.ICredentialsHolder;
-import pro.documentum.persistence.jdo.PersistenceManagerImpl;
 import pro.documentum.util.IDfSessionInvoker;
 import pro.documentum.util.ids.DfIdUtil;
 import pro.documentum.util.logger.Logger;
@@ -148,12 +147,7 @@ public final class Nucleus {
 
     public static IDfLoginInfo extractLoginInfo(final ExecutionContext ec) {
         if (ec == null) {
-            ICredentialsHolder holder = PersistenceManagerImpl
-                    .getCredentialHolder();
-            if (holder == null) {
-                return null;
-            }
-            return getLoginInfo(holder);
+            return null;
         }
         Object owner = ec.getOwner();
         IDfLoginInfo loginInfo = null;

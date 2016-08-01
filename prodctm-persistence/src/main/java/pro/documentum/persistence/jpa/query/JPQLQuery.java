@@ -10,6 +10,7 @@ import org.datanucleus.store.query.AbstractJPQLQuery;
 import org.datanucleus.store.query.QueryManager;
 import org.datanucleus.util.NucleusLogger;
 
+import pro.documentum.persistence.common.StoreManagerImpl;
 import pro.documentum.persistence.common.query.DQLQueryCompilation;
 import pro.documentum.persistence.common.query.DQLQueryHelper;
 import pro.documentum.persistence.common.query.IDocumentumQuery;
@@ -119,7 +120,7 @@ public class JPQLQuery<R> extends AbstractJPQLQuery implements
         _datastoreCompilation = new DQLQueryCompilation();
         AbstractClassMetaData cmd = getCandidateMetaData();
 
-        storeMgr.manageClasses(clr, cmd.getFullClassName());
+        ((StoreManagerImpl) storeMgr).manageClasses(ec, cmd.getFullClassName());
 
         if (!inMemory) {
             _queryHelper.compileQueryFull(parameterValues);

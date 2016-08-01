@@ -58,21 +58,21 @@ public class DfIterator extends AbstractIterator {
     }
 
     private IDfTypedObject getCurrent() {
-        if (_current == null) {
-            switch (getState()) {
-            case IDfCollection.DF_INITIAL_STATE:
-            case IDfCollection.DF_READY_STATE:
-                throw new IllegalStateException("next() not called yet");
-            case IDfCollection.DF_CLOSED_STATE:
-                throw new IllegalStateException("collection closed");
-            case IDfCollection.DF_NO_MORE_ROWS_STATE:
-                throw new IllegalStateException("beyond end of collection");
-            default:
-                throw new IllegalStateException("Unknown state, state: "
-                        + getState());
-            }
+        if (_current != null) {
+            return _current;
         }
-        return _current;
+        switch (getState()) {
+        case IDfCollection.DF_INITIAL_STATE:
+        case IDfCollection.DF_READY_STATE:
+            throw new IllegalStateException("next() not called yet");
+        case IDfCollection.DF_CLOSED_STATE:
+            throw new IllegalStateException("collection closed");
+        case IDfCollection.DF_NO_MORE_ROWS_STATE:
+            throw new IllegalStateException("beyond end of collection");
+        default:
+            throw new IllegalStateException("Unknown state, state: "
+                    + getState());
+        }
     }
 
 }
