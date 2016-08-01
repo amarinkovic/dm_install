@@ -39,6 +39,9 @@ public class FolderHandler extends AbstractSysObjectAttributeHandler {
             final Map<String, ?> values) throws DfException {
         List<IDfId> newFolders = (List<IDfId>) values.remove("i_folder_id");
         DfObjects.unlinkFromAllFolders(object);
+        if (newFolders == null) {
+            return false;
+        }
         for (IDfId folderId : newFolders) {
             object.link(folderId.getId());
         }

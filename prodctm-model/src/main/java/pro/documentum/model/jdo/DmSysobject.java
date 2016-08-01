@@ -21,7 +21,7 @@ import lombok.experimental.Accessors;
  */
 @PersistenceCapable(table = "dm_sysobject")
 @Accessors(chain = true)
-public class DmSysobject extends AbstractSysobject {
+public class DmSysObject extends AbstractSysObject {
 
     @Column(name = "object_name")
     @Getter
@@ -40,12 +40,12 @@ public class DmSysobject extends AbstractSysobject {
 
     @Column(name = "i_chronicle_id")
     @Getter
-    private DmSysobject chronicle;
+    private DmSysObject chronicle;
 
     @Column(name = "i_folder_id")
     @Setter
     @Getter
-    private List<DmFolder> folders;
+    private List<String> folders;
 
     @Column(name = "r_version_label")
     @Persistent(defaultFetchGroup = "true", serialized = "true")

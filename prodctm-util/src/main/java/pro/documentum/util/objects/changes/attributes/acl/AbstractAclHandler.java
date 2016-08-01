@@ -5,12 +5,14 @@ import java.util.Set;
 import com.documentum.fc.client.IDfACL;
 import com.documentum.fc.common.DfException;
 
+import pro.documentum.util.objects.changes.attributes.Depends;
 import pro.documentum.util.objects.changes.attributes.persistent.AbstractPersistentAttributeHandler;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public abstract class AbstractAclPermitHandler extends
+@Depends(on = {AclReadOnlyHandler.class })
+public abstract class AbstractAclHandler extends
         AbstractPersistentAttributeHandler<IDfACL> {
 
     @Override

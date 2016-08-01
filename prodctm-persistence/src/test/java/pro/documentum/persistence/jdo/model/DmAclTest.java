@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.jdo.Query;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 
 import pro.documentum.model.jdo.DmAcl;
@@ -24,6 +25,16 @@ public class DmAclTest extends JDOTestSupport {
         assertNotNull(acl.getPermits());
         query.close(results);
         assertNotNull(acl);
+    }
+
+    @Test
+    public void testCreate() throws Exception {
+        String aclName = RandomStringUtils.randomAlphabetic(32);
+        DmAcl acl = getPersistenceManager().newInstance(DmAcl.class);
+        acl.setObjectName(aclName);
+        acl.setOwnerName(getLoginName());
+        acl = getPersistenceManager().makePersistent(acl);
+        getPersistenceManager().flush();
     }
 
 }

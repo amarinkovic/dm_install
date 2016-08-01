@@ -16,7 +16,7 @@ import org.datanucleus.api.jpa.annotations.DatastoreId;
 @Table(name = "dm_sysobject")
 @DatastoreId
 @Accessors(chain = true)
-public class AbstractSysobject extends AbstractPersistent {
+public class AbstractSysObject extends AbstractPersistent {
 
     @Column(name = "r_object_type")
     @Getter

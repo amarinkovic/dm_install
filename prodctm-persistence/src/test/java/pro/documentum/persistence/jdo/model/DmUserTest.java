@@ -20,7 +20,7 @@ import pro.documentum.persistence.jdo.JDOTestSupport;
 public class DmUserTest extends JDOTestSupport {
 
     @Test
-    public void testQueryByName2() throws Exception {
+    public void testQueryByName() throws Exception {
         String userName = getUnderneathSession().getLoginUserName();
         String description = RandomStringUtils.randomAlphabetic(32);
         Query query = getPersistenceManager().newQuery(DmUser.class,

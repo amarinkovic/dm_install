@@ -36,6 +36,9 @@ public class AspectNameHandler extends
                 ((IDfAspects) object).detachAspect(aspect, null);
             }
         }
+        if (aspects == null) {
+            return false;
+        }
         for (String aspect : aspects) {
             if (current.findStringIndex(aspect) > -1) {
                 continue;

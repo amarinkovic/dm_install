@@ -83,17 +83,14 @@ public class DmAcl extends AbstractPersistent {
 
     @Column(name = "r_has_events")
     @Getter
-    @Setter
     private boolean hasEvents;
 
     @Column(name = "r_template_id")
     @Getter
-    @Setter
     private String templateId;
 
     @Column(name = "r_alias_set_id")
     @Getter
-    @Setter
     private String aliasSetId;
 
 }

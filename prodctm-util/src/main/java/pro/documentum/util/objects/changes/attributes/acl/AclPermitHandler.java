@@ -15,7 +15,7 @@ import pro.documentum.util.permits.PermitConverter;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class PermitHandler extends AbstractAclPermitHandler {
+public class AclPermitHandler extends AbstractAclHandler {
 
     public static final Set<String> PERMIT_ATTRIBUTES;
 
@@ -24,12 +24,11 @@ public class PermitHandler extends AbstractAclPermitHandler {
         PERMIT_ATTRIBUTES.add("r_accessor_name");
         PERMIT_ATTRIBUTES.add("r_accessor_permit");
         PERMIT_ATTRIBUTES.add("r_accessor_xpermit");
-        PERMIT_ATTRIBUTES.add("r_is_group");
         PERMIT_ATTRIBUTES.add("r_permit_type");
         PERMIT_ATTRIBUTES.add("r_application_permit");
     }
 
-    public PermitHandler() {
+    public AclPermitHandler() {
         super();
     }
 
@@ -48,12 +47,14 @@ public class PermitHandler extends AbstractAclPermitHandler {
         List<Integer> permitTypes = removeKey(values, "r_permit_type");
         List<String> appPermits = removeKey(values, "r_application_permit");
         DfObjects.resetAcl(object);
+        if (accessors == null) {
+            return false;
+        }
         for (int i = 0, n = accessors.size(); i < n; i++) {
             applyPermit(object, permitTypes.get(i), accessors.get(i),
                     accessPermits.get(i), xPermits.get(i), appPermits.get(i));
         }
-        removeKey(values, PERMIT_ATTRIBUTES);
-        return true;
+        return false;
     }
 
     private void applyPermit(final IDfACL object, final Integer permitType,

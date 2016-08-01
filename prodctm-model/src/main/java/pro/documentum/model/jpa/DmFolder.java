@@ -18,7 +18,7 @@ import org.datanucleus.api.jpa.annotations.DatastoreId;
 @Table(name = "dm_folder")
 @DatastoreId
 @Accessors(chain = true)
-public class DmFolder extends DmSysobject {
+public class DmFolder extends DmSysObject {
 
     @Column(name = "r_folder_path")
     @Getter

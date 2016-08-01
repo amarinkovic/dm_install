@@ -23,6 +23,7 @@ public final class SysObjectReadOnlyHandler extends
         READONLY_ATTRS.add("r_modifier");
         READONLY_ATTRS.add("r_lock_date");
         READONLY_ATTRS.add("r_lock_machine");
+        READONLY_ATTRS.add("r_object_type");
     }
 
     public SysObjectReadOnlyHandler() {

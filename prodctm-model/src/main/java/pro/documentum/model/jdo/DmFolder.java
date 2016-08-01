@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
  */
 @PersistenceCapable(table = "dm_folder")
 @Accessors(chain = true)
-public class DmFolder extends DmSysobject {
+public class DmFolder extends DmSysObject {
 
     @Column(name = "r_folder_path")
     @Persistent(defaultFetchGroup = "true", serialized = "true")

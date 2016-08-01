@@ -18,7 +18,7 @@ import pro.documentum.model.jdo.embedded.DmLockInfo;
  */
 @PersistenceCapable(table = "dm_sysobject")
 @Accessors(chain = true)
-public abstract class AbstractSysobject extends AbstractPersistent {
+public abstract class AbstractSysObject extends AbstractPersistent {
 
     @Column(name = "r_object_type")
     @Getter

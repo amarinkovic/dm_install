@@ -12,7 +12,7 @@ import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.client.impl.security.ExtendedPermitData;
 
 import pro.documentum.model.jdo.DmAcl;
-import pro.documentum.model.jdo.DmSysobject;
+import pro.documentum.model.jdo.DmSysObject;
 import pro.documentum.model.jdo.embedded.DmLockInfo;
 import pro.documentum.model.jdo.embedded.DmPermit;
 import pro.documentum.persistence.jdo.JDOTestSupport;
@@ -29,33 +29,33 @@ public class TestEmbedded extends JDOTestSupport {
                 "dm_document");
         object.save();
         object.checkout();
-        DmSysobject dmSysobject = getPersistenceManager().getObjectById(
-                DmSysobject.class, object.getObjectId().getId());
-        assertNotNull(dmSysobject.getLockInfo());
-        DmLockInfo lockInfo = dmSysobject.getLockInfo();
+        DmSysObject dmSysObject = getPersistenceManager().getObjectById(
+                DmSysObject.class, object.getObjectId().getId());
+        assertNotNull(dmSysObject.getLockInfo());
+        DmLockInfo lockInfo = dmSysObject.getLockInfo();
         assertNotNull(lockInfo.getLockDate());
         assertNotNull(lockInfo.getLockMachine());
         assertNotNull(lockInfo.getLockOwner());
         assertTrue(StringUtils.isNotBlank(lockInfo.getLockOwner()));
         assertTrue(StringUtils.isNotBlank(lockInfo.getLockMachine()));
 
-        dmSysobject = getPersistenceManager().detachCopy(dmSysobject);
-        dmSysobject.getLockInfo().setLockOwner(null);
-        dmSysobject = getPersistenceManager().makePersistent(dmSysobject);
+        dmSysObject = getPersistenceManager().detachCopy(dmSysObject);
+        dmSysObject.getLockInfo().setLockOwner(null);
+        dmSysObject = getPersistenceManager().makePersistent(dmSysObject);
         getPersistenceManager().flush();
         object.fetch(null);
         assertFalse(object.isCheckedOut());
 
-        dmSysobject = getPersistenceManager().detachCopy(dmSysobject);
-        dmSysobject.getLockInfo().setLockOwner(
+        dmSysObject = getPersistenceManager().detachCopy(dmSysObject);
+        dmSysObject.getLockInfo().setLockOwner(
                 getUnderneathSession().getLoginUserName());
-        dmSysobject = getPersistenceManager().makePersistent(dmSysobject);
+        dmSysObject = getPersistenceManager().makePersistent(dmSysObject);
         getPersistenceManager().flush();
         object.fetch(null);
         assertTrue(object.isCheckedOut());
 
-        dmSysobject.getLockInfo().setLockOwner(null);
-        dmSysobject = getPersistenceManager().makePersistent(dmSysobject);
+        dmSysObject.getLockInfo().setLockOwner(null);
+        dmSysObject = getPersistenceManager().makePersistent(dmSysObject);
         getPersistenceManager().flush();
         object.fetch(null);
         assertFalse(object.isCheckedOut());

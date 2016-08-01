@@ -15,9 +15,15 @@ import pro.documentum.util.convert.Converter;
 import pro.documentum.util.logger.Logger;
 import pro.documentum.util.objects.changes.attributes.IAttributeHandler;
 import pro.documentum.util.objects.changes.attributes.PersistentHandler;
-import pro.documentum.util.objects.changes.attributes.acl.PermitHandler;
+import pro.documentum.util.objects.changes.attributes.acl.AclPermitHandler;
+import pro.documentum.util.objects.changes.attributes.acl.AclReadOnlyHandler;
 import pro.documentum.util.objects.changes.attributes.content.ContentReadOnlyHandler;
 import pro.documentum.util.objects.changes.attributes.content.ParentIdHandler;
+import pro.documentum.util.objects.changes.attributes.group.GroupNameHandler;
+import pro.documentum.util.objects.changes.attributes.group.GroupOwnerHandler;
+import pro.documentum.util.objects.changes.attributes.group.GroupReadOnlyHandler;
+import pro.documentum.util.objects.changes.attributes.group.GroupsNamesHandler;
+import pro.documentum.util.objects.changes.attributes.group.UsersNamesHandler;
 import pro.documentum.util.objects.changes.attributes.persistent.AspectNameHandler;
 import pro.documentum.util.objects.changes.attributes.persistent.ReadOnlyHandler;
 import pro.documentum.util.objects.changes.attributes.sysobject.FolderHandler;
@@ -56,15 +62,22 @@ public final class ChangesProcessor {
         addAttributeHandler(PolicyHandler.class);
         // users
         addAttributeHandler(UserPermitHandler.class);
+        // groups
+        addAttributeHandler(GroupNameHandler.class);
+        addAttributeHandler(GroupOwnerHandler.class);
+        addAttributeHandler(UsersNamesHandler.class);
+        addAttributeHandler(GroupsNamesHandler.class);
         // content
         addAttributeHandler(ParentIdHandler.class);
         // acls
-        addAttributeHandler(PermitHandler.class);
+        addAttributeHandler(AclPermitHandler.class);
         // read-only
         addAttributeHandler(ReadOnlyHandler.class);
         addAttributeHandler(UserReadOnlyHandler.class);
+        addAttributeHandler(GroupReadOnlyHandler.class);
         addAttributeHandler(SysObjectReadOnlyHandler.class);
         addAttributeHandler(ContentReadOnlyHandler.class);
+        addAttributeHandler(AclReadOnlyHandler.class);
         // wildcard
         addAttributeHandler(PersistentHandler.class);
     }

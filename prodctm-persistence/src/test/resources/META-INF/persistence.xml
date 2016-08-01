@@ -4,7 +4,9 @@
 
     <persistence-unit name="JDOTesting">
         <class>pro.documentum.model.jdo.DmUser</class>
-        <class>pro.documentum.model.jdo.DmSysobject</class>
+        <class>pro.documentum.model.jdo.DmGroup</class>
+        <class>pro.documentum.model.jdo.DmSysObject</class>
+        <class>pro.documentum.model.jdo.DmDocument</class>
         <class>pro.documentum.model.jdo.DmFolder</class>
         <class>pro.documentum.model.jdo.DmCabinet</class>
         <class>pro.documentum.model.jdo.DmAcl</class>
@@ -20,7 +22,7 @@
     <persistence-unit name="JPATesting">
         <provider>org.datanucleus.api.jpa.PersistenceProviderImpl</provider>
         <class>pro.documentum.model.jpa.DmUser</class>
-        <class>pro.documentum.model.jpa.DmSysobject</class>
+        <class>pro.documentum.model.jpa.DmSysObject</class>
         <class>pro.documentum.model.jpa.DmFolder</class>
         <exclude-unlisted-classes />
         <properties>

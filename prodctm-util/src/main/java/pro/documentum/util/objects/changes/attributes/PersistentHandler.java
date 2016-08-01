@@ -57,15 +57,12 @@ public class PersistentHandler implements
                 continue;
             }
             object.removeAll(attrName);
-            if (!(value instanceof Collection)) {
-                setValue(object, attrName, value, dataType, 0);
-                continue;
-            }
-
-            int index = 0;
-            for (Object rValue : (Collection) value) {
-                setValue(object, attrName, rValue, dataType, index);
-                index++;
+            if (value instanceof Collection) {
+                int index = 0;
+                for (Object rValue : (Collection) value) {
+                    setValue(object, attrName, rValue, dataType, index);
+                    index++;
+                }
             }
         }
 

@@ -11,14 +11,14 @@ import org.junit.Test;
 
 import com.documentum.fc.client.IDfSysObject;
 
-import pro.documentum.model.jdo.DmSysobject;
+import pro.documentum.model.jdo.DmSysObject;
 import pro.documentum.persistence.jdo.JDOTestSupport;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
 @SuppressWarnings("unchecked")
-public class DmSysobjectTest extends JDOTestSupport {
+public class DmSysObjectTest extends JDOTestSupport {
 
     @Test
     public void testCheckOut() throws Exception {
@@ -28,16 +28,16 @@ public class DmSysobjectTest extends JDOTestSupport {
         object.setObjectName(objectName);
         object.save();
         String objectId = object.getObjectId().getId();
-        Query query = getPersistenceManager().newQuery(DmSysobject.class,
+        Query query = getPersistenceManager().newQuery(DmSysObject.class,
                 "objectName == :objectName && objectId == :objectId");
         Map<String, Object> params = new HashMap<>();
         params.put("objectName", objectName);
         params.put("objectId", object.getObjectId().getId());
-        List<DmSysobject> results = (List<DmSysobject>) query
+        List<DmSysObject> results = (List<DmSysObject>) query
                 .executeWithMap(params);
         assertNotNull(results);
         assertEquals(1, results.size());
-        DmSysobject sysobject = results.get(0);
+        DmSysObject sysobject = results.get(0);
         assertEquals(objectId, sysobject.getObjectId());
         assertEquals(objectName, sysobject.getObjectName());
         sysobject = getPersistenceManager().detachCopy(sysobject);
@@ -61,4 +61,25 @@ public class DmSysobjectTest extends JDOTestSupport {
         assertFalse(object.isCheckedOut());
         assertEquals(objectName, object.getObjectName());
     }
+
+    @Test
+    public void testCreateSysObject() throws Exception {
+        String objectName = RandomStringUtils.randomAlphabetic(32);
+        String title = RandomStringUtils.randomAlphabetic(32);
+        DmSysObject object = getPersistenceManager().newInstance(
+                DmSysObject.class);
+        object.setObjectName(objectName);
+        object = getPersistenceManager().makePersistent(object);
+        getPersistenceManager().flush();
+        assertEquals(0, object.getVStamp());
+        assertNotNull(object.getModifyDate());
+        object.setTitle(title);
+        object = getPersistenceManager().makePersistent(object);
+        assertEquals(title, object.getTitle());
+        assertEquals(0, object.getVStamp());
+        getPersistenceManager().flush();
+        assertEquals(title, object.getTitle());
+        assertEquals(1, object.getVStamp());
+    }
+
 }
