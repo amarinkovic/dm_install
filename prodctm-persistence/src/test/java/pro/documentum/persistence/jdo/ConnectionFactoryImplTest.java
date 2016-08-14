@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import com.documentum.fc.client.IDfSession;
 
-import pro.documentum.persistence.common.ConnectionFactoryImpl;
+import pro.documentum.persistence.common.connection.SessionManagerPoolFactory;
 import pro.documentum.util.sessions.Sessions;
 
 /**
@@ -28,7 +28,7 @@ public class ConnectionFactoryImplTest extends JDOTestSupport {
         properties.put("javax.jdo.PersistenceManagerFactoryClass",
                 PersistenceManagerFactoryImpl.class.getName());
         properties.put("javax.jdo.option.ConnectionURL", "dctm:"
-                + getSession().getDocbaseName());
+                + getUnderneathSession().getDocbaseName());
         return properties;
     }
 
@@ -44,8 +44,8 @@ public class ConnectionFactoryImplTest extends JDOTestSupport {
     @Test(expected = JDOException.class)
     public void testPool() throws Exception {
         Map<String, String> properties = getProps();
-        properties.put(ConnectionFactoryImpl.MAX_POOL_SIZE, "2");
-        properties.put(ConnectionFactoryImpl.MAX_WAIT_TIME, "5");
+        properties.put(SessionManagerPoolFactory.MAX_POOL_SIZE, "2");
+        properties.put(SessionManagerPoolFactory.MAX_WAIT_TIME, "5");
         PersistenceManagerFactory pmf = JDOHelper
                 .getPersistenceManagerFactory(properties);
         PersistenceManager pm1 = pmf.getPersistenceManager(getLoginInfo()

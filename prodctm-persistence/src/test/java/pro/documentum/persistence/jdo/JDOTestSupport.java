@@ -6,21 +6,34 @@ import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Transaction;
 import javax.jdo.datastore.JDOConnection;
 
-import com.documentum.fc.client.IDfSession;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 
-import pro.documentum.junit.DfcTestSupport;
+import com.documentum.fc.client.IDfSession;
+import com.documentum.fc.common.DfLoginInfo;
+import com.documentum.fc.common.IDfLoginInfo;
+
+import pro.documentum.junit.auth.IDocumentumCredentials;
+import pro.documentum.junit.auth.PropertiesCredentialManager;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public abstract class JDOTestSupport extends DfcTestSupport {
+public abstract class JDOTestSupport extends Assert {
 
     private PersistenceManager _pm;
 
     private IDfSession _underneathSession;
 
-    @Override
-    protected void doPostSetup() throws Exception {
+    private IDfLoginInfo _loginInfo;
+
+    @Before
+    public final void setUp() throws Exception {
+        IDocumentumCredentials credentials = new PropertiesCredentialManager(
+                null).getCredentials(null, null);
+        _loginInfo = new DfLoginInfo(credentials.getUserName(),
+                credentials.getPassword());
         PersistenceManagerFactory pmf = JDOHelper
                 .getPersistenceManagerFactory("JDOTesting");
         _pm = pmf.getPersistenceManager(getLoginInfo().getUser(),
@@ -34,8 +47,16 @@ public abstract class JDOTestSupport extends DfcTestSupport {
         connection.close();
     }
 
-    @Override
-    public void doPreTearDown() throws Exception {
+    public IDfLoginInfo getLoginInfo() {
+        return _loginInfo;
+    }
+
+    protected String getLoginName() {
+        return _loginInfo.getUser();
+    }
+
+    @After
+    public void tearDown() throws Exception {
         Transaction tr = _pm.currentTransaction();
         tr.rollback();
         _pm.close();

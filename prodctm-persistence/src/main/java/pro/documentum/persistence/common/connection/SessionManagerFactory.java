@@ -1,4 +1,4 @@
-package pro.documentum.persistence.common;
+package pro.documentum.persistence.common.connection;
 
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
@@ -19,6 +19,7 @@ public class SessionManagerFactory extends
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public IDfSessionManager create() throws Exception {
         return Sessions.newSessionManager();
     }

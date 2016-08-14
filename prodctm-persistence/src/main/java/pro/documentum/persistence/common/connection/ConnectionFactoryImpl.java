@@ -1,4 +1,4 @@
-package pro.documentum.persistence.common;
+package pro.documentum.persistence.common.connection;
 
 import java.util.Map;
 
@@ -6,8 +6,6 @@ import javax.transaction.xa.XAResource;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.pool2.ObjectPool;
-import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.datanucleus.ExecutionContext;
 import org.datanucleus.PropertyNames;
 import org.datanucleus.exceptions.NucleusException;
@@ -24,6 +22,8 @@ import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
 
+import pro.documentum.persistence.common.ICredentialsHolder;
+import pro.documentum.persistence.common.StoreManagerImpl;
 import pro.documentum.persistence.common.util.DNExceptions;
 import pro.documentum.persistence.common.util.DfExceptions;
 import pro.documentum.persistence.common.util.Nucleus;
@@ -34,16 +34,6 @@ import pro.documentum.util.sessions.Sessions;
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
 public class ConnectionFactoryImpl extends AbstractConnectionFactory {
-
-    public static final String MAX_POOL_SIZE = "datanucleus.connectionPool.maxPoolSize";
-
-    public static final String MAX_IDLE = "datanucleus.connectionPool.maxIdle";
-
-    public static final String MIN_IDLE = "datanucleus.connectionPool.minIdle";
-
-    public static final String MAX_LIFE_TIME = "datanucleus.connectionPool.maxLifetime";
-
-    public static final String MAX_WAIT_TIME = "datanucleus.connectionPool.maxWaittime";
 
     private final String _docbaseName;
 
@@ -68,33 +58,8 @@ public class ConnectionFactoryImpl extends AbstractConnectionFactory {
         } else {
             _factoryLoginInfo = null;
         }
-        _sessionManagerPool = new GenericObjectPool<IDfSessionManager>(
-                new SessionManagerFactory(), createPoolConfig());
-    }
-
-    private GenericObjectPoolConfig createPoolConfig() {
-        GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-        int maxPoolSize = storeMgr.getIntProperty(MAX_POOL_SIZE);
-        if (maxPoolSize > 0) {
-            config.setMaxTotal(maxPoolSize);
-        }
-        int maxIdle = storeMgr.getIntProperty(MAX_IDLE);
-        if (maxIdle > 0) {
-            config.setMaxIdle(maxIdle);
-        }
-        int minIdle = storeMgr.getIntProperty(MIN_IDLE);
-        if (minIdle > 0) {
-            config.setMinIdle(minIdle);
-        }
-        int lifeTime = storeMgr.getIntProperty(MAX_LIFE_TIME);
-        if (lifeTime > 0) {
-            config.setMinEvictableIdleTimeMillis(lifeTime * 1000);
-        }
-        int waitTime = storeMgr.getIntProperty(MAX_WAIT_TIME);
-        if (waitTime > 0) {
-            config.setMaxWaitMillis(waitTime * 1000);
-        }
-        return config;
+        _sessionManagerPool = SessionManagerPoolFactory.getInstance()
+                .createSessionManagerPool(storeMgr);
     }
 
     @Override

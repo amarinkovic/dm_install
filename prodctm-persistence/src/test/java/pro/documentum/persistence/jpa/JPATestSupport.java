@@ -10,15 +10,21 @@ import javax.persistence.Persistence;
 
 import org.datanucleus.PropertyNames;
 import org.datanucleus.store.NucleusConnection;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 
 import com.documentum.fc.client.IDfSession;
+import com.documentum.fc.common.DfLoginInfo;
+import com.documentum.fc.common.IDfLoginInfo;
 
-import pro.documentum.junit.DfcTestSupport;
+import pro.documentum.junit.auth.IDocumentumCredentials;
+import pro.documentum.junit.auth.PropertiesCredentialManager;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public abstract class JPATestSupport extends DfcTestSupport {
+public abstract class JPATestSupport extends Assert {
 
     private EntityManagerFactory _emf;
 
@@ -26,8 +32,14 @@ public abstract class JPATestSupport extends DfcTestSupport {
 
     private IDfSession _underneathSession;
 
-    @Override
-    protected void doPostSetup() throws Exception {
+    private IDfLoginInfo _loginInfo;
+
+    @Before
+    public void setUp() throws Exception {
+        IDocumentumCredentials credentials = new PropertiesCredentialManager(
+                null).getCredentials(null, null);
+        _loginInfo = new DfLoginInfo(credentials.getUserName(),
+                credentials.getPassword());
         _emf = Persistence.createEntityManagerFactory("JPATesting");
         Map<String, Object> properties = new HashMap<>();
         properties.put(PropertyNames.PROPERTY_CONNECTION_USER_NAME,
@@ -42,8 +54,16 @@ public abstract class JPATestSupport extends DfcTestSupport {
         connection.close();
     }
 
-    @Override
-    public void doPreTearDown() throws Exception {
+    public IDfLoginInfo getLoginInfo() {
+        return _loginInfo;
+    }
+
+    protected String getLoginName() {
+        return _loginInfo.getUser();
+    }
+
+    @After
+    public void tearDown() throws Exception {
         EntityTransaction tr = _em.getTransaction();
         tr.rollback();
         _em.close();

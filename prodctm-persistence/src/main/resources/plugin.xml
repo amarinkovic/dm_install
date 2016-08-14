@@ -16,7 +16,7 @@
 
     <!-- CONNECTION FACTORY -->
     <extension point="org.datanucleus.store_connectionfactory">
-        <connectionfactory name="dctm" class-name="pro.documentum.persistence.common.ConnectionFactoryImpl" transactional="true" datastore="dctm" />
+        <connectionfactory name="dctm" class-name="pro.documentum.persistence.common.connection.ConnectionFactoryImpl" transactional="true" datastore="dctm" />
     </extension>
 
     <!-- DATASTORE IDENTITY -->
