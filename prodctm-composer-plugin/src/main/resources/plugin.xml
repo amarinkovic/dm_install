@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+    <extension id="importComposerProject" name="importComposerProject" point="org.eclipse.ant.core.antTasks">
+        <antTask class="pro.documentum.composer.tasks.ImportProjectAntTask" library="%ant.library%" name="pro.importProject"/>
+    </extension>
+    <extension id="setUpgradeOption" name="setUpgradeOption" point="org.eclipse.ant.core.antTasks">
+        <antTask class="pro.documentum.composer.tasks.SetUpgradeOptionAntTask" library="%ant.library%" name="pro.setUpgradeOption"/>
+    </extension>
+</plugin>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>pro.documentum</groupId>
+        <artifactId>prodctm-composer-base</artifactId>
+        <version>0.1</version>
+        <relativePath>../prodctm-composer-base/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>pro.documentum.composer.plugin</artifactId>
+    <version>0.1.0</version>
+
+    <properties>
+        <!--todo-->
+        <ant.library>prodctm-composer-tasks-0.1.jar</ant.library>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>pro.documentum</groupId>
+            <artifactId>prodctm-composer-tasks</artifactId>
+            <version>0.1</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>maven-replacer-plugin</artifactId>
+                <version>1.3.7</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <file>target/classes/plugin.xml</file>
+                    <replacements>
+                        <replacement>
+                            <token>%ant.library%</token>
+                            <value>${ant.library}</value>
+                        </replacement>
+                    </replacements>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>install-jar</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>pro.documentum</groupId>
+                                    <artifactId>prodctm-composer-tasks</artifactId>
+                                    <version>0.1</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            <stripVersion>false</stripVersion>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <archive>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                        <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+        <finalName>${project.artifactId}_${project.version}</finalName>
+    </build>
+
+</project>

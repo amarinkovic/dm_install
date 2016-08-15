@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>pro.documentum</groupId>
+        <artifactId>prodctm-composer-base</artifactId>
+        <version>0.1</version>
+        <relativePath>../prodctm-composer-base/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>prodctm-composer-tasks</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.core</groupId>
+            <artifactId>org.eclipse.core.resources</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emf</groupId>
+            <artifactId>org.eclipse.emf.common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emf</groupId>
+            <artifactId>ecore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.emc</groupId>
+            <artifactId>com.emc.ide.logger</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.emc</groupId>
+            <artifactId>com.emc.ide.artifactmanager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.emc</groupId>
+            <artifactId>com.emc.ide.project</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.emc</groupId>
+            <artifactId>com.emc.ide.util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.emc</groupId>
+            <artifactId>com.emc.ide.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.emc</groupId>
+            <artifactId>com.emc.ide.artifact</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <archive>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

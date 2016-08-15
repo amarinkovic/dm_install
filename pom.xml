@@ -14,7 +14,9 @@
         <module>prodctm-test</module>
         <module>prodctm-persistence</module>
         <module>prodctm-model</module>
-        <module>prodctm-composer</module>
+        <module>prodctm-composer-base</module>
+        <module>prodctm-composer-tasks</module>
+        <module>prodctm-composer-plugin</module>
     </modules>
 
 </project>
