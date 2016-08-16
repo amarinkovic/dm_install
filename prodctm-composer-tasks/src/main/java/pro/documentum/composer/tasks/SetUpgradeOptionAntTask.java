@@ -15,13 +15,16 @@ import com.emc.ide.artifact.dardef.model.dardef.UpgradeOptionValues;
 import com.emc.ide.artifactmanager.IDmArtifactManager;
 import com.emc.ide.artifactmanager.artifact.DmArtifactFilter;
 import com.emc.ide.artifactmanager.artifact.IDmArtifact;
+import com.emc.ide.artifactmanager.filters.CurrentProjectFilter;
 import com.emc.ide.artifactmanager.model.artifact.IArtifactDataModel;
 import com.emc.ide.artifactmanager.service.IDmLocatorService;
 import com.emc.ide.artifactmanager.uriconverter.IUrnFinderFactory;
 import com.emc.ide.core.model.core.IDarDef;
-import com.emc.ide.logger.dbc.DBC;
 import com.emc.ide.project.IDmProject;
 import com.emc.ide.util.DmProjectUtils;
+
+import pro.documentum.composer.tasks.filters.FilterArtifactByCategory;
+import pro.documentum.composer.tasks.filters.FilterArtifactByName;
 
 /**
  * @author Andrey B. Panfilov <andrew@panfilov.tel>
@@ -41,7 +44,7 @@ public class SetUpgradeOptionAntTask extends AbstractAntTask {
     }
 
     public void setProject(final String name) {
-        info("Parameter 'project' is '" + name + "'");
+        trace("Parameter 'project' is '" + name + "'");
         _projectName = name;
     }
 
@@ -51,6 +54,8 @@ public class SetUpgradeOptionAntTask extends AbstractAntTask {
 
     public void execute() throws BuildException {
         setTaskName(TASK_NAME);
+        info("Setting installation parameters for project '" + _projectName
+                + "'");
         try {
             validateArgs();
             setUpgradeOption();
@@ -61,11 +66,13 @@ public class SetUpgradeOptionAntTask extends AbstractAntTask {
         } finally {
             IUrnFinderFactory.INSTANCE.disposeFinderMap();
         }
+        info("Installation parameters for project '" + _projectName
+                + "' were set successfully");
     }
 
     private void setUpgradeOption() throws CoreException {
         if (_upgradeOptions == null || _upgradeOptions.getArtifacts().isEmpty()) {
-            info("Nothing to do");
+            trace("Nothing to do");
             return;
         }
 
@@ -92,13 +99,19 @@ public class SetUpgradeOptionAntTask extends AbstractAntTask {
     private void setUpgradeOption(final Artifact option,
             final IDmLocatorService locatorService, final EMap installOptions)
         throws CoreException {
-        info("Locating artifact with name " + option.getName()
+        trace("Locating artifact with name " + option.getName()
                 + " and category " + option.getCategory());
-        IDmArtifact[] artifacts = locatorService.getArtifactsByCategory(
-                option.getCategory(), new LocateArtifactByName(option));
+        DmArtifactFilter projectFilter = new CurrentProjectFilter(
+                _dmProject.getEclipseProject());
+        DmArtifactFilter nameFilter = new FilterArtifactByName(option);
+        DmArtifactFilter categoryFilter = new FilterArtifactByCategory(option);
+        projectFilter.appendFilter(nameFilter);
+        nameFilter.appendFilter(categoryFilter);
+        IDmArtifact[] artifacts = locatorService.getAllArtifacts(projectFilter);
+
         if (artifacts == null || artifacts.length == 0) {
-            info("Unable locate artifact " + option.getName() + " in project "
-                    + _projectName);
+            trace("Project " + _projectName
+                    + " does not contain matched artifacts");
             return;
         }
 
@@ -107,7 +120,7 @@ public class SetUpgradeOptionAntTask extends AbstractAntTask {
             ArtifactOptionsSet installOption = (ArtifactOptionsSet) installOptions
                     .get(dataModel);
             if (installOption == null) {
-                info("No installation options for artifact "
+                trace("No installation options for artifact "
                         + artifact.getName() + " in project " + _projectName
                         + ", creating new one");
                 installOption = DardefFactory.eINSTANCE
@@ -119,8 +132,8 @@ public class SetUpgradeOptionAntTask extends AbstractAntTask {
             UpgradeOptionValues upgradeOptionValues = UpgradeOptionValues
                     .getByName(option.getValue());
             info("Setting upgrade option to " + upgradeOptionValues.getName()
-                    + " for artifact " + artifact.getName() + " in project "
-                    + _projectName);
+                    + " for artifact " + artifact.getName() + " ("
+                    + artifact.getCategory().getCategoryId() + ")");
             processUpgradeOption.setOptionValue(upgradeOptionValues);
             installOption.setUpgradeOption(processUpgradeOption);
         }
@@ -131,7 +144,7 @@ public class SetUpgradeOptionAntTask extends AbstractAntTask {
         _dmProject = validateIsDocumentumProject(_projectName);
 
         if (_upgradeOptions == null || _upgradeOptions.getArtifacts().isEmpty()) {
-            info("No upgrade options specified");
+            trace("No upgrade options specified");
         }
 
         for (Artifact artifact : _upgradeOptions.getArtifacts()) {
@@ -146,38 +159,6 @@ public class SetUpgradeOptionAntTask extends AbstractAntTask {
             }
             throw new BuildException(MessageFormat.format(
                     "Invalid upgrade option {0}", artifact.getValue()));
-        }
-    }
-
-    private class LocateArtifactByName extends DmArtifactFilter {
-
-        private final Artifact _option;
-
-        LocateArtifactByName(final Artifact option) {
-            _option = option;
-        }
-
-        @Override
-        protected boolean doAccept(final IDmArtifact artifact) {
-            DBC.preCondition(artifact != null, "artifact must not be null");
-            if (!artifact.isModifiable()) {
-                return false;
-            }
-            if (artifact.getName().startsWith("dm_")
-                    || artifact.getName().startsWith("dmc_")) {
-                return false;
-            }
-            if (_option.getName().equals(artifact.getName())) {
-                info("Found artifact " + artifact.getName()
-                        + " via name in project " + _projectName);
-                return true;
-            }
-            if ("*".equals(_option.getName())) {
-                info("Found artifact " + artifact.getName()
-                        + " via wildcard in project " + _projectName);
-                return true;
-            }
-            return false;
         }
     }
 

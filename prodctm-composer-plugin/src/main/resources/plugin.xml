@@ -7,4 +7,10 @@
     <extension id="setUpgradeOption" name="setUpgradeOption" point="org.eclipse.ant.core.antTasks">
         <antTask class="pro.documentum.composer.tasks.SetUpgradeOptionAntTask" library="%ant.library%" name="pro.setUpgradeOption"/>
     </extension>
+    <extension id="copyDar" name="copyDar" point="org.eclipse.ant.core.antTasks">
+        <antTask class="pro.documentum.composer.tasks.CopyDarAntTask" library="%ant.library%" name="pro.copyDar"/>
+    </extension>
+    <extension id="copyLocales" name="copyLocales" point="org.eclipse.ant.core.antTasks">
+        <antTask class="pro.documentum.composer.tasks.CopyLocalesAntTask" library="%ant.library%" name="pro.copyLocales"/>
+    </extension>
 </plugin>

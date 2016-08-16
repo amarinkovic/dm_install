@@ -11,6 +11,8 @@ public class Artifact {
 
     private String _value;
 
+    private boolean _ignoreReadOnly;
+
     public Artifact() {
         super();
     }
@@ -37,6 +39,14 @@ public class Artifact {
 
     public void setValue(final String value) {
         _value = value;
+    }
+
+    public void setIgnoreReadOnly(final String ignoreReadOnly) {
+        _ignoreReadOnly = Boolean.valueOf(ignoreReadOnly);
+    }
+
+    public boolean isIgnoreReadOnly() {
+        return _ignoreReadOnly;
     }
 
 }

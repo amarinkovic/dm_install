@@ -40,22 +40,22 @@ public class ImportProjectAntTask extends AbstractAntTask {
     }
 
     public void setProject(final String name) {
-        info("Parameter 'project' is '" + name + "'");
+        trace("Parameter 'project' is '" + name + "'");
         _projectName = name;
     }
 
     public void setLocation(final String location) {
-        info("Parameter 'location' is '" + location + "'");
+        trace("Parameter 'location' is '" + location + "'");
         _projectLocation = location;
     }
 
     public void setReplace(final String replace) {
-        info("Parameter 'replace' is '" + replace + "'");
+        trace("Parameter 'replace' is '" + replace + "'");
         _replace = Boolean.valueOf(replace);
     }
 
     public void setCopy(final String copy) {
-        info("Parameter 'copy' is '" + copy + "'");
+        trace("Parameter 'copy' is '" + copy + "'");
         _copy = Boolean.valueOf(copy);
     }
 
@@ -71,6 +71,8 @@ public class ImportProjectAntTask extends AbstractAntTask {
 
     public void execute() throws BuildException {
         setTaskName(TASK_NAME);
+        info("Importing project '" + _projectName + "' from '"
+                + _projectLocation + "'");
         try {
             setAutoBuild(false);
             validateArgs();
@@ -82,6 +84,7 @@ public class ImportProjectAntTask extends AbstractAntTask {
         } finally {
             IUrnFinderFactory.INSTANCE.disposeFinderMap();
         }
+        info("Project '" + _projectName + "' was successfully imported");
     }
 
     private void importDocumentumProject() throws BuildException, CoreException {
@@ -127,7 +130,7 @@ public class ImportProjectAntTask extends AbstractAntTask {
                     .removeProjectFromCache(project);
         }
         if (isLocal) {
-            info("Project " + _projectName + " is located inside workspace");
+            trace("Project " + _projectName + " is located inside workspace");
             project.close(progressMonitor);
             project.delete(true, true, progressMonitor);
         } else {
@@ -144,7 +147,7 @@ public class ImportProjectAntTask extends AbstractAntTask {
             File root = workspace.getRoot().getLocation().toFile();
             File projectDir = projectProperties.getParentFile();
             File newProjectDir = new File(root, projectName);
-            copy(projectDir, newProjectDir);
+            copyDirectory(projectDir, newProjectDir);
             properties = new File(newProjectDir, PROJECT_FILE);
         }
         IProject project = importProject(projectName, properties, workspace,

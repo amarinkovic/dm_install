@@ -110,7 +110,7 @@ public class AbstractAntTask extends Task {
 
     protected void createCoreProject(final IProgressMonitor progressMonitor)
         throws CoreException {
-        IDmLogger.Logger.info("Creating core project");
+        info("Creating core project");
         progressMonitor.beginTask("creating core project", 0);
         if (progressMonitor.isCanceled()) {
             throw new OperationCanceledException();
@@ -121,7 +121,7 @@ public class AbstractAntTask extends Task {
     protected IProject importProject(final String projectName,
             final File projectFile, final IWorkspace workspace,
             final IProgressMonitor progressMonitor) throws CoreException {
-        IDmLogger.Logger.info("Importing project " + projectName + " from "
+        trace("Importing project " + projectName + " from "
                 + projectFile.getAbsolutePath());
         IProject project = workspace.getRoot().getProject(projectName);
         IProjectDescription projectDescription = workspace
@@ -155,7 +155,7 @@ public class AbstractAntTask extends Task {
                     + " is not a Documentum project");
             return;
         }
-        IDmLogger.Logger.info("Loading existing project " + project.getName());
+        trace("Loading existing project " + project.getName());
         progressMonitor.beginTask("Loading project: " + project.getName(), 0);
         IDmProjectFactory.INSTANCE.loadProject(project, progressMonitor);
     }
@@ -169,7 +169,7 @@ public class AbstractAntTask extends Task {
         return workspaceRootPath.isPrefixOf(projectPath);
     }
 
-    protected void copy(final File srcDir, final File dstDir) {
+    protected void copyDirectory(final File srcDir, final File dstDir) {
         Copy copy = new Copy();
         Project project = new Project();
         copy.setTodir(dstDir);
@@ -181,8 +181,21 @@ public class AbstractAntTask extends Task {
         copy.execute();
     }
 
+    protected void copyFile(final File srcFile, final File dstDir) {
+        Copy copy = new Copy();
+        Project project = new Project();
+        copy.setTodir(dstDir);
+        copy.setFile(srcFile);
+        copy.setProject(project);
+        copy.execute();
+    }
+
     protected void info(final String message) {
         IDmLogger.Logger.info(message);
+    }
+
+    protected void trace(final String message) {
+        IDmLogger.Logger.trace(message);
     }
 
 }
