@@ -17,6 +17,7 @@
         <module>prodctm-composer-base</module>
         <module>prodctm-composer-tasks</module>
         <module>prodctm-composer-plugin</module>
+        <module>prodctm-composer-gradle</module>
     </modules>
 
 </project>
