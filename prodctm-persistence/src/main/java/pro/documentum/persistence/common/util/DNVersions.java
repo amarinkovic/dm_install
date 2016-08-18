@@ -35,8 +35,9 @@ public final class DNVersions {
         }
     }
 
-    public static void processVersion(final ExecutionContext ec, final Object pc) {
+    public static <T> T processVersion(final ExecutionContext ec, final T pc) {
         processVersion(ec.findObjectProvider(pc));
+        return pc;
     }
 
 }

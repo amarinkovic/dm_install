@@ -224,10 +224,6 @@ public final class DNMetaData {
         return names.get(0);
     }
 
-    public static int[] getPersistentMembers(final AbstractClassMetaData cmd) {
-        return DNArrays.getPersistentFields(cmd, cmd.getAllMemberPositions());
-    }
-
     public static ColumnMetaData[] getColumnMetaData(
             final AbstractMemberMetaData mmd) {
         ColumnMetaData[] cmd = null;

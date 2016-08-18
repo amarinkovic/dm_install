@@ -1,28 +1,24 @@
 package pro.documentum.persistence.common.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
-import org.datanucleus.metadata.AbstractMemberMetaData;
-import org.datanucleus.metadata.ColumnMetaData;
 import org.datanucleus.store.StoreData;
 import org.datanucleus.store.query.Query;
 import org.datanucleus.store.schema.table.Column;
 import org.datanucleus.store.schema.table.Table;
 
 import com.documentum.fc.client.IDfSession;
-import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
 
 import pro.documentum.persistence.common.query.IDocumentumQuery;
 import pro.documentum.persistence.common.query.result.DQLQueryResult;
 import pro.documentum.persistence.common.query.result.IResultObjectFactory;
-import pro.documentum.persistence.common.query.result.PersistentObjectFactory;
+import pro.documentum.persistence.common.query.result.PersistentObjectFactoryImpl;
 import pro.documentum.util.queries.DfIterator;
 import pro.documentum.util.queries.Queries;
 import pro.documentum.util.queries.ReservedWords;
@@ -114,29 +110,9 @@ public final class DNQueries {
         AbstractClassMetaData candidateCmd = query.getCandidateMetaData();
         int[] members = query.getFetchPlan().getFetchPlanForClass(candidateCmd)
                 .getMemberNumbers();
-        members = getPresentMembers(members, candidateCmd, cursor);
-        return new PersistentObjectFactory<>(query.getCandidateMetaData(),
+        members = DNFields.getPresentMembers(members, candidateCmd, cursor);
+        return new PersistentObjectFactoryImpl<>(query.getCandidateMetaData(),
                 members, query.getIgnoreCache());
-    }
-
-    public static int[] getPresentMembers(final int[] members,
-            final AbstractClassMetaData cmd, final IDfTypedObject cursor)
-        throws DfException {
-        int[] result = new int[members.length];
-        int i = 0;
-        outer: for (int position : members) {
-            AbstractMemberMetaData mmd = cmd
-                    .getMetaDataForManagedMemberAtAbsolutePosition(position);
-            for (ColumnMetaData md : mmd.getColumnMetaData()) {
-                String column = md.getName();
-                if (!cursor.hasAttr(column)) {
-                    continue outer;
-                }
-            }
-            result[i] = position;
-            i++;
-        }
-        return Arrays.copyOf(result, i);
     }
 
 }
