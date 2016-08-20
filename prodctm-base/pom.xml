@@ -8,6 +8,7 @@
     <version>0.1</version>
 
     <properties>
+        <project.root>${basedir}/..</project.root>
         <project.target>1.7</project.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -22,16 +23,6 @@
         <commons-io.version>2.4</commons-io.version>
         <dfc.version>7.2</dfc.version>
         <aspectj.version>1.8.2</aspectj.version>
-        <jdo-api.version>3.1</jdo-api.version>
-        <jpa-api-version>2.1.2</jpa-api-version>
-        <datanucleus-core.version>4.1.10</datanucleus-core.version>
-        <datanucleus-api-jdo.version>4.1.1</datanucleus-api-jdo.version>
-        <datanucleus-api-jpa.version>4.1.9</datanucleus-api-jpa.version>
-        <datanucleus-jdo-query.version>4.0.5</datanucleus-jdo-query.version>
-        <lombok.version>1.16.8</lombok.version>
-        <datanucleus-maven-plugin.version>4.0.5</datanucleus-maven-plugin.version>
-        <querydsl.version>4.1.1</querydsl.version>
-        <commons-pool2.version>2.4.2</commons-pool2.version>
     </properties>
 
     <dependencyManagement>
@@ -77,61 +68,6 @@
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
                 <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.jdo</groupId>
-                <artifactId>jdo-api</artifactId>
-                <version>${jdo-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.datanucleus</groupId>
-                <artifactId>javax.persistence</artifactId>
-                <version>${jpa-api-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.datanucleus</groupId>
-                <artifactId>datanucleus-core</artifactId>
-                <version>${datanucleus-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.datanucleus</groupId>
-                <artifactId>datanucleus-api-jdo</artifactId>
-                <version>${datanucleus-api-jdo.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.datanucleus</groupId>
-                <artifactId>datanucleus-jdo-query</artifactId>
-                <version>${datanucleus-jdo-query.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.datanucleus</groupId>
-                <artifactId>datanucleus-api-jpa</artifactId>
-                <version>${datanucleus-api-jpa.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-apt</artifactId>
-                <version>${querydsl.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-jdo</artifactId>
-                <version>${querydsl.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-jpa</artifactId>
-                <version>${querydsl.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-pool2</artifactId>
-                <version>${commons-pool2.version}</version>
             </dependency>
 
             <!-- Testing libraries -->
@@ -331,7 +267,7 @@
                     <artifactId>formatter-maven-plugin</artifactId>
                     <version>0.5.2</version>
                     <configuration>
-                        <configFile>${project.basedir}/../prodctm-base/src/main/resources/format-java.xml</configFile>
+                        <configFile>${project.root}/prodctm-base/src/main/resources/format-java.xml</configFile>
                         <compilerSource>${project.target}</compilerSource>
                         <compilerCompliance>${project.target}</compilerCompliance>
                         <compilerTargetPlatform>${project.target}</compilerTargetPlatform>
@@ -352,7 +288,7 @@
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>2.17</version>
                     <configuration>
-                        <configLocation>${project.basedir}/../prodctm-base/src/main/resources/style-strict.xml</configLocation>
+                        <configLocation>${project.root}/prodctm-base/src/main/resources/style-strict.xml</configLocation>
                         <encoding>UTF-8</encoding>
                         <consoleOutput>true</consoleOutput>
                         <failsOnError>true</failsOnError>
@@ -385,7 +321,7 @@
                         </excludes>
                         <targetJdk>${project.target}</targetJdk>
                         <rulesets>
-                            <ruleset>${project.basedir}/../prodctm-base/src/main/resources/pmd-strict.xml</ruleset>
+                            <ruleset>${project.root}/prodctm-base/src/main/resources/pmd-strict.xml</ruleset>
                         </rulesets>
                     </configuration>
                     <executions>

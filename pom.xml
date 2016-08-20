@@ -13,11 +13,9 @@
         <module>prodctm-aspects</module>
         <module>prodctm-test</module>
         <module>prodctm-persistence</module>
-        <module>prodctm-model</module>
-        <module>prodctm-composer-base</module>
-        <module>prodctm-composer-tasks</module>
-        <module>prodctm-composer-plugin</module>
-        <module>prodctm-composer-gradle</module>
+        <module>prodctm-composer</module>
+        <module>prodctm-integration</module>
+        <module>prodctm-businessobjects</module>
     </modules>
 
 </project>

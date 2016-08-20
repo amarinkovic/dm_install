@@ -3,14 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>pro.documentum</groupId>
-    <artifactId>prodctm-persistence</artifactId>
+    <artifactId>prodctm-integration</artifactId>
     <packaging>pom</packaging>
     <version>0.1</version>
 
     <modules>
-        <module>prodctm-persistence-base</module>
-        <module>prodctm-persistence-impl</module>
-        <module>prodctm-persistence-model</module>
+        <module>prodctm-integration-base</module>
     </modules>
 
 </project>
