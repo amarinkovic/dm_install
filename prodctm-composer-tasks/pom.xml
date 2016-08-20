@@ -42,6 +42,10 @@
         </dependency>
         <dependency>
             <groupId>com.emc</groupId>
+            <artifactId>com.emc.ide.importer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.emc</groupId>
             <artifactId>com.emc.ide.util</artifactId>
         </dependency>
         <dependency>

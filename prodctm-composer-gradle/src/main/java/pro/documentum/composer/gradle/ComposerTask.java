@@ -78,7 +78,7 @@ public class ComposerTask extends JavaExec {
     private FileTree buildComposerCLassPath() {
         File plugins = new File(locateComposerDirectory(), "plugins");
         checkDirectory(plugins);
-        Map<String, Object> elements = new HashMap<>();
+        Map<String, Object> elements = new HashMap<String, Object>();
         elements.put("dir", plugins.getAbsolutePath());
         List<String> include = Collections.singletonList(EQUINOX_PATTERN);
         elements.put("include", include);

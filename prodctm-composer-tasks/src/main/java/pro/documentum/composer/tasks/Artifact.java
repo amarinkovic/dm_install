@@ -9,7 +9,9 @@ public class Artifact {
 
     private String _category;
 
-    private String _value;
+    private String _upgradeOption;
+
+    private String _contentPath;
 
     private boolean _ignoreReadOnly;
 
@@ -33,12 +35,12 @@ public class Artifact {
         _category = category;
     }
 
-    public String getValue() {
-        return _value;
+    public String getUpgradeOption() {
+        return _upgradeOption;
     }
 
-    public void setValue(final String value) {
-        _value = value;
+    public void setUpgradeOption(final String upgradeOption) {
+        _upgradeOption = upgradeOption;
     }
 
     public void setIgnoreReadOnly(final String ignoreReadOnly) {
@@ -47,6 +49,14 @@ public class Artifact {
 
     public boolean isIgnoreReadOnly() {
         return _ignoreReadOnly;
+    }
+
+    public String getContentPath() {
+        return _contentPath;
+    }
+
+    public void setContentPath(final String contentPath) {
+        _contentPath = contentPath;
     }
 
 }

@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
 
     <properties>
+        <project.target>1.6</project.target>
         <!--todo-->
         <composer.dir>/Users/apanfilov/work/app/emc/composer/7.2</composer.dir>
     </properties>
@@ -59,6 +60,13 @@
                 <version>1.0</version>
                 <scope>system</scope>
                 <systemPath>${composer.dir}/plugins/com.emc.ide.project_1.0.0.jar</systemPath>
+            </dependency>
+            <dependency>
+                <groupId>com.emc</groupId>
+                <artifactId>com.emc.ide.importer</artifactId>
+                <version>1.0</version>
+                <scope>system</scope>
+                <systemPath>${composer.dir}/plugins/com.emc.ide.importer_1.0.0.jar</systemPath>
             </dependency>
             <dependency>
                 <groupId>com.emc</groupId>

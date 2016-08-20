@@ -6,11 +6,11 @@ import java.util.List;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class UpgradeOptions {
+public class Artifacts {
 
     private List<Artifact> _artifacts = new ArrayList<Artifact>();
 
-    public UpgradeOptions() {
+    public Artifacts() {
         super();
     }
 

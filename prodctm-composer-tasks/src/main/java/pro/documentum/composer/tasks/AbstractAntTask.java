@@ -83,6 +83,18 @@ public class AbstractAntTask extends Task {
         }
     }
 
+    protected void validateFileExists(final String path) throws BuildException {
+        File location = new File(path);
+        if (!location.exists()) {
+            throw new BuildException("Path " + location.getPath()
+                    + " does not exists");
+        }
+        if (!location.isFile()) {
+            throw new BuildException("Path " + location.getPath()
+                    + "is not a file");
+        }
+    }
+
     protected void validateDirectoryExists(final String path,
             final String... children) throws BuildException {
         validateDirectoryExists(path);
@@ -196,6 +208,14 @@ public class AbstractAntTask extends Task {
 
     protected void trace(final String message) {
         IDmLogger.Logger.trace(message);
+    }
+
+    protected void error(final Throwable throwable) {
+        IDmLogger.Logger.error(throwable);
+    }
+
+    protected void error(final String message, final Throwable throwable) {
+        IDmLogger.Logger.error(message, throwable);
     }
 
 }
