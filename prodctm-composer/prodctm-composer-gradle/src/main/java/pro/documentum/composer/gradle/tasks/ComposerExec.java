@@ -1,4 +1,4 @@
-package pro.documentum.composer.gradle;
+package pro.documentum.composer.gradle.tasks;
 
 import java.io.File;
 import java.util.Collections;
@@ -6,13 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.gradle.api.GradleException;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.JavaExec;
+import org.gradle.api.tasks.TaskAction;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class ComposerTask extends JavaExec {
+public class ComposerExec extends JavaExec {
 
     public static final String COMPOSER_LOCATION = "COMPOSER_LOCATION";
 
@@ -26,12 +28,15 @@ public class ComposerTask extends JavaExec {
 
     private Object _composerDirectory;
 
-    public ComposerTask() {
+    public ComposerExec() {
         super();
     }
 
     @Override
+    @TaskAction
     public void exec() {
+        checkArgument(_buildFile != null, "buildfile is not specified");
+        checkArgument(_workspace != null, "workspace is not specified");
         setMain("org.eclipse.equinox.launcher.Main");
         setClasspath(buildComposerCLassPath());
         args("-application", "org.eclipse.ant.core.antRunner");
@@ -111,14 +116,14 @@ public class ComposerTask extends JavaExec {
 
     private void checkArgument(final boolean expression) {
         if (!expression) {
-            throw new IllegalArgumentException();
+            throw new GradleException();
         }
     }
 
     private void checkArgument(final boolean expression,
             final Object errorMessage) {
         if (!expression) {
-            throw new IllegalArgumentException(String.valueOf(errorMessage));
+            throw new GradleException(String.valueOf(errorMessage));
         }
     }
 
