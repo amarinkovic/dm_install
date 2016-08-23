@@ -192,10 +192,9 @@ public abstract class AbstractArtifactAntTask extends AbstractAntTask {
             String line = reader.readLine();
             while (line != null) {
                 line = line.trim();
-                if (line.isEmpty() || line.startsWith("#")) {
-                    continue;
+                if (!line.isEmpty() && !line.startsWith("#")) {
+                    list.add(line);
                 }
-                list.add(line);
                 line = reader.readLine();
             }
             return list;
