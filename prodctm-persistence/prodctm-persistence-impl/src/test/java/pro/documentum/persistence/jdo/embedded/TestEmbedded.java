@@ -11,10 +11,10 @@ import com.documentum.fc.client.IDfPermit;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.client.impl.security.ExtendedPermitData;
 
-import pro.documentum.model.jdo.DmAcl;
-import pro.documentum.model.jdo.DmSysObject;
-import pro.documentum.model.jdo.embedded.DmLockInfo;
-import pro.documentum.model.jdo.embedded.DmPermit;
+import pro.documentum.model.jdo.acl.DmAcl;
+import pro.documentum.model.jdo.embedded.acl.DmPermit;
+import pro.documentum.model.jdo.embedded.sysobject.DmLockInfo;
+import pro.documentum.model.jdo.sysobject.DmSysObject;
 import pro.documentum.persistence.jdo.JDOTestSupport;
 
 /**
@@ -101,4 +101,14 @@ public class TestEmbedded extends JDOTestSupport {
                 object.getAccessorPermitType(3));
     }
 
+    @Test
+    public void testAspects() throws Exception {
+        IDfSysObject object = (IDfSysObject) getUnderneathSession().newObject(
+                "dm_document");
+        object.save();
+        object.checkout();
+        DmSysObject dmSysObject = getPersistenceManager().getObjectById(
+                DmSysObject.class, object.getObjectId().getId());
+        assertNotNull(dmSysObject.getAspectNames());
+    }
 }

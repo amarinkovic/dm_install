@@ -1,4 +1,4 @@
-package pro.documentum.model.jdo.embedded;
+package pro.documentum.model.jdo.embedded.acl;
 
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;

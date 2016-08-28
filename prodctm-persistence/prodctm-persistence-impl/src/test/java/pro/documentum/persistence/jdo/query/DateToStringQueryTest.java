@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import pro.documentum.model.jdo.DmUser;
+import pro.documentum.model.jdo.user.DmUser;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>

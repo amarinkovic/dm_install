@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import com.documentum.fc.common.DfTime;
 
-import pro.documentum.model.jdo.DmUser;
+import pro.documentum.model.jdo.user.DmUser;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>

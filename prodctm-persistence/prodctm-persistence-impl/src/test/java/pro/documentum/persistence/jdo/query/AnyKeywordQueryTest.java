@@ -5,8 +5,8 @@ import static org.hamcrest.Matchers.endsWith;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import pro.documentum.model.jdo.DmFolder;
-import pro.documentum.model.jdo.DmUser;
+import pro.documentum.model.jdo.sysobject.DmFolder;
+import pro.documentum.model.jdo.user.DmUser;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>

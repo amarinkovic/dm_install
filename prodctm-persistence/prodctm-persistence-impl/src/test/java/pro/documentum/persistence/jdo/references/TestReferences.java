@@ -6,7 +6,7 @@ import javax.jdo.Query;
 
 import org.junit.Test;
 
-import pro.documentum.model.jdo.DmFolder;
+import pro.documentum.model.jdo.sysobject.DmFolder;
 import pro.documentum.persistence.jdo.JDOTestSupport;
 
 /**

@@ -3,13 +3,13 @@
         http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd" version="2.0">
 
     <persistence-unit name="JDOTesting">
-        <class>pro.documentum.model.jdo.DmUser</class>
-        <class>pro.documentum.model.jdo.DmGroup</class>
-        <class>pro.documentum.model.jdo.DmSysObject</class>
-        <class>pro.documentum.model.jdo.DmDocument</class>
-        <class>pro.documentum.model.jdo.DmFolder</class>
-        <class>pro.documentum.model.jdo.DmCabinet</class>
-        <class>pro.documentum.model.jdo.DmAcl</class>
+        <class>pro.documentum.model.jdo.user.DmUser</class>
+        <class>pro.documentum.model.jdo.user.DmGroup</class>
+        <class>pro.documentum.model.jdo.sysobject.DmSysObject</class>
+        <class>pro.documentum.model.jdo.sysobject.DmDocument</class>
+        <class>pro.documentum.model.jdo.sysobject.DmFolder</class>
+        <class>pro.documentum.model.jdo.sysobject.DmCabinet</class>
+        <class>pro.documentum.model.jdo.acl.DmAcl</class>
         <exclude-unlisted-classes />
         <properties>
             <property name="javax.jdo.option.Optimistic" value="true" />

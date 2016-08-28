@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import pro.documentum.model.jdo.DmUser;
+import pro.documentum.model.jdo.user.DmUser;
 import pro.documentum.persistence.common.query.DQLQuery;
 
 /**

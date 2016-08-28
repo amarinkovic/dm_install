@@ -1,4 +1,4 @@
-package pro.documentum.model.jdo;
+package pro.documentum.model.jdo.acl;
 
 import java.util.List;
 
@@ -12,7 +12,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import pro.documentum.model.jdo.embedded.DmPermit;
+import pro.documentum.model.jdo.AbstractPersistent;
+import pro.documentum.model.jdo.embedded.acl.DmPermit;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -58,7 +59,7 @@ public class DmAcl extends AbstractPersistent {
         @Persistent(name = "applicationPermit", columns = @Column(name = "r_application_permit")),
         @Persistent(name = "group", columns = @Column(name = "r_is_group")),
         @Persistent(name = "permitType", columns = @Column(name = "r_permit_type")), }) })
-    @Persistent(defaultFetchGroup = "true", serialized = "true")
+    @Persistent(defaultFetchGroup = "true", serialized = "true", embedded = "true")
     @Getter
     @Setter
     private List<DmPermit> permits;

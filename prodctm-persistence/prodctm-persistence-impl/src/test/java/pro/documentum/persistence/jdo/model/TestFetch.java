@@ -6,7 +6,7 @@ import org.junit.Test;
 import com.documentum.fc.client.IDfFolder;
 import com.documentum.fc.client.IDfSession;
 
-import pro.documentum.model.jdo.DmFolder;
+import pro.documentum.model.jdo.sysobject.DmFolder;
 import pro.documentum.persistence.jdo.JDOTestSupport;
 
 /**

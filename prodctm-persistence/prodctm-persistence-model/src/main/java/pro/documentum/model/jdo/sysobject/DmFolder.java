@@ -1,4 +1,4 @@
-package pro.documentum.model.jdo;
+package pro.documentum.model.jdo.sysobject;
 
 import java.util.List;
 

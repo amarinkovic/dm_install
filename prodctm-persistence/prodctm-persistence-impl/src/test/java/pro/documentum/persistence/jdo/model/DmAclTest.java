@@ -7,7 +7,7 @@ import javax.jdo.Query;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 
-import pro.documentum.model.jdo.DmAcl;
+import pro.documentum.model.jdo.acl.DmAcl;
 import pro.documentum.persistence.jdo.JDOTestSupport;
 
 /**

@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import com.documentum.fc.client.IDfSysObject;
 
-import pro.documentum.model.jdo.DmSysObject;
+import pro.documentum.model.jdo.sysobject.DmSysObject;
 import pro.documentum.persistence.jdo.JDOTestSupport;
 
 /**

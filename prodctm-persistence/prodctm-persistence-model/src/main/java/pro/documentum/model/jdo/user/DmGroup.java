@@ -1,4 +1,4 @@
-package pro.documentum.model.jdo;
+package pro.documentum.model.jdo.user;
 
 import java.util.Date;
 import java.util.List;
@@ -10,6 +10,8 @@ import javax.jdo.annotations.Serialized;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+
+import pro.documentum.model.jdo.AbstractPersistent;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>

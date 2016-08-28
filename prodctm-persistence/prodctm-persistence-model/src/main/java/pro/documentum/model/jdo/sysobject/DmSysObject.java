@@ -1,8 +1,4 @@
-package pro.documentum.model.jdo;
-
-/**
- * @author Andrey B. Panfilov <andrey@panfilov.tel>
- */
+package pro.documentum.model.jdo.sysobject;
 
 import java.util.Date;
 import java.util.List;
@@ -10,11 +6,12 @@ import java.util.List;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Columns;
 import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+
+import pro.documentum.model.jdo.acl.DmAcl;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -45,13 +42,7 @@ public class DmSysObject extends AbstractSysObject {
     @Column(name = "i_folder_id")
     @Setter
     @Getter
-    private List<String> folders;
-
-    @Column(name = "r_version_label")
-    @Persistent(defaultFetchGroup = "true", serialized = "true")
-    @Getter
-    @Setter
-    private List<String> versionLabels;
+    private List<DmFolder> folders;
 
     @Column(name = "r_creation_date")
     @Getter

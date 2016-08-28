@@ -1,12 +1,9 @@
-package pro.documentum.model.jdo.embedded;
-
-import java.util.Date;
+package pro.documentum.model.jdo.embedded.workflow;
 
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
@@ -14,21 +11,18 @@ import lombok.experimental.Accessors;
  */
 @PersistenceCapable(embeddedOnly = "true", detachable = "true")
 @Accessors(chain = true)
-public class DmLockInfo {
+public class ParentWorkflow {
 
     @Persistent
     @Getter
-    @Setter
-    private String lockOwner;
+    private String workflowId;
 
     @Persistent
     @Getter
-    @Setter
-    private String lockMachine;
+    private String activityName;
 
     @Persistent
     @Getter
-    @Setter
-    private Date lockDate;
+    private String activitySeqNo;
 
 }

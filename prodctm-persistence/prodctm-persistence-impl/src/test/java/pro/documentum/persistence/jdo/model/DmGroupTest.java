@@ -10,7 +10,7 @@ import javax.jdo.Query;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 
-import pro.documentum.model.jdo.DmGroup;
+import pro.documentum.model.jdo.user.DmGroup;
 import pro.documentum.persistence.jdo.JDOTestSupport;
 
 /**
