@@ -17,6 +17,7 @@
         <module>prodctm-integration</module>
         <module>prodctm-businessobjects</module>
         <module>prodctm-adapters</module>
+        <module>prodctm-demo</module>
     </modules>
 
 </project>

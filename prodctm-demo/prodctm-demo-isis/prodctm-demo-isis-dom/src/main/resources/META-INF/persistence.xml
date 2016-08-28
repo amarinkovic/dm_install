@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd" version="1.0">
+
+    <persistence-unit name="JDOTesting">
+        <class>pro.documentum.model.jdo.user.DmUser</class>
+        <class>pro.documentum.model.jdo.user.DmGroup</class>
+        <class>pro.documentum.model.jdo.sysobject.DmSysObject</class>
+        <class>pro.documentum.model.jdo.sysobject.DmDocument</class>
+        <class>pro.documentum.model.jdo.sysobject.DmFolder</class>
+        <class>pro.documentum.model.jdo.sysobject.DmCabinet</class>
+        <class>pro.documentum.model.jdo.acl.DmAcl</class>
+        <class>pro.documentum.demo.isis.dom.simple.SimpleObject</class>
+        <exclude-unlisted-classes />
+        <properties>
+            <property name="javax.jdo.option.Optimistic" value="true" />
+            <property name="datanucleus.nontx.atomic" value="false" />
+            <property name="javax.jdo.option.ConnectionURL" value="dctm:DCTM_DEV" />
+            <property name="datanucleus.connectionPool.maxPoolSize" value="10" />
+            <property name="dfc.docbroker.host" value="docu72dev01" />
+            <property name="dfc.globalregistry.repository" value="DCTM_DEV" />
+            <property name="dfc.globalregistry.username" value="dm_bof_registry" />
+            <property name="dfc.globalregistry.password" value="dm_bof_registry" />
+            <property name="dfc.data.dir" value="${java.io.tmpdir}" />
+            <property name="dfc.config.dir" value="${dfc.data.dir}/config" />
+        </properties>
+    </persistence-unit>
+
+</persistence>
