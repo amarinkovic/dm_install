@@ -11,6 +11,8 @@ import com.documentum.fc.common.DfId;
  */
 public class DfIdIdentity implements DatastoreId, Comparable<DfIdIdentity> {
 
+    public static final String STRING_DELIMITER = "[OID]";
+
     private final String _dfId;
 
     private final String _className;
@@ -24,12 +26,20 @@ public class DfIdIdentity implements DatastoreId, Comparable<DfIdIdentity> {
     }
 
     public DfIdIdentity(final String className, final Object id) {
-        if (id == null) {
-            _dfId = DfId.DF_NULLID_STR;
+        if (id != null) {
+            String strId = (String) id;
+            int idx = strId.indexOf(STRING_DELIMITER);
+            if (idx > 0) {
+                _dfId = strId.substring(0, idx);
+                _className = strId.substring(idx + STRING_DELIMITER.length());
+            } else {
+                _dfId = (String) id;
+                _className = className;
+            }
         } else {
-            _dfId = (String) id;
+            _dfId = DfId.DF_NULLID_STR;
+            _className = className;
         }
-        _className = className;
     }
 
     @Override
