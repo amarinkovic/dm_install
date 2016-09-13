@@ -12,7 +12,7 @@ import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
 
-import pro.documentum.persistence.common.ICredentialsHolder;
+import pro.documentum.util.auth.ICredentials;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -46,8 +46,8 @@ public final class Nucleus {
         }
         Object owner = ec.getOwner();
         IDfLoginInfo loginInfo = null;
-        if (owner instanceof ICredentialsHolder) {
-            loginInfo = getLoginInfo((ICredentialsHolder) owner);
+        if (owner instanceof ICredentials) {
+            loginInfo = getLoginInfo((ICredentials) owner);
         }
         if (loginInfo == null) {
             loginInfo = getLoginInfo(ec);
@@ -59,7 +59,7 @@ public final class Nucleus {
     }
 
     private static IDfLoginInfo getLoginInfo(
-            final ICredentialsHolder credentialsHolder) {
+            final ICredentials credentialsHolder) {
         String userName = credentialsHolder.getUserName();
         String password = credentialsHolder.getPassword();
         if (userName != null) {

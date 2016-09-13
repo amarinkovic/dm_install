@@ -29,6 +29,7 @@ import com.documentum.fc.client.IDfSession;
 
 import pro.documentum.persistence.common.util.DNMetaData;
 import pro.documentum.persistence.common.util.Nucleus;
+import pro.documentum.util.auth.ICredentials;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -68,8 +69,8 @@ public class StoreManagerImpl extends AbstractStoreManager {
         ConnectionFactory connectionFactory = connectionMgr
                 .lookupConnectionFactory(primaryConnectionFactoryName);
         ExecutionContext connectionContext = executionContext;
-        Map<String, Object> options = new HashMap<>();
-        options.put(ICredentialsHolder.OPTION_LOGININFO,
+        Map<Object, Object> options = new HashMap<>();
+        options.put(ICredentials.class,
                 Nucleus.extractLoginInfo(executionContext));
         Transaction transaction = null;
         final boolean enlisted = executionContext.getTransaction().isActive();

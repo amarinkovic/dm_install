@@ -10,24 +10,34 @@ import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.store.StoreData;
 import org.datanucleus.util.Localiser;
 
-import pro.documentum.persistence.common.ICredentialsHolder;
 import pro.documentum.persistence.common.util.DNMetaData;
+import pro.documentum.util.auth.ICredentials;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
 public class PersistenceManagerImpl extends JDOPersistenceManager implements
-        ICredentialsHolder {
+        ICredentials {
 
-    private final String _userName;
+    private String _userName;
 
-    private final String _password;
+    private String _password;
 
     public PersistenceManagerImpl(final JDOPersistenceManagerFactory pmf,
             final String userName, final String password) {
         super(pmf, userName, password);
         _userName = userName;
         _password = password;
+    }
+
+    @Override
+    public String getDocbase() {
+        return null;
+    }
+
+    @Override
+    public void setDocbase(final String docbase) {
+        // nop
     }
 
     @Override
@@ -38,6 +48,23 @@ public class PersistenceManagerImpl extends JDOPersistenceManager implements
     @Override
     public String getPassword() {
         return _password;
+    }
+
+    @Override
+    public void setUserName(final String userName) {
+        _userName = userName;
+    }
+
+    @Override
+    public void setPassword(final String password) {
+        _password = password;
+    }
+
+    @Override
+    public void sync(final ICredentials other) {
+        setUserName(other.getUserName());
+        setPassword(other.getPassword());
+        setDocbase(other.getDocbase());
     }
 
     @Override

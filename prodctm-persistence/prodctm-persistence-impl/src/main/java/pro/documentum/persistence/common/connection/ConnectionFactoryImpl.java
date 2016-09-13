@@ -22,11 +22,11 @@ import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
 
-import pro.documentum.persistence.common.ICredentialsHolder;
 import pro.documentum.persistence.common.StoreManagerImpl;
 import pro.documentum.persistence.common.util.DNExceptions;
 import pro.documentum.persistence.common.util.DfExceptions;
 import pro.documentum.persistence.common.util.Nucleus;
+import pro.documentum.util.auth.ICredentials;
 import pro.documentum.util.logger.Logger;
 import pro.documentum.util.sessions.Sessions;
 
@@ -74,8 +74,7 @@ public class ConnectionFactoryImpl extends AbstractConnectionFactory {
             final ExecutionContext executionContext, final Map map) {
         IDfLoginInfo loginInfo = Nucleus.extractLoginInfo(executionContext);
         if (loginInfo == null) {
-            loginInfo = (IDfLoginInfo) map
-                    .get(ICredentialsHolder.OPTION_LOGININFO);
+            loginInfo = (IDfLoginInfo) map.get(ICredentials.class);
         }
         return new ManagedConnectionImpl(loginInfo);
     }

@@ -3,7 +3,6 @@ package pro.documentum.persistence.common.fieldmanager;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -23,7 +22,7 @@ import com.documentum.fc.client.IDfTypedObject;
 
 import pro.documentum.persistence.common.util.DNMetaData;
 import pro.documentum.persistence.common.util.DNValues;
-import pro.documentum.util.java.Classes;
+import pro.documentum.util.java.Collections;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -162,7 +161,7 @@ public abstract class AbstractFetchFieldManager extends
             return result.get(0);
         }
         if (mmd.hasCollection()) {
-            Collection collection = Classes.newCollection(mmd.getType());
+            Collection collection = Collections.newCollection(mmd.getType());
             collection.addAll(result);
             return collection;
         }
@@ -180,7 +179,8 @@ public abstract class AbstractFetchFieldManager extends
 
     protected Object fetchSingleEmbedded(final AbstractClassMetaData embcmd,
             final AbstractMemberMetaData mmd, final int index) {
-        List<AbstractMemberMetaData> parentmd = Collections.singletonList(mmd);
+        List<AbstractMemberMetaData> parentmd = new ArrayList<>();
+        parentmd.add(mmd);
         ObjectProviderFactory objectProviderFactory = getFieldHelper()
                 .getObjectProviderFactory();
         ObjectProvider<?> objectProvider = objectProviderFactory

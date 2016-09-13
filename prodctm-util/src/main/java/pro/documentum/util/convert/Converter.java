@@ -27,7 +27,6 @@ import pro.documentum.util.convert.java.DoubleJavaConverter;
 import pro.documentum.util.convert.java.IJavaConverter;
 import pro.documentum.util.convert.java.IntegerJavaConverter;
 import pro.documentum.util.convert.java.StringJavaConverter;
-import pro.documentum.util.java.Classes;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -132,7 +131,7 @@ public final class Converter {
     private <T> Collection<T> collection2DataStore(final Collection<?> values,
             final int type) throws ParseException {
         IConverter<Object, T> converter = getConverter(type);
-        Collection<T> result = Classes
+        Collection<T> result = pro.documentum.util.java.Collections
                 .newCollection((Class<? extends Collection<?>>) values
                         .getClass());
         for (Object value : values) {
