@@ -32,6 +32,8 @@ import pro.documentum.util.objects.changes.attributes.sysobject.PolicyHandler;
 import pro.documentum.util.objects.changes.attributes.sysobject.SysObjectReadOnlyHandler;
 import pro.documentum.util.objects.changes.attributes.sysobject.TitleHandler;
 import pro.documentum.util.objects.changes.attributes.sysobject.VersionHandler;
+import pro.documentum.util.objects.changes.attributes.user.UserDefaultFolderHandler;
+import pro.documentum.util.objects.changes.attributes.user.UserNameHandler;
 import pro.documentum.util.objects.changes.attributes.user.UserPermitHandler;
 import pro.documentum.util.objects.changes.attributes.user.UserReadOnlyHandler;
 import pro.documentum.util.objects.changes.attributes.workitem.OutputPortHandler;
@@ -62,6 +64,8 @@ public final class ChangesProcessor {
         addAttributeHandler(PolicyHandler.class);
         // users
         addAttributeHandler(UserPermitHandler.class);
+        addAttributeHandler(UserNameHandler.class);
+        addAttributeHandler(UserDefaultFolderHandler.class);
         // groups
         addAttributeHandler(GroupNameHandler.class);
         addAttributeHandler(GroupOwnerHandler.class);

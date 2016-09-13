@@ -10,6 +10,7 @@ import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfId;
 
+import pro.documentum.util.logger.Logger;
 import pro.documentum.util.objects.DfObjects;
 
 /**
@@ -42,6 +43,8 @@ public class FolderHandler extends AbstractSysObjectAttributeHandler {
         List<IDfId> newFolders = (List<IDfId>) values.remove("i_folder_id");
         DfObjects.unlinkFromAllFolders(sysObject);
         for (IDfId folderId : newFolders) {
+            Logger.debug("Linking object {1} to folder {2}",
+                    sysObject.getObjectId(), folderId);
             sysObject.link(folderId.getId());
         }
         return false;

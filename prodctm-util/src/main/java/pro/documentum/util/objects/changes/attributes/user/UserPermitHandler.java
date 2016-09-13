@@ -8,6 +8,8 @@ import java.util.Set;
 import com.documentum.fc.client.IDfUser;
 import com.documentum.fc.common.DfException;
 
+import pro.documentum.util.logger.Logger;
+
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
@@ -40,6 +42,8 @@ public final class UserPermitHandler extends AbstractUserAttributeHandler {
             if (permit == null || permit < 1) {
                 continue;
             }
+            Logger.debug("Setting {0} value of object {1} to {2}", attrName,
+                    user.getObjectId(), permit);
             user.setInt(attrName, permit);
         }
         return false;

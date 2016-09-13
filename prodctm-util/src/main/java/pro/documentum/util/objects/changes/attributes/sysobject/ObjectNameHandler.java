@@ -26,7 +26,7 @@ public class ObjectNameHandler extends AbstractSysObjectAttributeHandler {
     public boolean doApply(final IDfSysObject sysObject,
             final Map<String, ?> values) throws DfException {
         String value = (String) values.remove("object_name");
-        Logger.debug("Setting object_name of {0} to {1}",
+        Logger.debug("Setting {0} value of object {1} to {2}", "object_name",
                 sysObject.getObjectId(), value);
         sysObject.setObjectName(value);
         return false;
