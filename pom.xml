@@ -16,6 +16,7 @@
         <module>prodctm-composer</module>
         <module>prodctm-integration</module>
         <module>prodctm-businessobjects</module>
+        <module>prodctm-adapters</module>
     </modules>
 
 </project>
