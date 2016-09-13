@@ -1,21 +1,28 @@
 package pro.documentum.persistence.common.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang.StringUtils;
+import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.ArrayMetaData;
+import org.datanucleus.metadata.ClassMetaData;
 import org.datanucleus.metadata.CollectionMetaData;
 import org.datanucleus.metadata.ColumnMetaData;
 import org.datanucleus.metadata.ElementMetaData;
 import org.datanucleus.metadata.EmbeddedMetaData;
 import org.datanucleus.metadata.FieldPersistenceModifier;
+import org.datanucleus.metadata.InterfaceMetaData;
+import org.datanucleus.metadata.MetaDataManager;
+import org.datanucleus.metadata.MetaDataUtils;
+import org.datanucleus.metadata.RelationType;
 import org.datanucleus.store.StoreData;
 import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.schema.table.Column;
@@ -28,6 +35,7 @@ import com.documentum.fc.common.DfException;
 
 import pro.documentum.persistence.common.StoreManagerImpl;
 import pro.documentum.util.java.Classes;
+import pro.documentum.util.logger.Logger;
 import pro.documentum.util.types.DfTypes;
 
 /**
@@ -46,6 +54,9 @@ public final class DNMetaData {
         if (sd == null) {
             storeMgr.manageClasses(ec, className);
             sd = storeMgr.getStoreDataForClass(className);
+        }
+        if (sd == null) {
+            Logger.error("NO TABLE: " + className);
         }
         return sd;
     }
@@ -86,9 +97,23 @@ public final class DNMetaData {
 
     public static Map<String, String> getKnownTables(final ExecutionContext ec) {
         Map<String, String> tables = new HashMap<>();
-        for (String className : ec.getMetaDataManager()
-                .getClassesWithMetaData()) {
-            StoreData storeData = getStoreData(ec, className);
+        MetaDataManager mdm = ec.getMetaDataManager();
+        Collection<String> names = mdm.getClassesWithMetaData();
+        for (String className : names) {
+            AbstractClassMetaData cmd = mdm.getMetaDataForClass(className,
+                    ec.getClassLoaderResolver());
+            if (StringUtils.isBlank(cmd.getTable())) {
+                continue;
+            }
+            if (cmd instanceof InterfaceMetaData) {
+                continue;
+            }
+            if (cmd instanceof ClassMetaData) {
+                if (((ClassMetaData) cmd).isAbstract()) {
+                    continue;
+                }
+            }
+            StoreData storeData = getStoreData(ec, cmd);
             if (storeData == null) {
                 continue;
             }
@@ -148,10 +173,6 @@ public final class DNMetaData {
         Column column = table.getMemberColumnMappingForEmbeddedMember(mmd)
                 .getColumn(0);
         return getSelectColumns(column, false).get(0);
-    }
-
-    public static List<String> getSelectColumns(final Column column) {
-        return getSelectColumns(column, true);
     }
 
     public static List<String> getSelectColumns(final Column column,
@@ -262,6 +283,56 @@ public final class DNMetaData {
                 .requireNonNull(getColumnMetaData(mmd));
         for (ColumnMetaData cmd : columnMetaData) {
             result.add(cmd.getName());
+        }
+        return result;
+    }
+
+    public static boolean isEmbedded(final ExecutionContext context,
+            final AbstractMemberMetaData mmd) {
+        ClassLoaderResolver clr = context.getClassLoaderResolver();
+        RelationType relationType = mmd.getRelationType(clr);
+        return MetaDataUtils.getInstance().isMemberEmbedded(
+                context.getMetaDataManager(), clr, mmd, relationType, null);
+    }
+
+    public static List<String> getSelectColumns(final ExecutionContext context,
+            final Column column, final boolean defaultFetchGroup) {
+        List<String> result = new ArrayList<>();
+        MemberColumnMapping mcm = column.getMemberColumnMapping();
+        if (mcm == null) {
+            result.add(column.getName());
+            return result;
+        }
+        AbstractMemberMetaData mmd = mcm.getMemberMetaData();
+        if (defaultFetchGroup) {
+            if (!mmd.isEmbedded() && !mmd.isSerialized()) {
+                return result;
+            }
+        }
+        // todo
+        if (result.addAll(getSelectColumns(context, mmd))) {
+            return result;
+        }
+        for (Column c : mcm.getColumns()) {
+            result.add(c.getName());
+        }
+        return result;
+    }
+
+    public static List<String> getSelectColumns(final ExecutionContext context,
+            final AbstractMemberMetaData mmd) {
+        AbstractMemberMetaData[] mmds;
+        if (isEmbedded(context, mmd)) {
+            mmds = getEmbeddedMemberMetaData(mmd);
+        } else {
+            mmds = new AbstractMemberMetaData[] {mmd, };
+        }
+        List<String> result = new ArrayList<>();
+        for (AbstractMemberMetaData ammd : mmds) {
+            ColumnMetaData[] cmds = getColumnMetaData(ammd);
+            for (ColumnMetaData cmd : cmds) {
+                result.add(cmd.getName());
+            }
         }
         return result;
     }

@@ -12,7 +12,6 @@ import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.ColumnMetaData;
 import org.datanucleus.metadata.MetaDataManager;
-import org.datanucleus.metadata.MetaDataUtils;
 import org.datanucleus.metadata.RelationType;
 import org.datanucleus.state.ObjectProviderFactory;
 
@@ -131,9 +130,7 @@ public final class FieldHelper {
     }
 
     protected boolean isEmbedded(final AbstractMemberMetaData mmd) {
-        return MetaDataUtils.getInstance().isMemberEmbedded(
-                getMetaDataManager(), getClassLoaderResolver(), mmd,
-                getRelationType(mmd), null);
+        return DNMetaData.isEmbedded(_ec, mmd);
     }
 
     protected MetaDataManager getMetaDataManager() {

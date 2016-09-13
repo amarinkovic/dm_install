@@ -1,7 +1,6 @@
 package pro.documentum.persistence.common.util;
 
 import com.documentum.fc.client.IDfTypedObject;
-import com.documentum.fc.common.DfDocbaseConstants;
 import com.documentum.fc.common.DfException;
 
 import pro.documentum.util.convert.Converter;
@@ -36,7 +35,14 @@ public final class DNValues {
     }
 
     public static String getObjectId(final IDfTypedObject object) {
-        return getString(object, DfDocbaseConstants.R_OBJECT_ID);
+        try {
+            // the general concept is to call
+            // getString(object, "r_object_id")
+            // but it is too slow.
+            return object.getObjectId().getId();
+        } catch (DfException ex) {
+            throw DfExceptions.dataStoreException(ex);
+        }
     }
 
     public static String getString(final IDfTypedObject object,

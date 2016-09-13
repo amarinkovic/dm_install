@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.store.StoreData;
 import org.datanucleus.store.query.Query;
@@ -37,7 +38,8 @@ public final class DNQueries {
             final String orderText, final Long rangeFromIncl,
             final Long rangeToExcl) {
 
-        StoreData sd = DNMetaData.getStoreData(query.getExecutionContext(),
+        ExecutionContext context = query.getExecutionContext();
+        StoreData sd = DNMetaData.getStoreData(context,
                 query.getCandidateMetaData());
         Table table = sd.getTable();
 
@@ -46,7 +48,8 @@ public final class DNQueries {
             Set<String> selectColumns = new LinkedHashSet<>();
             List<Column> columns = table.getColumns();
             for (Column column : columns) {
-                selectColumns.addAll(DNMetaData.getSelectColumns(column));
+                selectColumns.addAll(DNMetaData.getSelectColumns(context,
+                        column, true));
             }
             projection = ReservedWords.makeProjection(selectColumns);
         }
