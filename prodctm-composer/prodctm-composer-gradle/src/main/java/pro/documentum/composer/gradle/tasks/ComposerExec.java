@@ -65,7 +65,7 @@ public class ComposerExec extends JavaExec {
     }
 
     public void define(final String key, final String value) {
-        systemProperty(key, value);
+        systemProperty(key, quote(value));
     }
 
     private File getFile(final Object value) {
@@ -77,7 +77,7 @@ public class ComposerExec extends JavaExec {
     }
 
     public void defineToFile(final String key, final Object value) {
-        systemProperty(key, getAbsolutePath(value));
+        systemProperty(key, quote(getAbsolutePath(value)));
     }
 
     private FileTree buildComposerCLassPath() {
