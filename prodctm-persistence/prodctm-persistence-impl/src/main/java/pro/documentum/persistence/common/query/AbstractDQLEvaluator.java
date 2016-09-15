@@ -178,10 +178,9 @@ public abstract class AbstractDQLEvaluator<R, T extends Query<?> & IDocumentumQu
         Object paramValue = null;
         if (_params == null || _params.isEmpty()) {
             setPrecompilable(false);
-            throw new NucleusException(
-                    "Parameter "
-                            + expr
-                            + " is not currently set, so cannot complete the _queryCompilation");
+            throw new NucleusException("Parameter " + expr
+                    + " is not currently set, so cannot "
+                    + "complete the _queryCompilation");
         }
 
         boolean paramValueSet = false;
@@ -205,10 +204,9 @@ public abstract class AbstractDQLEvaluator<R, T extends Query<?> & IDocumentumQu
 
         if (!paramValueSet) {
             setPrecompilable(false);
-            throw new NucleusException(
-                    "Parameter "
-                            + expr
-                            + " is not currently set, so cannot complete the _queryCompilation");
+            throw new NucleusException("Parameter " + expr
+                    + " is not currently set, so cannot"
+                    + " complete the _queryCompilation");
         }
         return paramValue;
     }
@@ -294,12 +292,11 @@ public abstract class AbstractDQLEvaluator<R, T extends Query<?> & IDocumentumQu
                     setFilterComplete(false);
                 }
 
-                NucleusLogger.QUERY
-                        .debug("Query has reference to "
-                                + StringUtils.collectionToString(tuples)
-                                + " and "
-                                + mmd.getFullFieldName()
-                                + " is not persisted into this object, so unexecutable in the datastore");
+                NucleusLogger.QUERY.debug("Query has reference to "
+                        + StringUtils.collectionToString(tuples) + " and "
+                        + mmd.getFullFieldName()
+                        + " is not persisted into this object,"
+                        + " so unexecutable in the datastore");
                 return null;
             }
         }
