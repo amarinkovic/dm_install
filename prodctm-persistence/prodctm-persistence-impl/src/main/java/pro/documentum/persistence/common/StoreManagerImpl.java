@@ -27,6 +27,7 @@ import org.datanucleus.store.schema.table.CompleteClassTable;
 
 import com.documentum.fc.client.IDfSession;
 
+import pro.documentum.persistence.common.schema.SchemaHandlerImpl;
 import pro.documentum.persistence.common.util.DNMetaData;
 import pro.documentum.persistence.common.util.Nucleus;
 import pro.documentum.util.auth.ICredentials;
@@ -50,6 +51,7 @@ public class StoreManagerImpl extends AbstractStoreManager {
         super(PREFIX, clr, nucleusContext, props);
         setConfiguration(nucleusContext);
         persistenceHandler = new PersistenceHandlerImpl(this);
+        schemaHandler = new SchemaHandlerImpl(this);
     }
 
     public static String getDocbaseName(final String url) {
