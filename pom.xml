@@ -10,6 +10,7 @@
     <modules>
         <module>prodctm-base</module>
         <module>prodctm-util</module>
+        <module>prodctm-configservice</module>
         <module>prodctm-aspects</module>
         <module>prodctm-test</module>
         <module>prodctm-persistence</module>

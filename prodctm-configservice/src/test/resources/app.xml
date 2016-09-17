@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<config version="1.0">
+    <scope>
+        <application>
+            <qualifiers>
+                <qualifier>com.documentum.services.config.qualifiers.DocbaseTypeQualifier</qualifier>
+            </qualifiers>
+            <rolemodel>
+                <class>com.documentum.services.config.role.DocbaseRoleModel</class>
+                <groupclasses>
+                    <group_class>group</group_class>
+                </groupclasses>
+            </rolemodel>
+        </application>
+    </scope>
+</config>

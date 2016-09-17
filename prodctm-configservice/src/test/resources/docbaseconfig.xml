@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<config version='1.0'>
+
+    <scope>
+        <test_value>false</test_value>
+    </scope>
+
+    <scope type="dm_sysobject">
+        <test_value>true</test_value>
+    </scope>
+
+    <scope type="dm_folder">
+        <test_value>false</test_value>
+    </scope>
+
+</config>

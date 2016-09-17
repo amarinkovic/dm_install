@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -21,10 +22,11 @@ public final class Collections {
 
     static {
         COLLECTION_CLASSES = new ConcurrentHashMap<>();
-        putCollection(ArrayList.class);
+        COLLECTION_CLASSES.put(List.class, putCollection(ArrayList.class));
+        COLLECTION_CLASSES.put(Set.class, putCollection(HashSet.class));
         putCollection(LinkedList.class);
-        putCollection(HashSet.class);
         putCollection(LinkedHashSet.class);
+        putCollection(TreeSet.class);
     }
 
     private Collections() {
@@ -35,10 +37,10 @@ public final class Collections {
         Constructor ctor = getDefaultCtor(cls);
         if (ctor == null) {
             if (List.class.isAssignableFrom(cls)) {
-                ctor = COLLECTION_CLASSES.get(ArrayList.class);
+                ctor = COLLECTION_CLASSES.get(List.class);
             }
             if (Set.class.isAssignableFrom(cls)) {
-                ctor = COLLECTION_CLASSES.get(HashSet.class);
+                ctor = COLLECTION_CLASSES.get(Set.class);
             }
         }
         if (ctor == null) {

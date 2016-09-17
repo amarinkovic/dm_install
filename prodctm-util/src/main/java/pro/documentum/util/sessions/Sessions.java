@@ -5,10 +5,13 @@ import com.documentum.com.IDfClientX;
 import com.documentum.fc.client.IDfClient;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSessionManager;
+import com.documentum.fc.client.globalregistry.impl.IGlobalRegistryInternalFactory;
+import com.documentum.fc.client.globalregistry.internal.IGlobalRegistryInternal;
 import com.documentum.fc.client.impl.session.ISession;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
+import com.documentum.fc.impl.RuntimeContext;
 
 import pro.documentum.util.IDfSessionInvoker;
 import pro.documentum.util.logger.Logger;
@@ -34,7 +37,16 @@ public final class Sessions {
         super();
     }
 
-    public static boolean beginTransactionIfNotActive(final IDfSession session)
+    public static IDfLoginInfo createLoginInfo(String userName,
+            String password, String domain) {
+        IDfLoginInfo loginInfo = CLIENT_X.getLoginInfo();
+        loginInfo.setUser(userName);
+        loginInfo.setPassword(password);
+        loginInfo.setDomain(domain);
+        return loginInfo;
+    }
+
+    public static boolean beginTxIfNotActive(final IDfSession session)
         throws DfException {
         boolean transactionActive = session.isTransactionActive();
         if (!transactionActive) {
@@ -43,11 +55,20 @@ public final class Sessions {
         return !transactionActive;
     }
 
+    public static boolean abortTxIfActive(final IDfSession session)
+        throws DfException {
+        boolean transactionActive = session.isTransactionActive();
+        if (transactionActive) {
+            session.abortTrans();
+        }
+        return transactionActive;
+    }
+
     public static <T> T inTransaction(final IDfSession session,
             final IDfSessionInvoker<T> invoker) throws DfException {
         boolean txStartsHere = false;
         try {
-            txStartsHere = beginTransactionIfNotActive(session);
+            txStartsHere = beginTxIfNotActive(session);
             T result = invoker.invoke(session);
             if (txStartsHere) {
                 session.commitTrans();
@@ -55,8 +76,8 @@ public final class Sessions {
             }
             return result;
         } finally {
-            if (txStartsHere && session.isTransactionActive()) {
-                session.abortTrans();
+            if (txStartsHere) {
+                abortTxIfActive(session);
             }
         }
     }
@@ -161,12 +182,20 @@ public final class Sessions {
     }
 
     public static void release(final IDfSession session) {
+        release(session, false);
+    }
+
+    public static void release(final IDfSession session,
+            final boolean clearIdentities) {
         if (session == null) {
             return;
         }
         IDfSessionManager sessionManager = session.getSessionManager();
         if (sessionManager != null) {
             sessionManager.release(session);
+            if (clearIdentities) {
+                sessionManager.clearIdentities();
+            }
             return;
         }
         try {
@@ -174,6 +203,53 @@ public final class Sessions {
         } catch (DfException ex) {
             Logger.error(ex);
         }
+    }
+
+    public static <T> T withGlobalRegistry(final IDfSessionInvoker<T> invoker)
+        throws DfException {
+        IGlobalRegistryInternal globalRegistry = null;
+        try {
+            globalRegistry = getGlobalRegistryInternal();
+        } catch (DfException ex) {
+            Logger.error("Unable to get global registry", ex);
+            throw ex;
+        }
+
+        if (globalRegistry == null) {
+            Logger.error("Unable to get global registry, registry is null");
+            return null;
+        }
+
+        IDfSession session = null;
+        try {
+            session = globalRegistry.getSession();
+        } catch (DfException ex) {
+            Logger.error("Unable to get global registry "
+                    + "session, session is null", ex);
+            throw ex;
+        }
+
+        if (session == null) {
+            Logger.error("Unable to get global registry session, session is null");
+            return null;
+        }
+
+        try {
+            return invoker.invoke(session);
+        } finally {
+            globalRegistry.release(session);
+        }
+    }
+
+    private static IGlobalRegistryInternal getGlobalRegistryInternal()
+        throws DfException {
+        IGlobalRegistryInternalFactory factory = RuntimeContext.getInstance()
+                .getGlobalRegistryInternalFactory();
+        if (factory == null) {
+            Logger.error("Unable to get global registry factory, factory is null");
+            return null;
+        }
+        return factory.getGlobalRegistryInternal();
     }
 
     public static IDfClient getClient() {

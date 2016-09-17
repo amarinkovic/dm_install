@@ -7,6 +7,7 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 
 import com.documentum.com.DfClientX;
+import com.documentum.com.IDfClientX;
 import com.documentum.fc.client.IDfClient;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSessionManager;
@@ -23,11 +24,14 @@ import pro.documentum.junit.auth.PropertiesCredentialManager;
  */
 public abstract class DfcTestSupport extends Assert {
 
+    public static final IDfClientX CLIENT_X;
+
     public static final IDfClient CLIENT;
 
     static {
         try {
-            CLIENT = new DfClientX().getLocalClient();
+            CLIENT_X = new DfClientX();
+            CLIENT = CLIENT_X.getLocalClient();
         } catch (DfException ex) {
             throw new RuntimeException(ex);
         }
