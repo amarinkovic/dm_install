@@ -3,6 +3,7 @@ package pro.documentum.persistence.jpa.query;
 import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -32,8 +33,18 @@ public class AbstractQueryTest extends JPATestSupport {
         return query.getNativeQuery();
     }
 
-    protected JPQLQuery jpa(Class<? extends AbstractPersistent> cls,
+    protected JPQLQuery jqql(Class<? extends AbstractPersistent> cls,
             String addon) {
+        return (JPQLQuery) ((JPAQuery) jpa(cls, addon)).getInternalQuery();
+    }
+
+    protected void close(Query query, Object results) {
+        if (query != null && results != null) {
+            ((JPAQuery) query).getInternalQuery().close(results);
+        }
+    }
+
+    protected Query jpa(Class<? extends AbstractPersistent> cls, String addon) {
         CriteriaBuilder cb = getCriteriaBuilder();
         CriteriaQuery<?> crit = cb.createQuery(cls);
         Root<?> candidateRoot = crit.from(cls);
@@ -42,8 +53,7 @@ public class AbstractQueryTest extends JPATestSupport {
         if (StringUtils.isNotBlank(addon)) {
             builder.append(" WHERE ").append(addon);
         }
-        return (JPQLQuery) ((JPAQuery) getEntityManager().createQuery(
-                builder.toString())).getInternalQuery();
+        return getEntityManager().createQuery(builder.toString());
     }
 
     protected CriteriaBuilder getCriteriaBuilder() {

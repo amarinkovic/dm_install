@@ -9,23 +9,15 @@ public final class Reference {
 
     private final String _columnName;
 
-    private final Class<?> _targetClass;
-
     private final String _targetColumn;
 
-    public Reference(final String columnName, final Class<?> targetClass,
-            final String targetColumn) {
+    public Reference(final String columnName, final String targetColumn) {
         _columnName = columnName;
-        _targetClass = targetClass;
         _targetColumn = targetColumn;
     }
 
     public String getColumnName() {
         return _columnName;
-    }
-
-    public Class<?> getTargetClass() {
-        return _targetClass;
     }
 
     public String getTargetColumn() {
@@ -42,13 +34,12 @@ public final class Reference {
         }
         Reference reference = (Reference) o;
         return Objects.equals(_columnName, reference._columnName)
-                && Objects.equals(_targetClass, reference._targetClass)
                 && Objects.equals(_targetColumn, reference._targetColumn);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(_columnName, _targetClass, _targetColumn);
+        return Objects.hash(_columnName, _targetColumn);
     }
 
 }

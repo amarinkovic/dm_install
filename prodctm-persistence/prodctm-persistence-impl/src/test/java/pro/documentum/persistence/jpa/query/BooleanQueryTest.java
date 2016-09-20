@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import pro.documentum.model.jpa.DmUser;
+import pro.documentum.model.jpa.user.DmUser;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -16,13 +16,13 @@ public class BooleanQueryTest extends AbstractQueryTest {
 
     @Test
     public void testBooleanTrue() throws Exception {
-        String q = str(jpa(DmUser.class, "group = TRUE"));
+        String q = str(jqql(DmUser.class, "group = TRUE"));
         assertThat(q, endsWith("WHERE this.r_is_group=TRUE"));
     }
 
     @Test
     public void testBooleanFalse() throws Exception {
-        String q = str(jpa(DmUser.class, "group = FALSE"));
+        String q = str(jqql(DmUser.class, "group = FALSE"));
         assertThat(q, endsWith("WHERE this.r_is_group=FALSE"));
     }
 
@@ -30,7 +30,7 @@ public class BooleanQueryTest extends AbstractQueryTest {
     public void testBooleanTrueBinding() throws Exception {
         Map<String, Object> params = new HashMap<>();
         params.put("value", true);
-        String q = str(jpa(DmUser.class, "group = :value"), params);
+        String q = str(jqql(DmUser.class, "group = :value"), params);
         assertThat(q, endsWith("WHERE this.r_is_group=TRUE"));
     }
 
@@ -38,7 +38,7 @@ public class BooleanQueryTest extends AbstractQueryTest {
     public void testBooleanFalseBinding() throws Exception {
         Map<String, Object> params = new HashMap<>();
         params.put("value", false);
-        String q = str(jpa(DmUser.class, "group = :value"), params);
+        String q = str(jqql(DmUser.class, "group = :value"), params);
         assertThat(q, endsWith("WHERE this.r_is_group=FALSE"));
     }
 }

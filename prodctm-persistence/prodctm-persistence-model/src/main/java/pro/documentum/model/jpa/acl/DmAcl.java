@@ -1,8 +1,9 @@
-package pro.documentum.model.jpa;
+package pro.documentum.model.jpa.acl;
 
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -11,6 +12,9 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import org.datanucleus.api.jpa.annotations.DatastoreId;
+
+import pro.documentum.model.jpa.AbstractPersistent;
+import pro.documentum.model.jpa.embedded.acl.DmPermit;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -51,35 +55,10 @@ public class DmAcl extends AbstractPersistent {
     @Setter
     private boolean internal;
 
-    @Column(name = "r_accessor_name")
+    @Embedded
     @Getter
     @Setter
-    private List<String> accessorNames;
-
-    @Column(name = "r_accessor_permit")
-    @Getter
-    @Setter
-    private List<Integer> accessorPermits;
-
-    @Column(name = "r_accessor_xpermit")
-    @Getter
-    @Setter
-    private List<Integer> accessorXPermits;
-
-    @Column(name = "r_is_group")
-    @Getter
-    @Setter
-    private List<Boolean> group;
-
-    @Column(name = "r_permit_type")
-    @Getter
-    @Setter
-    private List<Integer> permitTypes;
-
-    @Column(name = "r_application_permit")
-    @Getter
-    @Setter
-    private List<String> applicationPermits;
+    private List<DmPermit> permits;
 
     @Column(name = "r_has_events")
     @Getter

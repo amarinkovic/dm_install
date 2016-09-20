@@ -49,10 +49,6 @@
             <artifactId>datanucleus-api-jpa</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.datanucleus</groupId>
-            <artifactId>datanucleus-jdo-query</artifactId>
-        </dependency>
-        <dependency>
             <groupId>pro.documentum</groupId>
             <artifactId>prodctm-test</artifactId>
             <version>0.1</version>

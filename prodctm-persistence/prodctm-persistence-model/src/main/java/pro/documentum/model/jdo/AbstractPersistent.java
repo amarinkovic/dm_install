@@ -7,6 +7,7 @@ import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.Inheritance;
 import javax.jdo.annotations.InheritanceStrategy;
+import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Version;
 import javax.jdo.annotations.VersionStrategy;
@@ -42,5 +43,8 @@ public abstract class AbstractPersistent implements IPersistent {
     @Column(name = "i_is_replica")
     @Getter
     private boolean replica;
+
+    @NotPersistent
+    protected Object[] dnDetachedState;
 
 }

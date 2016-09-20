@@ -1,17 +1,18 @@
 package pro.documentum.model.jpa;
 
 import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import org.datanucleus.api.jpa.annotations.DatastoreId;
-import org.datanucleus.api.jpa.annotations.ValueGenerator;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -22,20 +23,21 @@ import org.datanucleus.api.jpa.annotations.ValueGenerator;
 @Accessors(chain = true)
 public abstract class AbstractPersistent {
 
-    @ValueGenerator(strategy = "increment")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "r_object_id")
     @Getter
-    @Setter
     private String objectId;
 
     @Version
     @Column(name = "i_vstamp")
     @Getter
-    @Setter
     private int vStamp;
 
     @Column(name = "i_is_replica")
     @Getter
     private boolean replica;
+
+    @Transient
+    protected Object[] dnDetachedState;
 
 }

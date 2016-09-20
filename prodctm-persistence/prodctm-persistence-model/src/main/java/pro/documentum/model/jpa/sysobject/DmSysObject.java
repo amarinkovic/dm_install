@@ -1,4 +1,4 @@
-package pro.documentum.model.jpa;
+package pro.documentum.model.jpa.sysobject;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -8,7 +8,11 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import lombok.Getter;
@@ -16,6 +20,9 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import org.datanucleus.api.jpa.annotations.DatastoreId;
+
+import pro.documentum.model.jpa.acl.DmAcl;
+import pro.documentum.model.jpa.embedded.sysobject.DmLockInfo;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -76,19 +83,17 @@ public class DmSysObject extends AbstractSysObject {
     @Getter
     private String creatorName;
 
-    @Column(name = "acl_name")
+    @ManyToOne(optional = false)
+    @JoinColumns({
+        @JoinColumn(name = "acl_name", referencedColumnName = "object_name"),
+        @JoinColumn(name = "acl_domain", referencedColumnName = "owner_name") })
     @Getter
     @Setter
-    private String aclName;
+    private DmAcl acl;
 
-    @Column(name = "acl_domain")
+    @Embedded
     @Getter
     @Setter
-    private String aclDomain;
-
-    @Column(name = "r_lock_owner")
-    @Getter
-    @Setter
-    private String lockOwner;
+    private DmLockInfo lockInfo;
 
 }

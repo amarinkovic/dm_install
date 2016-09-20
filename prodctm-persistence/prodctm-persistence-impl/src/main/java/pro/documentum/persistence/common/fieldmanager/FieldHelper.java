@@ -18,7 +18,6 @@ import org.datanucleus.state.ObjectProviderFactory;
 import com.documentum.fc.common.DfDocbaseConstants;
 
 import pro.documentum.persistence.common.util.DNMetaData;
-import pro.documentum.persistence.common.util.DNRelation;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -38,16 +37,14 @@ public final class FieldHelper {
     protected List<Reference> getReferences(final AbstractMemberMetaData mmd) {
         if (isIdentityMapping(mmd)) {
             Reference reference = new Reference(DNMetaData.getColumnName(mmd),
-                    String.class, DfDocbaseConstants.R_OBJECT_ID);
+                    DfDocbaseConstants.R_OBJECT_ID);
             return Collections.singletonList(reference);
         }
         List<Reference> result = new ArrayList<>();
         List<String> names = DNMetaData.getColumnNames(mmd);
-        List<Class<?>> classes = getFieldClasses(mmd);
-        List<String> targets = getFieldTargets(mmd);
+        List<String> targets = getTargetColumns(mmd);
         for (int i = 0, n = names.size(); i < n; i++) {
-            Reference reference = new Reference(names.get(i), classes.get(i),
-                    targets.get(i));
+            Reference reference = new Reference(names.get(i), targets.get(i));
             result.add(reference);
         }
         return result;
@@ -69,35 +66,16 @@ public final class FieldHelper {
         return false;
     }
 
-    protected List<Class<?>> getFieldClasses(final AbstractMemberMetaData mmd) {
-        Class<?> targetType = DNMetaData.getElementClass(mmd);
-        RelationType relationType = getRelationType(mmd);
-        if (DNRelation.isNone(relationType)) {
-            return Collections.<Class<?>> singletonList(targetType);
-        }
-        AbstractClassMetaData cmd = getMetaDataForClass(targetType);
-        List<Class<?>> result = new ArrayList<>();
-        ColumnMetaData[] columnMetaData = Objects.requireNonNull(DNMetaData
-                .getColumnMetaData(mmd));
-        for (ColumnMetaData col : columnMetaData) {
-            String targetMember = col.getTargetMember();
-            AbstractMemberMetaData tmmd = cmd
-                    .getMetaDataForMember(targetMember);
-            result.add(tmmd.getType());
-        }
-        return result;
-    }
-
-    protected List<String> getFieldTargets(final AbstractMemberMetaData mmd) {
+    protected List<String> getTargetColumns(final AbstractMemberMetaData mmd) {
         Class<?> targetType = DNMetaData.getElementClass(mmd);
         AbstractClassMetaData cmd = getMetaDataForClass(targetType);
         List<String> result = new ArrayList<>();
         ColumnMetaData[] columnMetaData = Objects.requireNonNull(DNMetaData
                 .getColumnMetaData(mmd));
         for (ColumnMetaData col : columnMetaData) {
-            String targetField = col.getTarget();
-            if (StringUtils.isNotBlank(targetField)) {
-                result.add(targetField);
+            String targetColumn = col.getTarget();
+            if (StringUtils.isNotBlank(targetColumn)) {
+                result.add(targetColumn);
                 continue;
             }
             String targetMember = col.getTargetMember();

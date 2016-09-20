@@ -3,7 +3,7 @@ package pro.documentum.persistence.jpa.model;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 
-import pro.documentum.model.jpa.DmUser;
+import pro.documentum.model.jpa.user.DmUser;
 import pro.documentum.persistence.jpa.JPATestSupport;
 
 /**

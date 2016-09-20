@@ -1,4 +1,4 @@
-package pro.documentum.persistence.jpa.query.dsl;
+package pro.documentum.persistence.jdo.query.dsl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.List;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 
-import pro.documentum.model.jpa.user.DmUser;
-import pro.documentum.model.jpa.user.QDmUser;
+import pro.documentum.model.jdo.user.DmUser;
+import pro.documentum.model.jdo.user.QDmUser;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>

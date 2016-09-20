@@ -75,7 +75,7 @@ public class FetchFieldManager extends AbstractFetchFieldManager {
             CompositeKey key = new CompositeKey();
             for (Reference reference : references) {
                 Object value = getRepeating(reference.getColumnName(),
-                        reference.getTargetClass(), i);
+                        String.class, i);
                 key.add(reference.getTargetColumn(), value);
             }
             result.add(key);

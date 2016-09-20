@@ -27,9 +27,10 @@
 
     <persistence-unit name="JPATesting">
         <provider>org.datanucleus.api.jpa.PersistenceProviderImpl</provider>
-        <class>pro.documentum.model.jpa.DmUser</class>
-        <class>pro.documentum.model.jpa.DmSysObject</class>
-        <class>pro.documentum.model.jpa.DmFolder</class>
+        <class>pro.documentum.model.jpa.user.DmUser</class>
+        <class>pro.documentum.model.jpa.acl.DmAcl</class>
+        <class>pro.documentum.model.jpa.sysobject.DmSysObject</class>
+        <class>pro.documentum.model.jpa.sysobject.DmFolder</class>
         <exclude-unlisted-classes />
         <properties>
             <property name="datanucleus.NontransactionalRead" value="true" />

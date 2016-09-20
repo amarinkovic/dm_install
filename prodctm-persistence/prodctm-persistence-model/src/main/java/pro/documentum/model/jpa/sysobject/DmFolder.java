@@ -1,4 +1,6 @@
-package pro.documentum.model.jpa;
+package pro.documentum.model.jpa.sysobject;
+
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,17 +15,13 @@ import org.datanucleus.api.jpa.annotations.DatastoreId;
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
 @Entity
-@Table(name = "dm_sysobject")
+@Table(name = "dm_folder")
 @DatastoreId
 @Accessors(chain = true)
-public class AbstractSysObject extends AbstractPersistent {
+public class DmFolder extends DmSysObject {
 
-    @Column(name = "r_object_type")
+    @Column(name = "r_folder_path")
     @Getter
-    private String objectType;
-
-    @Column(name = "i_is_reference")
-    @Getter
-    private boolean reference;
+    private List<String> folderPaths;
 
 }

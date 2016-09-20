@@ -1,4 +1,4 @@
-package pro.documentum.model.jpa;
+package pro.documentum.model.jpa.user;
 
 import java.util.Date;
 
@@ -11,6 +11,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import org.datanucleus.api.jpa.annotations.DatastoreId;
+
+import pro.documentum.model.jpa.AbstractPersistent;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
