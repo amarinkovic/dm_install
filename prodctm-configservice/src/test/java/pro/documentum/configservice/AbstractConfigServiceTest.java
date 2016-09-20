@@ -24,6 +24,7 @@ public abstract class AbstractConfigServiceTest extends DfcTestSupport {
         IDfSession txSession = getSession();
         IDfSession session = Sessions.brandNew(txSession.getSessionManager(),
                 txSession.getDocbaseName());
+        cleanup(session);
         createFolders(session);
         loadResource(session, "/app.xml", "app.xml");
         loadResource(session, "/docbaseconfig.xml", "docbaseconfig.xml");
@@ -46,6 +47,7 @@ public abstract class AbstractConfigServiceTest extends DfcTestSupport {
             operation.setSession(session);
             operation.setVersionDeletionPolicy(IDfDeleteOperation.ALL_VERSIONS);
             operation.add(folder);
+            operation.execute();
         }
     }
 

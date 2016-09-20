@@ -25,18 +25,6 @@ public final class Logger {
         super();
     }
 
-    public static boolean isEnabled(final LogLevel level, final Object source) {
-        return level.isEnabled(source, LOG_2_STREAM_VALUE);
-    }
-
-    public static boolean isDebugEnabled() {
-        return LogLevel.DEBUG.isEnabled(getSource(), LOG_2_STREAM_VALUE);
-    }
-
-    public static boolean isDebugEnabled(final Object source) {
-        return LogLevel.DEBUG.isEnabled(source, LOG_2_STREAM_VALUE);
-    }
-
     public static void log(final LogLevel level, final Object source,
             final String message) {
         level.log(source, message, null, null, LOG_2_STREAM_VALUE);

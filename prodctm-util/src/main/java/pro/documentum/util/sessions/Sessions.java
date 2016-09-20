@@ -37,8 +37,8 @@ public final class Sessions {
         super();
     }
 
-    public static IDfLoginInfo createLoginInfo(String userName,
-            String password, String domain) {
+    public static IDfLoginInfo createLoginInfo(final String userName,
+            final String password, final String domain) {
         IDfLoginInfo loginInfo = CLIENT_X.getLoginInfo();
         loginInfo.setUser(userName);
         loginInfo.setPassword(password);

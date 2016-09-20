@@ -1,5 +1,6 @@
 package pro.documentum.persistence.common.connection;
 
+import java.text.MessageFormat;
 import java.util.Map;
 
 import javax.transaction.xa.XAResource;
@@ -97,7 +98,8 @@ public class ConnectionFactoryImpl extends AbstractConnectionFactory {
         @Override
         public Object getConnection() {
             if (conn != null) {
-                debug("Acquired existing", (IDfSession) conn);
+                Logger.debug(getDebugMessage("Acquired existing",
+                        (IDfSession) conn));
                 return conn;
             }
 
@@ -107,7 +109,7 @@ public class ConnectionFactoryImpl extends AbstractConnectionFactory {
                 sessionManager = obtainSessionManager();
                 session = sessionManager.getSession(_docbaseName);
                 Sessions.disableServerTimeout(session);
-                debug("Acquired new", session);
+                Logger.debug(getDebugMessage("Acquired new", session));
                 conn = session;
                 return conn;
             } catch (DfException ex) {
@@ -155,7 +157,7 @@ public class ConnectionFactoryImpl extends AbstractConnectionFactory {
             try {
                 IDfSession session = (IDfSession) conn;
                 IDfSessionManager sessionManager = session.getSessionManager();
-                debug("Releasing", session);
+                Logger.debug(getDebugMessage("Releasing", session));
                 Sessions.enableServerTimeout((IDfSession) conn, true);
                 Sessions.release(session);
                 releaseSessionManager(sessionManager);
@@ -200,13 +202,12 @@ public class ConnectionFactoryImpl extends AbstractConnectionFactory {
             return _xaRes;
         }
 
-        private void debug(final String op, final IDfSession session) {
-            Logger.debug("{0} session {1} for user {2}, docbase {3}", op,
-                    Sessions.getSessionId(session),
+        private String getDebugMessage(final String op, final IDfSession session) {
+            return MessageFormat.format("{0} session {1} for user {2},"
+                    + " docbase {3}", op, Sessions.getSessionId(session),
                     Sessions.getLoginUserName(session),
                     Sessions.getDocbaseName(session));
         }
-
     }
 
 }

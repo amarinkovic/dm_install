@@ -19,7 +19,7 @@ import pro.documentum.util.sessions.Sessions;
  */
 public abstract aspect TransactionalAspect {
 
-    Object around ()throws DfException: execution(* *(..)) && @annotation(pro.documentum.aspects.DfTransactional) {
+    Object around () throws DfException: execution(* *(..)) && @annotation(pro.documentum.aspects.DfTransactional) {
         IDfSession session = findSession(thisJoinPoint);
         if (session == null) {
             return proceed();

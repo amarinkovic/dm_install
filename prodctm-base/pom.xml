@@ -353,6 +353,12 @@
                         <verbose>true</verbose>
                         <XaddSerialVersionUID>true</XaddSerialVersionUID>
                         <XnoInline>true</XnoInline>
+                        <aspectLibraries>
+                            <aspectLibrary>
+                                <groupId>pro.documentum</groupId>
+                                <artifactId>prodctm-util</artifactId>
+                            </aspectLibrary>
+                        </aspectLibraries>
                         <includes>
                             <include>**/*.aj</include>
                             <include>**/*.java</include>

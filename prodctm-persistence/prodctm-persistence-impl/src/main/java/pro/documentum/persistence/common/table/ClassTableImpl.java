@@ -10,8 +10,8 @@ import org.datanucleus.store.schema.table.SchemaVerifier;
  */
 public class ClassTableImpl extends CompleteClassTable {
 
-    public ClassTableImpl(StoreManager storeMgr, AbstractClassMetaData cmd,
-            SchemaVerifier verifier) {
+    public ClassTableImpl(final StoreManager storeMgr,
+            final AbstractClassMetaData cmd, final SchemaVerifier verifier) {
         super(storeMgr, cmd, verifier);
     }
 

@@ -12,9 +12,9 @@ import org.datanucleus.store.schema.StoreSchemaData;
  */
 public class SchemaHandlerImpl extends AbstractStoreSchemaHandler {
 
-    protected Map<String, StoreSchemaData> _schemaDataByName = new HashMap<>();
+    private final Map<String, StoreSchemaData> _schemaDataByName = new HashMap<>();
 
-    public SchemaHandlerImpl(StoreManager storeMgr) {
+    public SchemaHandlerImpl(final StoreManager storeMgr) {
         super(storeMgr);
     }
 
