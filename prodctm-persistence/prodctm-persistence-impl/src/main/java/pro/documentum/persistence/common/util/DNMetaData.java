@@ -24,7 +24,6 @@ import org.datanucleus.metadata.MetaDataManager;
 import org.datanucleus.metadata.MetaDataUtils;
 import org.datanucleus.metadata.RelationType;
 import org.datanucleus.store.StoreData;
-import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.schema.table.Column;
 import org.datanucleus.store.schema.table.MemberColumnMapping;
 import org.datanucleus.store.schema.table.Table;
@@ -61,7 +60,13 @@ public final class DNMetaData {
         return sd;
     }
 
-    public static Table getTable(final StoreManager storeManager,
+    public static Table getTable(final StoreManagerImpl storeManager,
+            final AbstractClassMetaData cmd) {
+        return storeManager.getStoreDataForClass(cmd.getFullClassName())
+                .getTable();
+    }
+
+    public static Table getTable(final StoreManagerImpl storeManager,
             final String className) {
         return storeManager.getStoreDataForClass(className).getTable();
     }

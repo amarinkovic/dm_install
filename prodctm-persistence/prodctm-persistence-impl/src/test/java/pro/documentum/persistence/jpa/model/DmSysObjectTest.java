@@ -37,8 +37,7 @@ public class DmSysObjectTest extends AbstractQueryTest {
         DmSysObject sysobject = (DmSysObject) results.get(0);
         assertEquals(objectId, sysobject.getObjectId());
         assertEquals(objectName, sysobject.getObjectName());
-        //todo: FieldHelper.getFieldClasses()
-        //assertNotNull(sysobject.getAcl());
+        assertNotNull(sysobject.getAcl());
         getEntityManager().detach(sysobject);
         sysobject.getLockInfo().setLockOwner(
                 getUnderneathSession().getLoginUserName());

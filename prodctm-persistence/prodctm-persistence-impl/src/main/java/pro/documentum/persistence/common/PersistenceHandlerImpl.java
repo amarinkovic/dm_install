@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.datanucleus.ExecutionContext;
 import org.datanucleus.exceptions.NucleusObjectNotFoundException;
-import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.state.ObjectProvider;
 import org.datanucleus.store.AbstractPersistenceHandler;
@@ -57,7 +57,7 @@ public class PersistenceHandlerImpl extends AbstractPersistenceHandler
         AbstractClassMetaData cmd = op.getClassMetaData();
         ExecutionContext ec = op.getExecutionContext();
         Object objectId = op.getExternalObjectId();
-        ManagedConnection mconn = storeMgr.getConnection(ec);
+        ManagedConnection mconn = getStoreManager().getConnection(ec);
         try {
             StoreData storeData = DNMetaData.getStoreData(ec, cmd);
             Table table = storeData.getTable();
@@ -82,7 +82,7 @@ public class PersistenceHandlerImpl extends AbstractPersistenceHandler
         Object objectId = op.getExternalObjectId();
         ManagedConnection mconn = storeMgr.getConnection(ec);
         try {
-            Table table = DNMetaData.getTable(storeMgr, cmd.getFullClassName());
+            Table table = DNMetaData.getTable(getStoreManager(), cmd);
             IDfSession session = (IDfSession) mconn.getConnection();
             IDfPersistentObject dbObject = getObject(session, objectId);
             setFields(dbObject, op, ints, table, false);
@@ -105,7 +105,7 @@ public class PersistenceHandlerImpl extends AbstractPersistenceHandler
     @SuppressWarnings("rawtypes")
     public void fetchObject(final ObjectProvider op, final int[] ints) {
         ExecutionContext ec = op.getExecutionContext();
-        ManagedConnection mconn = storeMgr.getConnection(ec);
+        ManagedConnection mconn = getStoreManager().getConnection(ec);
         try {
             Object id = op.getExternalObjectId();
             IDfSession session = (IDfSession) mconn.getConnection();
@@ -133,11 +133,13 @@ public class PersistenceHandlerImpl extends AbstractPersistenceHandler
             throw new NucleusObjectNotFoundException("Invalid objectId");
         }
 
-        if (Nucleus.hasTargetClass(id)) {
+        String targetClass = Nucleus.getTargetClass(id);
+        if (StringUtils.isNotBlank(targetClass)) {
+            tryManageClass(ec, targetClass);
             return null;
         }
 
-        String objectId = getDocumentumId(id);
+        String objectId = Nucleus.getDocumentumId(id);
 
         ManagedConnection mconn = storeMgr.getConnection(ec);
         try {
@@ -149,14 +151,26 @@ public class PersistenceHandlerImpl extends AbstractPersistenceHandler
         }
     }
 
+    protected void tryManageClass(final ExecutionContext ec,
+            final String className) {
+        if (getStoreManager().getStoreDataForClass(className) != null) {
+            return;
+        }
+        getStoreManager().manageClasses(ec, className);
+    }
+
+    protected StoreManagerImpl getStoreManager() {
+        return (StoreManagerImpl) storeMgr;
+    }
+
     @Override
     public <T extends CompositeKey> List<Object> selectObjects(
             final ExecutionContext ec, final AbstractClassMetaData cmd,
             final List<T> keys) {
-        ManagedConnection mconn = storeMgr.getConnection(ec);
+        ManagedConnection mconn = getStoreManager().getConnection(ec);
         try {
             IDfSession session = (IDfSession) mconn.getConnection();
-            Table table = DNMetaData.getTable(ec, cmd.getFullClassName());
+            Table table = DNMetaData.getTable(ec, cmd);
             Iterator<IDfPersistentObject> objects = BulkCompositeKeyIterator
                     .select(session, table.getName(), keys);
             return makeObjects(ec, cmd, objects);
@@ -192,8 +206,7 @@ public class PersistenceHandlerImpl extends AbstractPersistenceHandler
         for (int fieldNumber : nonPersistent) {
             op.replaceField(fieldNumber, op.provideField(fieldNumber));
         }
-        StoreManager storeMgr = op.getStoreManager();
-        Table table = DNMetaData.getTable(storeMgr, cmd.getFullClassName());
+        Table table = DNMetaData.getTable(getStoreManager(), cmd);
         FetchFieldManager fieldManager = new FetchFieldManager(op, object,
                 table);
         op.replaceFields(persistent, fieldManager);
@@ -254,30 +267,14 @@ public class PersistenceHandlerImpl extends AbstractPersistenceHandler
     private IDfPersistentObject newObject(final IDfSession session,
             final Object id, final AbstractClassMetaData cmd)
         throws DfException {
-        Table table = DNMetaData.getTable(storeMgr, cmd.getFullClassName());
-        String objectId = getDocumentumId(id);
+        Table table = DNMetaData.getTable(getStoreManager(), cmd);
+        String objectId = Nucleus.getDocumentumId(id);
         return DfObjects.newObject(session, table.getName(), objectId);
-    }
-
-    public String getDocumentumId(final Object id) {
-        String objectId = null;
-        if (IdentityUtils.isDatastoreIdentity(id)) {
-            objectId = (String) IdentityUtils
-                    .getTargetKeyForDatastoreIdentity(id);
-        } else if (IdentityUtils.isSingleFieldIdentity(id)) {
-            objectId = (String) IdentityUtils
-                    .getTargetKeyForSingleFieldIdentity(id);
-        }
-        if (DfIdUtil.isNotObjectId(objectId)) {
-            throw new NucleusObjectNotFoundException("Invalid objectId: "
-                    + objectId);
-        }
-        return objectId;
     }
 
     public IDfPersistentObject getObject(final IDfSession session,
             final Object id) {
-        return getObject(session, getDocumentumId(id));
+        return getObject(session, Nucleus.getDocumentumId(id));
     }
 
     public IDfPersistentObject getObject(final IDfSession session,
