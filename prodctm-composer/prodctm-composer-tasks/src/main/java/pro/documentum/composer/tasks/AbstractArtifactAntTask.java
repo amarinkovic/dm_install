@@ -176,6 +176,12 @@ public abstract class AbstractArtifactAntTask extends AbstractAntTask {
                     .createUpgradeOption();
             UpgradeOptionValues upgradeOptionValues = UpgradeOptionValues
                     .getByName(option.getUpgradeOption());
+            if (upgradeOptionValues == null) {
+                throw new BuildException("Invalid upgrade option "
+                        + option.getUpgradeOption() + " for artifact "
+                        + artifact.getName() + " ("
+                        + artifact.getCategory().getCategoryId() + ")");
+            }
             info("Setting upgrade option to " + upgradeOptionValues.getName()
                     + " for artifact " + artifact.getName() + " ("
                     + artifact.getCategory().getCategoryId() + ")");
