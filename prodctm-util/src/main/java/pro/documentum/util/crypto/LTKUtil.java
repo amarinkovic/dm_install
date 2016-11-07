@@ -41,7 +41,7 @@ public final class LTKUtil extends AbstractKey {
         return getInstance(LTK.of(bytes), secretKey);
     }
 
-    public DBK getDBK() {
+    public LTK getLTK() {
         return _ltk;
     }
 

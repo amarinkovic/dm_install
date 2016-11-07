@@ -13,13 +13,13 @@ public final class Header extends AbstractKeyData {
     @KeyField(order = 1, min = 1, max = 1024)
     private int _size;
 
-    @KeyField(order = 2, min = 3, max = 3)
+    @KeyField(order = 2, min = 3, max = 4)
     private int _storageType;
 
     @KeyField(order = 3)
     private int _encryptedLength;
 
-    @KeyField(order = 4, min = 1, max = 3)
+    @KeyField(order = 4, min = 1, max = 4)
     private int _algorithm;
 
     @KeyField(order = 5)
