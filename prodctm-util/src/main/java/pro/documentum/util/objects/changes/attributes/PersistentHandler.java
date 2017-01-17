@@ -11,11 +11,9 @@ import java.util.Set;
 
 import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.common.DfException;
-import com.documentum.fc.common.IDfAttr;
-import com.documentum.fc.common.IDfId;
-import com.documentum.fc.common.IDfTime;
 
 import pro.documentum.util.logger.Logger;
+import pro.documentum.util.objects.DfObjects;
 import pro.documentum.util.objects.changes.attributes.sysobject.VersionHandler;
 
 /**
@@ -56,7 +54,7 @@ public class PersistentHandler implements
                     object.getObjectId(), value);
             int dataType = object.getAttrDataType(attrName);
             if (!object.isAttrRepeating(attrName)) {
-                setValue(object, attrName, value, dataType, 0);
+                DfObjects.setValue(object, attrName, value, dataType, 0);
                 continue;
             }
 
@@ -65,14 +63,14 @@ public class PersistentHandler implements
             if (value instanceof Collection) {
                 int index = 0;
                 for (Object rValue : (Collection) value) {
-                    setValue(object, attrName, rValue, dataType, index);
+                    DfObjects.setValue(object, attrName, rValue, dataType, index);
                     index++;
                 }
             }
 
             if (value.getClass().isArray()) {
                 for (int i = 0, n = Array.getLength(value); i < n; i++) {
-                    setValue(object, attrName, Array.get(value, i), dataType, i);
+                    DfObjects.setValue(object, attrName, Array.get(value, i), dataType, i);
                 }
             }
         }
@@ -81,33 +79,6 @@ public class PersistentHandler implements
             values.remove(attrName);
         }
         return false;
-    }
-
-    private void setValue(final IDfPersistentObject object,
-            final String attrName, final Object value, final int dataType,
-            final int index) throws DfException {
-        switch (dataType) {
-        case IDfAttr.DM_BOOLEAN:
-            object.setRepeatingBoolean(attrName, index, (Boolean) value);
-            break;
-        case IDfAttr.DM_DOUBLE:
-            object.setRepeatingDouble(attrName, index, (Double) value);
-            break;
-        case IDfAttr.DM_INTEGER:
-            object.setRepeatingInt(attrName, index, (Integer) value);
-            break;
-        case IDfAttr.DM_STRING:
-            object.setRepeatingString(attrName, index, (String) value);
-            break;
-        case IDfAttr.DM_ID:
-            object.setRepeatingId(attrName, index, (IDfId) value);
-            break;
-        case IDfAttr.DM_TIME:
-            object.setRepeatingTime(attrName, index, (IDfTime) value);
-            break;
-        default:
-            throw new IllegalArgumentException("Invalid datatype: " + dataType);
-        }
     }
 
     private boolean ignore(final String attrName) {

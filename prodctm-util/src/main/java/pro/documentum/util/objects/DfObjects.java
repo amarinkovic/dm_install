@@ -30,8 +30,11 @@ import com.documentum.fc.client.internal.ISysObjectInternal;
 import com.documentum.fc.common.DfDocbaseConstants;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfId;
+import com.documentum.fc.common.IDfAttr;
 import com.documentum.fc.common.IDfId;
 import com.documentum.fc.common.IDfList;
+import com.documentum.fc.common.IDfTime;
+import com.documentum.fc.common.IDfValue;
 import com.documentum.fc.impl.util.reflection.proxy.IProxyHandler;
 
 import pro.documentum.util.constants.DfConstants;
@@ -410,6 +413,156 @@ public final class DfObjects {
                 acl.grantPermit(permit);
             }
         }
+    }
+
+    public static void setValue(final IDfPersistentObject object,
+            final String attrName, final Object value, final int dataType,
+            final int index) throws DfException {
+        switch (dataType) {
+        case IDfAttr.DM_BOOLEAN:
+            object.setRepeatingBoolean(attrName, index, (Boolean) value);
+            break;
+        case IDfAttr.DM_DOUBLE:
+            object.setRepeatingDouble(attrName, index, (Double) value);
+            break;
+        case IDfAttr.DM_INTEGER:
+            object.setRepeatingInt(attrName, index, (Integer) value);
+            break;
+        case IDfAttr.DM_STRING:
+            object.setRepeatingString(attrName, index, (String) value);
+            break;
+        case IDfAttr.DM_ID:
+            object.setRepeatingId(attrName, index, (IDfId) value);
+            break;
+        case IDfAttr.DM_TIME:
+            object.setRepeatingTime(attrName, index, (IDfTime) value);
+            break;
+        default:
+            throw new IllegalArgumentException("Invalid datatype: " + dataType);
+        }
+    }
+
+    public static void setValue(final IDfPersistentObject object,
+            final String attrName, final IDfValue value, final int index)
+        throws DfException {
+        setValue(object, attrName, value, value.getDataType(), index);
+    }
+
+    public static void setValue(final IDfPersistentObject object,
+            final String attrName, final IDfValue value, final int dataType,
+            final int index) throws DfException {
+        switch (dataType) {
+        case IDfAttr.DM_BOOLEAN:
+            object.setRepeatingBoolean(attrName, index, value.asBoolean());
+            break;
+        case IDfAttr.DM_DOUBLE:
+            object.setRepeatingDouble(attrName, index, value.asDouble());
+            break;
+        case IDfAttr.DM_INTEGER:
+            object.setRepeatingInt(attrName, index, value.asInteger());
+            break;
+        case IDfAttr.DM_STRING:
+            object.setRepeatingString(attrName, index, value.asString());
+            break;
+        case IDfAttr.DM_ID:
+            object.setRepeatingId(attrName, index, value.asId());
+            break;
+        case IDfAttr.DM_TIME:
+            object.setRepeatingTime(attrName, index, value.asTime());
+            break;
+        default:
+            throw new IllegalArgumentException("Invalid datatype: " + dataType);
+        }
+    }
+
+    public static void setValue(final ITypedData object, final String attrName,
+            final Object value, final int dataType, final int index)
+        throws DfException {
+        switch (dataType) {
+        case IDfAttr.DM_BOOLEAN:
+            object.setRepeatingBoolean(attrName, index, (Boolean) value);
+            break;
+        case IDfAttr.DM_DOUBLE:
+            object.setRepeatingDouble(attrName, index, (Double) value);
+            break;
+        case IDfAttr.DM_INTEGER:
+            object.setRepeatingInt(attrName, index, (Integer) value);
+            break;
+        case IDfAttr.DM_STRING:
+            object.setRepeatingString(attrName, index, (String) value);
+            break;
+        case IDfAttr.DM_ID:
+            object.setRepeatingId(attrName, index, (IDfId) value);
+            break;
+        case IDfAttr.DM_TIME:
+            object.setRepeatingTime(attrName, index, (IDfTime) value);
+            break;
+        default:
+            throw new IllegalArgumentException("Invalid datatype: " + dataType);
+        }
+    }
+
+    public static void setValue(final ITypedData object, final String attrName,
+            final IDfValue value, final int index) throws DfException {
+        setValue(object, attrName, value, value.getDataType(), index);
+    }
+
+    public static void setValue(final ITypedData object, final String attrName,
+            final IDfValue value, final int dataType, final int index)
+        throws DfException {
+        switch (dataType) {
+        case IDfAttr.DM_BOOLEAN:
+            object.setRepeatingBoolean(attrName, index, value.asBoolean());
+            break;
+        case IDfAttr.DM_DOUBLE:
+            object.setRepeatingDouble(attrName, index, value.asDouble());
+            break;
+        case IDfAttr.DM_INTEGER:
+            object.setRepeatingInt(attrName, index, value.asInteger());
+            break;
+        case IDfAttr.DM_STRING:
+            object.setRepeatingString(attrName, index, value.asString());
+            break;
+        case IDfAttr.DM_ID:
+            object.setRepeatingId(attrName, index, value.asId());
+            break;
+        case IDfAttr.DM_TIME:
+            object.setRepeatingTime(attrName, index, value.asTime());
+            break;
+        default:
+            throw new IllegalArgumentException("Invalid datatype: " + dataType);
+        }
+    }
+
+    public static Object getValue(final ITypedData object,
+            final String attrName, final int dataType, final int index)
+        throws DfException {
+        switch (dataType) {
+        case IDfAttr.DM_BOOLEAN:
+            return object.getRepeatingBoolean(attrName, index);
+        case IDfAttr.DM_DOUBLE:
+            return object.getRepeatingDouble(attrName, index);
+        case IDfAttr.DM_INTEGER:
+            return object.getRepeatingInt(attrName, index);
+        case IDfAttr.DM_STRING:
+            return object.getRepeatingString(attrName, index);
+        case IDfAttr.DM_ID:
+            return object.getRepeatingId(attrName, index);
+        case IDfAttr.DM_TIME:
+            return object.getRepeatingTime(attrName, index);
+        default:
+            throw new IllegalArgumentException("Invalid datatype: " + dataType);
+        }
+    }
+
+    public static void markDeleted(final IDfSysObject object,
+            final boolean deleted) throws DfException {
+        markDeleted(((ISysObject) object).getData(true), deleted);
+    }
+
+    public static void markDeleted(final ITypedData object,
+            final boolean deleted) throws DfException {
+        setValue(object, "i_is_deleted", deleted, IDfAttr.DM_BOOLEAN, 0);
     }
 
 }
