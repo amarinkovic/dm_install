@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DfsClientConfig defaultModuleName="core" registryProviderModuleName="core">
+    <ModuleInfo name="core" protocol="http" host="localhost" port="8080" contextRoot="emc-dfs/services"/>
+    <ModuleInfo name="search" protocol="http" host="localhost" port="8080" contextRoot="emc-dfs/services"/>
+    <ModuleInfo name="bpm" protocol="http" host="localhost" port="8080" contextRoot="emc-dfs/services"/>
+    <ModuleInfo name="collaboration" protocol="http" host="localhost" port="8080" contextRoot="emc-dfs/services"/>
+    <ModuleInfo name="ci" protocol="http" host="localhost" port="8080" contextRoot="emc-dfs/services"/>
+</DfsClientConfig>

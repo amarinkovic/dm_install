@@ -152,7 +152,7 @@ public final class Logger {
     }
 
     private static String getSource() {
-        Class[] stack = StackHelper.getClassContextEx();
+        Class<?>[] stack = StackHelper.getClassContextEx();
         for (int i = 3, n = stack.length; i < n; i++) {
             if (CLASS.equals(stack[i].getName())) {
                 continue;
@@ -170,7 +170,7 @@ public final class Logger {
             super();
         }
 
-        static Class[] getClassContextEx() {
+        static Class<?>[] getClassContextEx() {
             return INSTANCE.getClassContext();
         }
 

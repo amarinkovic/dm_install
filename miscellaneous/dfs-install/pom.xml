@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>pro.documentum</groupId>
+        <artifactId>prodctm-base</artifactId>
+        <version>0.1</version>
+        <relativePath>../../prodctm-base/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>dfs-install</artifactId>
+    <packaging>pom</packaging>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>com.emc.documentum.dfs:emc-dfs-rt-remote</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <file>${env.DFS_SDK}/lib/java/emc-dfs-rt-remote.jar</file>
+                            <pomFile>${basedir}/src/main/resources/emc-dfs-rt-remote.xml</pomFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>com.emc.documentum.dfs:emc-dfs-services-remote</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <file>${env.DFS_SDK}/lib/java/emc-dfs-services-remote.jar</file>
+                            <pomFile>${basedir}/src/main/resources/emc-dfs-services-remote.xml</pomFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

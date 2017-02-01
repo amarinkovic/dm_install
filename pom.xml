@@ -18,6 +18,7 @@
         <module>prodctm-businessobjects</module>
         <module>prodctm-adapters</module>
         <module>prodctm-demo</module>
+        <module>prodctm-dfs</module>
     </modules>
 
 </project>

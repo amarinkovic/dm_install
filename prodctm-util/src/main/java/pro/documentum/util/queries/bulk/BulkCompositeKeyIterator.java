@@ -1,5 +1,6 @@
 package pro.documentum.util.queries.bulk;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -7,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.documentum.fc.client.IDfPersistentObject;
@@ -47,9 +47,8 @@ public class BulkCompositeKeyIterator<K extends CompositeKey, O extends IDfPersi
             final IDfSession session, final String objectType,
             final List<T> keys) throws DfException {
         Map<T, List<IDfPersistentObject>> objects = new HashMap<>();
-        IBulkIterator<?> iterator = null;
-        try {
-            iterator = new BulkCompositeKeyIterator<>(session, objectType, keys);
+        try (IBulkIterator<?> iterator = new BulkCompositeKeyIterator<>(
+                session, objectType, keys)) {
             List<String> columns = null;
             while (iterator.hasNext()) {
                 if (columns == null) {
@@ -63,8 +62,8 @@ public class BulkCompositeKeyIterator<K extends CompositeKey, O extends IDfPersi
                 objects.get(key).add(object);
             }
             return new BulkResultIterator<>(keys, objects);
-        } finally {
-            IOUtils.closeQuietly(iterator);
+        } catch (IOException ex) {
+            throw new DfException(ex);
         }
     }
 

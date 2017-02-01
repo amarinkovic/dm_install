@@ -9,6 +9,8 @@ public class BaseDecorator<T> implements IDecorator<T> {
 
     private final T _wrapped;
 
+    private T _proxy;
+
     public BaseDecorator(final T wrapped) {
         _wrapped = Objects.requireNonNull(wrapped);
     }
@@ -19,16 +21,24 @@ public class BaseDecorator<T> implements IDecorator<T> {
     }
 
     @Override
-    public int hashCode() {
+    public void setProxy(final T proxy) {
+        _proxy = proxy;
+    }
+
+    @Override
+    public final int hashCode() {
         return _wrapped.hashCode();
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        if (obj instanceof IDecorator) {
-            return _wrapped.equals(((IDecorator) obj).unwrap());
+    public final boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
         }
-        return _wrapped.equals(obj);
+        if (!(obj instanceof IDecorator)) {
+            return false;
+        }
+        return _wrapped.equals(((IDecorator) obj).unwrap());
     }
 
 }

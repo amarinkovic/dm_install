@@ -1,13 +1,12 @@
 package pro.documentum.util.queries.bulk;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.io.IOUtils;
 
 import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSession;
@@ -43,9 +42,8 @@ public class BulkIdentityIterator<O extends IDfPersistentObject> extends
             final IDfSession session, final String objectType,
             final List<String> keys) throws DfException {
         Map<String, IDfPersistentObject> objects = new HashMap<>();
-        IBulkIterator<?> iterator = null;
-        try {
-            iterator = new BulkIdentityIterator<>(session, objectType, keys);
+        try (IBulkIterator<?> iterator = new BulkIdentityIterator<>(session,
+                objectType, keys)) {
             while (iterator.hasNext()) {
                 IDfPersistentObject object = iterator.next();
                 objects.put(object.getObjectId().getId(), object);
@@ -55,8 +53,8 @@ public class BulkIdentityIterator<O extends IDfPersistentObject> extends
                 result.add(objects.remove(key));
             }
             return result.iterator();
-        } finally {
-            IOUtils.closeQuietly(iterator);
+        } catch (IOException ex) {
+            throw new DfException(ex);
         }
     }
 

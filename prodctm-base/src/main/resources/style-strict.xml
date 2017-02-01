@@ -24,6 +24,7 @@
     <!-- Whitespace -->
     <module name="FileTabCharacter" />
     <module name="TreeWalker">
+        <module name="SuppressWarningsHolder" />
         <!-- Annotations -->
         <module name="AnnotationUseStyle" />
         <module name="MissingDeprecated" />
@@ -90,9 +91,9 @@
         <module name="NestedTryDepth">
             <property name="max" value="2" />
         </module>
-        <module name="NoClone" />
+        <!--<module name="NoClone" />-->
         <!--module name="NoFinalizer" / -->
-        <module name="SuperClone" />
+        <!--<module name="SuperClone" />-->
         <module name="SuperFinalize" />
         <!--module name="IllegalCatch" / -->
         <module name="IllegalThrows">

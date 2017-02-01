@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>prodctm-test</artifactId>
-    <packaging>jar</packaging>
-    <version>0.1</version>
 
     <parent>
         <groupId>pro.documentum</groupId>
@@ -13,31 +9,31 @@
         <relativePath>../prodctm-base/pom.xml</relativePath>
     </parent>
 
+    <artifactId>prodctm-dfs</artifactId>
+
+    <properties>
+        <commons-pool2.version>2.4.2</commons-pool2.version>
+    </properties>
+
     <dependencies>
         <dependency>
-            <groupId>com.emc.documentum.dfc</groupId>
-            <artifactId>dfc</artifactId>
-            <scope>compile</scope>
+            <groupId>com.emc.documentum.dfs</groupId>
+            <artifactId>emc-dfs-services-remote</artifactId>
+            <version>${dfs.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
-            <scope>compile</scope>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+            <version>${commons-pool2.version}</version>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <scope>compile</scope>
+            <groupId>pro.documentum</groupId>
+            <artifactId>prodctm-util</artifactId>
+            <version>0.1</version>
         </dependency>
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
+            <groupId>pro.documentum</groupId>
+            <artifactId>prodctm-test</artifactId>
         </dependency>
     </dependencies>
 
@@ -46,6 +42,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <executions />
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>aspectj-maven-plugin</artifactId>
+                <configuration>
+                    <aspectLibraries combine.self="override" />
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -65,6 +69,5 @@
             </plugin>
         </plugins>
     </build>
-
 
 </project>

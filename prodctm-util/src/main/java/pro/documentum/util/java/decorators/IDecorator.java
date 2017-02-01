@@ -7,4 +7,6 @@ public interface IDecorator<T> {
 
     T unwrap();
 
+    void setProxy(T proxy);
+
 }

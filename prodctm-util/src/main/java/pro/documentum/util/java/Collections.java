@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class Collections {
 
-    private static final Map<Class, Constructor> COLLECTION_CLASSES;
+    private static final Map<Class<?>, Constructor<?>> COLLECTION_CLASSES;
 
     static {
         COLLECTION_CLASSES = new ConcurrentHashMap<>();
@@ -33,8 +33,8 @@ public final class Collections {
         super();
     }
 
-    private static Constructor putCollection(final Class<?> cls) {
-        Constructor ctor = getDefaultCtor(cls);
+    private static Constructor<?> putCollection(final Class<?> cls) {
+        Constructor<?> ctor = getDefaultCtor(cls);
         if (ctor == null) {
             if (List.class.isAssignableFrom(cls)) {
                 ctor = COLLECTION_CLASSES.get(List.class);
@@ -56,7 +56,7 @@ public final class Collections {
             final Class<C> collectionCass) {
         // noinspection TryWithIdenticalCatches
         try {
-            Constructor<C> ctor = COLLECTION_CLASSES.get(collectionCass);
+            Constructor<?> ctor = COLLECTION_CLASSES.get(collectionCass);
             if (ctor == null) {
                 ctor = putCollection(collectionCass);
             }

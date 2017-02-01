@@ -7,9 +7,9 @@ import com.documentum.thirdparty.javassist.util.proxy.MethodFilter;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-class AllMethodsFilter implements MethodFilter {
+public final class AllMethodsFilter implements MethodFilter {
 
-    AllMethodsFilter() {
+    public AllMethodsFilter() {
         super();
     }
 

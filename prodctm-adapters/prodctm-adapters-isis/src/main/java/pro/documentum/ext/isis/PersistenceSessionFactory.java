@@ -7,7 +7,7 @@ import org.apache.isis.core.metamodel.spec.SpecificationLoaderSpi;
 import org.apache.isis.core.runtime.system.DeploymentType;
 import org.apache.isis.core.runtime.system.persistence.PersistenceSession;
 
-import pro.documentum.util.java.decorators.Decorators;
+import pro.documentum.util.java.decorators.javassist.JavassistDecorators;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
@@ -26,7 +26,7 @@ public class PersistenceSessionFactory
             final ServicesInjectorSpi servicesInjector,
             final SpecificationLoaderSpi specificationLoader,
             final AuthenticationSession authenticationSession) {
-        return Decorators.wrap(new PersistenceSessionDecorator(super
+        return JavassistDecorators.wrap(new PersistenceSessionDecorator(super
                 .createPersistenceSession(servicesInjector,
                         specificationLoader, authenticationSession),
                 authenticationSession));

@@ -19,6 +19,7 @@ import com.documentum.fc.common.IDfAttr;
 import com.documentum.fc.common.IDfId;
 import com.documentum.fc.common.IDfValue;
 
+import pro.documentum.aspects.DfTransactional;
 import pro.documentum.util.objects.DfObjects;
 
 /**
@@ -35,6 +36,7 @@ public final class VersionTreeCopier {
         super();
     }
 
+    @DfTransactional
     public static Map<IDfId, IDfId> copy(final IDfSession session,
             final IDfId objectId, final boolean shareContent,
             final boolean copyRelations,

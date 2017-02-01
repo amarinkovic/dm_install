@@ -22,6 +22,7 @@
         <commons-lang.version>2.4</commons-lang.version>
         <commons-io.version>2.4</commons-io.version>
         <dfc.version>7.2</dfc.version>
+        <dfs.version>7.3</dfs.version>
         <aspectj.version>1.8.2</aspectj.version>
     </properties>
 
@@ -31,6 +32,11 @@
                 <groupId>org.objenesis</groupId>
                 <artifactId>objenesis</artifactId>
                 <version>2.4</version>
+            </dependency>
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib-nodep</artifactId>
+                <version>2.2.2</version>
             </dependency>
             <dependency>
                 <groupId>log4j</groupId>
