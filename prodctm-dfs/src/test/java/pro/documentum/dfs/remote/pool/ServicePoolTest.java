@@ -1,16 +1,10 @@
 package pro.documentum.dfs.remote.pool;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.Arrays;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 
-import com.documentum.thirdparty.javassist.ClassPool;
-import com.documentum.thirdparty.javassist.CtClass;
-import com.documentum.thirdparty.javassist.CtMethod;
-import com.documentum.thirdparty.javassist.Modifier;
 import com.emc.documentum.fs.datamodel.core.DataPackage;
 import com.emc.documentum.fs.datamodel.core.ObjectIdentity;
 import com.emc.documentum.fs.datamodel.core.ObjectIdentitySet;
@@ -69,33 +63,20 @@ public class ServicePoolTest extends DfcTestSupport {
                 getLoginInfo().getUser(), RandomStringUtils.random(20), null);
         newContext.setIdentities(Arrays.asList(identity));
 
+        Exception exception = null;
         try {
             ServiceContextDecorator.of(objectService).setWrapped(newContext);
+            dataPackage = objectService.get(new ObjectIdentitySet(
+                    objectIdentity), null);
         } catch (Exception ex) {
-            assertTrue(ex instanceof AuthenticationException);
+            exception = ex;
         }
 
-    }
+        assertNotNull(exception);
+        assertTrue(exception instanceof AuthenticationException);
 
-    public static void main(String[] args) throws Exception {
-        ClassPool pool = ClassPool.getDefault();
-        String cls = "com.emc.documentum.fs.rt.context.impl.ServiceContextAdapter";
-        CtClass cc = pool.get(cls);
-        for (CtMethod method : cc.getMethods()) {
-            if (!"getDeltaContext".equals(method.getName())) {
-                continue;
-            }
-            int modifiers = method.getModifiers();
-            if (!Modifier.isFinal(modifiers)) {
-                continue;
-            }
-            method.setModifiers(Modifier.clear(modifiers, Modifier.FINAL));
-        }
-        File temp = File.createTempFile("ServiceContextAdapter.class", "");
-        FileOutputStream fos = new FileOutputStream(temp);
-        fos.write(cc.toBytecode());
-        fos.close();
-        System.out.println("Written to: " + temp.getAbsolutePath());
+        ((IPooledService) objectService).returnToPool();
+
     }
 
 }

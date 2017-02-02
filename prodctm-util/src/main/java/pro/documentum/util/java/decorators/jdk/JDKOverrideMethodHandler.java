@@ -18,7 +18,7 @@ public class JDKOverrideMethodHandler<T> implements InvocationHandler {
         _decorator = Objects.requireNonNull(decorator);
     }
 
-    protected static boolean isEquals(final Method method) {
+    private static boolean isEquals(final Method method) {
         if (!"equals".equals(method.getName())) {
             return false;
         }
@@ -29,7 +29,7 @@ public class JDKOverrideMethodHandler<T> implements InvocationHandler {
         return types[0] == Object.class;
     }
 
-    protected static Method getMethod(final Object object, final String name,
+    private static Method getMethod(final Object object, final String name,
             final Class<?>[] parameterTypes) {
         try {
             Method result = object.getClass().getMethod(name, parameterTypes);
@@ -61,7 +61,7 @@ public class JDKOverrideMethodHandler<T> implements InvocationHandler {
         }
     }
 
-    protected IDecorator<T> getDecorator() {
+    protected final IDecorator<T> getDecorator() {
         return _decorator;
     }
 
