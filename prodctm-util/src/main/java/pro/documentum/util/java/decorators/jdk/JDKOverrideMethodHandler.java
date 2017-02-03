@@ -29,10 +29,10 @@ public class JDKOverrideMethodHandler<T> implements InvocationHandler {
         return types[0] == Object.class;
     }
 
-    private static Method getMethod(final Object object, final String name,
+    private static Method getMethod(final Class<?> cls, final String name,
             final Class<?>[] parameterTypes) {
         try {
-            Method result = object.getClass().getMethod(name, parameterTypes);
+            Method result = cls.getMethod(name, parameterTypes);
             if (!result.isAccessible()) {
                 result.setAccessible(true);
             }
@@ -40,6 +40,11 @@ public class JDKOverrideMethodHandler<T> implements InvocationHandler {
         } catch (NoSuchMethodException ex) {
             return null;
         }
+    }
+
+    private static Method getMethod(final Object object, final String name,
+            final Class<?>[] parameterTypes) {
+        return getMethod(object.getClass(), name, parameterTypes);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package pro.documentum.util.java.decorators;
+package pro.documentum.util.java.decorators.javassist;
 
 import java.lang.reflect.Method;
 
@@ -7,9 +7,9 @@ import com.documentum.thirdparty.javassist.util.proxy.MethodFilter;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public final class AllMethodsFilter implements MethodFilter {
+final class AllMethodsFilter implements MethodFilter {
 
-    public AllMethodsFilter() {
+    AllMethodsFilter() {
         super();
     }
 

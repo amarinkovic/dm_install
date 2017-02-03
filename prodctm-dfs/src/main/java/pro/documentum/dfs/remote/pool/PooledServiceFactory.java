@@ -42,11 +42,7 @@ public class PooledServiceFactory extends
 
     void setServiceContext(final IContextHolder service,
             final IServiceContext context) {
-        IServiceContext serviceContext = context;
-        if (serviceContext == null) {
-            serviceContext = ContextFactory.getInstance().newContext();
-        }
-        ServiceContextDecorator.of(service).setWrapped(serviceContext);
+        ServiceContextDecorator.of(service).setWrapped(context);
     }
 
 }
