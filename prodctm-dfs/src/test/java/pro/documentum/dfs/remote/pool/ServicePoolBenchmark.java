@@ -3,12 +3,17 @@ package pro.documentum.dfs.remote.pool;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.emc.documentum.fs.datamodel.core.ObjectIdentity;
+import com.emc.documentum.fs.datamodel.core.Qualification;
+import com.emc.documentum.fs.datamodel.core.context.Identity;
+import com.emc.documentum.fs.datamodel.core.context.RepositoryIdentity;
 import com.emc.documentum.fs.rt.context.ContextFactory;
 import com.emc.documentum.fs.rt.context.IServiceContext;
 import com.emc.documentum.fs.rt.context.ServiceFactory;
@@ -28,8 +33,8 @@ public class ServicePoolBenchmark {
         List<Thread> threads = new ArrayList<>();
         AtomicLong counter = new AtomicLong(0);
         try {
-            for (int i = 0; i < 1; i++) {
-                threads.add(new Thread(new Task(new PoolBenchmark(), counter)));
+            for (int i = 0; i < 2; i++) {
+                threads.add(new Thread(new Task(new DFSBenchmark(), counter)));
             }
 
             for (Thread thread : threads) {
@@ -43,7 +48,9 @@ public class ServicePoolBenchmark {
                 System.out.println("Ops per second: "
                         + ((curValue - prevValue) * 1000 / SLEEP_TIME)
                         + ", iteration: " + iteration);
-                assertTrue(((curValue - prevValue) * 1000 / SLEEP_TIME) > 1000);
+                if (iteration > 1) {
+                    assertTrue(((curValue - prevValue) * 1000 / SLEEP_TIME) > 500);
+                }
                 prevValue = curValue;
             }
         } finally {
@@ -80,11 +87,18 @@ public class ServicePoolBenchmark {
 
     static class DFSBenchmark implements IBenchmark {
 
-        private final IServiceContext context = ContextFactory.getInstance()
-                .newContext();
+        private final IServiceContext context;
+
+        private final ObjectIdentity<Qualification<String>> objectIdentity;
 
         public DFSBenchmark() {
-            super();
+            context = ContextFactory.getInstance().newContext();
+            Identity identity = new RepositoryIdentity("DCTM_DEV", "dmadmin",
+                    "dmadmin", null);
+            context.setIdentities(Arrays.asList(identity));
+            objectIdentity = new ObjectIdentity<>(new Qualification<>(
+                    "dm_server_config"), "DCTM_DEV");
+
         }
 
         @Override
@@ -92,27 +106,8 @@ public class ServicePoolBenchmark {
             IObjectService service = ServiceFactory.getInstance()
                     .getRemoteService(IObjectService.class, context);
             ((IRemoteService) service).getBindingProvider();
-        }
-
-    }
-
-    static class PoolBenchmark implements IBenchmark {
-
-        private static final IServicePool POOL = ServicePool.getInstance();
-
-        private final IServiceContext context = ContextFactory.getInstance()
-                .newContext();
-
-        public PoolBenchmark() {
-            super();
-        }
-
-        @Override
-        public void op() throws Exception {
-            IObjectService service = POOL.getService(IObjectService.class,
-                    context);
-            ((IRemoteService) service).getBindingProvider();
-            ((IPooledService) service).returnToPool();
+            // DataPackage dataPackage = service.get(new ObjectIdentitySet(
+            // objectIdentity), null);
         }
 
     }
