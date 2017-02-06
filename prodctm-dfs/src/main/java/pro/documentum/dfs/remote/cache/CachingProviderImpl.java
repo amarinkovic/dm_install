@@ -74,7 +74,10 @@ public class CachingProviderImpl extends Provider {
         if (result == null) {
             result = DELEGATE.createServiceDelegate(wsdlDocumentLocation,
                     serviceName, serviceClass);
-            CACHE.put(key, result);
+            ServiceDelegate temp = CACHE.putIfAbsent(key, result);
+            if (temp != null) {
+                result = temp;
+            }
         }
         return result;
     }
