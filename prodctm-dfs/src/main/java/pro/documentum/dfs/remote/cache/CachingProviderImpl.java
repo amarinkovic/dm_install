@@ -28,13 +28,17 @@ import org.w3c.dom.Element;
  */
 public class CachingProviderImpl extends Provider {
 
-    private static final ConcurrentMap<DelegateKey, ServiceDelegate> _cache;
+    private static final ConcurrentMap<DelegateKey, ServiceDelegate> CACHE;
 
-    private static final Provider _delegate;
+    private static final Provider DELEGATE;
 
     static {
-        _cache = new ConcurrentHashMap<>();
-        _delegate = getProviderLoader();
+        CACHE = new ConcurrentHashMap<>();
+        DELEGATE = getProviderLoader();
+    }
+
+    public CachingProviderImpl() {
+        super();
     }
 
     private static Provider getProviderLoader() {
@@ -56,98 +60,106 @@ public class CachingProviderImpl extends Provider {
         return provider;
     }
 
-    public static boolean isSelf(Provider provider) {
+    public static boolean isSelf(final Provider provider) {
         return provider instanceof CachingProviderImpl;
     }
 
     @Override
-    public ServiceDelegate createServiceDelegate(URL wsdlDocumentLocation,
-            QName serviceName, Class<? extends Service> serviceClass) {
+    public ServiceDelegate createServiceDelegate(
+            final URL wsdlDocumentLocation, final QName serviceName,
+            final Class<? extends Service> serviceClass) {
         DelegateKey key = new DelegateKey(wsdlDocumentLocation, serviceName,
                 serviceClass);
-        ServiceDelegate result = _cache.get(key);
+        ServiceDelegate result = CACHE.get(key);
         if (result == null) {
-            result = _delegate.createServiceDelegate(wsdlDocumentLocation,
+            result = DELEGATE.createServiceDelegate(wsdlDocumentLocation,
                     serviceName, serviceClass);
-            _cache.put(key, result);
+            CACHE.put(key, result);
         }
         return result;
     }
 
     @SuppressWarnings("unchecked")
-    public ServiceDelegate createServiceDelegate(URL wsdlDocumentLocation,
-            QName serviceName, Class serviceClass,
-            WebServiceFeature... features) {
+    public ServiceDelegate createServiceDelegate(
+            final URL wsdlDocumentLocation, final QName serviceName,
+            final Class serviceClass, final WebServiceFeature... features) {
         if (features == null || features.length == 0) {
             return createServiceDelegate(wsdlDocumentLocation, serviceName,
                     serviceClass);
         }
-        return _delegate.createServiceDelegate(wsdlDocumentLocation,
+        return DELEGATE.createServiceDelegate(wsdlDocumentLocation,
                 serviceName, serviceClass, features);
     }
 
     @Override
-    public Endpoint createEndpoint(String bindingId, Object implementor) {
-        return _delegate.createEndpoint(bindingId, implementor);
+    public Endpoint createEndpoint(final String bindingId,
+            final Object implementor) {
+        return DELEGATE.createEndpoint(bindingId, implementor);
     }
 
     @Override
-    public Endpoint createAndPublishEndpoint(String address, Object implementor) {
-        return _delegate.createAndPublishEndpoint(address, implementor);
+    public Endpoint createAndPublishEndpoint(final String address,
+            final Object implementor) {
+        return DELEGATE.createAndPublishEndpoint(address, implementor);
     }
 
     @Override
-    public EndpointReference readEndpointReference(Source eprInfoset) {
-        return _delegate.readEndpointReference(eprInfoset);
+    public EndpointReference readEndpointReference(final Source eprInfoset) {
+        return DELEGATE.readEndpointReference(eprInfoset);
     }
 
     @Override
-    public <T> T getPort(EndpointReference endpointReference,
-            Class<T> serviceEndpointInterface, WebServiceFeature... features) {
-        return _delegate.getPort(endpointReference, serviceEndpointInterface,
+    public <T> T getPort(final EndpointReference endpointReference,
+            final Class<T> serviceEndpointInterface,
+            final WebServiceFeature... features) {
+        return DELEGATE.getPort(endpointReference, serviceEndpointInterface,
                 features);
     }
 
     @Override
-    public W3CEndpointReference createW3CEndpointReference(String address,
-            QName serviceName, QName portName, List<Element> metadata,
-            String wsdlDocumentLocation, List<Element> referenceParameters) {
-        return _delegate.createW3CEndpointReference(address, serviceName,
+    public W3CEndpointReference createW3CEndpointReference(
+            final String address, final QName serviceName,
+            final QName portName, final List<Element> metadata,
+            final String wsdlDocumentLocation,
+            final List<Element> referenceParameters) {
+        return DELEGATE.createW3CEndpointReference(address, serviceName,
                 portName, metadata, wsdlDocumentLocation, referenceParameters);
     }
 
     @Override
-    public W3CEndpointReference createW3CEndpointReference(String address,
-            QName interfaceName, QName serviceName, QName portName,
-            List<Element> metadata, String wsdlDocumentLocation,
-            List<Element> referenceParameters, List<Element> elements,
-            Map<QName, String> attributes) {
-        return _delegate.createW3CEndpointReference(address, interfaceName,
+    public W3CEndpointReference createW3CEndpointReference(
+            final String address, final QName interfaceName,
+            final QName serviceName, final QName portName,
+            final List<Element> metadata, final String wsdlDocumentLocation,
+            final List<Element> referenceParameters,
+            final List<Element> elements, final Map<QName, String> attributes) {
+        return DELEGATE.createW3CEndpointReference(address, interfaceName,
                 serviceName, portName, metadata, wsdlDocumentLocation,
                 referenceParameters, elements, attributes);
     }
 
     @Override
-    public Endpoint createAndPublishEndpoint(String address,
-            Object implementor, WebServiceFeature... features) {
-        return _delegate.createAndPublishEndpoint(address, implementor,
-                features);
+    public Endpoint createAndPublishEndpoint(final String address,
+            final Object implementor, final WebServiceFeature... features) {
+        return DELEGATE
+                .createAndPublishEndpoint(address, implementor, features);
     }
 
     @Override
-    public Endpoint createEndpoint(String bindingId, Object implementor,
-            WebServiceFeature... features) {
-        return _delegate.createEndpoint(bindingId, implementor, features);
+    public Endpoint createEndpoint(final String bindingId,
+            final Object implementor, final WebServiceFeature... features) {
+        return DELEGATE.createEndpoint(bindingId, implementor, features);
     }
 
     @Override
-    public Endpoint createEndpoint(String bindingId, Class<?> implementorClass,
-            Invoker invoker, WebServiceFeature... features) {
-        return _delegate.createEndpoint(bindingId, implementorClass, invoker,
+    public Endpoint createEndpoint(final String bindingId,
+            final Class<?> implementorClass, final Invoker invoker,
+            final WebServiceFeature... features) {
+        return DELEGATE.createEndpoint(bindingId, implementorClass, invoker,
                 features);
     }
 
-    public class DelegateKey {
+    class DelegateKey {
 
         private final URL _wsdlLocation;
 
@@ -155,8 +167,8 @@ public class CachingProviderImpl extends Provider {
 
         private final Class<? extends Service> _serviceClass;
 
-        public DelegateKey(URL wsdlLocation, QName serviceName,
-                Class<? extends Service> serviceClass) {
+        DelegateKey(final URL wsdlLocation, final QName serviceName,
+                final Class<? extends Service> serviceClass) {
             _wsdlLocation = wsdlLocation;
             _serviceName = serviceName;
             _serviceClass = serviceClass;
@@ -175,7 +187,7 @@ public class CachingProviderImpl extends Provider {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (this == o) {
                 return true;
             }
