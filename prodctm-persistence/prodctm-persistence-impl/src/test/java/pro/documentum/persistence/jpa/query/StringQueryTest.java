@@ -22,10 +22,15 @@ public class StringQueryTest extends AbstractQueryTest {
     }
 
     @Test
-    @Ignore
     public void testNullString1() throws Exception {
-        String q = str(jqql(DmUser.class, "userName = NULLSTRING"));
+        String q = str(jqql(DmUser.class, "userName = NULLSTRING()"));
         assertThat(q, endsWith("WHERE this.user_name IS NULLSTRING"));
+    }
+
+    @Test
+    public void testNullDate() throws Exception {
+        String q = str(jqql(DmUser.class, "userName = NULLDATE()"));
+        assertThat(q, endsWith("WHERE this.user_name IS NULLDATE"));
     }
 
     @Test
@@ -35,18 +40,16 @@ public class StringQueryTest extends AbstractQueryTest {
     }
 
     @Test
-    @Ignore
     public void testNullString3() throws Exception {
         String q = str(jqql(DmUser.class, "userName = NULL "
-                + "OR userName == NULLSTRING"));
+                + "OR userName = NULLSTRING()"));
         assertThat(q, endsWith("WHERE (this.user_name IS NULL) "
                 + "OR (this.user_name IS NULLSTRING)"));
     }
 
     @Test
-    @Ignore
     public void testUserKeyword() throws Exception {
-        String q = str(jqql(DmUser.class, "userName = USER"));
+        String q = str(jqql(DmUser.class, "userName = USER()"));
         assertThat(q, endsWith("WHERE this.user_name=USER"));
     }
 

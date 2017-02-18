@@ -37,13 +37,13 @@ public class DQLNull extends DQLLiteral<Void> {
     private static DQLExpression evaluate(final VariableExpression expression,
             final IDQLEvaluator evaluator) {
         String name = expression.getId();
-        if (!SPECIAL_NULLS.contains(name.toUpperCase())) {
+        if (!isSpecialNull(name)) {
             return null;
         }
         return getInstance(name);
     }
 
-    private static DQLLiteral<?> getInstance(final String value) {
+    public static DQLLiteral<?> getInstance(final String value) {
         if (NULL.equalsIgnoreCase(value)) {
             return new DQLNull();
         } else if (NULLSTRING.equalsIgnoreCase(value)) {
@@ -52,6 +52,13 @@ public class DQLNull extends DQLLiteral<Void> {
             return new DQLNullDate();
         }
         return null;
+    }
+
+    public static boolean isSpecialNull(final String value) {
+        if (value == null) {
+            return false;
+        }
+        return SPECIAL_NULLS.contains(value.toUpperCase());
     }
 
     public static IVariableEvaluator getVariableEvaluator() {

@@ -24,6 +24,7 @@ import pro.documentum.persistence.common.query.expression.DQLField;
 import pro.documentum.persistence.common.query.expression.DQLIN;
 import pro.documentum.persistence.common.query.expression.DQLSubQuery;
 import pro.documentum.persistence.common.query.expression.Expressions;
+import pro.documentum.persistence.common.query.expression.functions.DQLConstant;
 import pro.documentum.persistence.common.query.expression.functions.DQLDateToString;
 import pro.documentum.persistence.common.query.expression.functions.DQLLower;
 import pro.documentum.persistence.common.query.expression.functions.DQLUpper;
@@ -48,6 +49,7 @@ public class DQLMapper<R, T extends Query<?> & IDocumentumQuery<R>> extends
         INVOKE_EVALUATORS.add(DQLUpper.getInvokeEvaluator());
         INVOKE_EVALUATORS.add(DQLLower.getInvokeEvaluator());
         INVOKE_EVALUATORS.add(DQLIN.getInvokeEvaluator());
+        INVOKE_EVALUATORS.add(DQLConstant.getInvokeEvaluator());
     }
 
     static {
