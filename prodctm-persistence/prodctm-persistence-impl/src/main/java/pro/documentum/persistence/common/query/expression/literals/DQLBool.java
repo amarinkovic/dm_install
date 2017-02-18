@@ -20,7 +20,7 @@ public class DQLBool extends DQLLiteral<Boolean> {
     }
 
     private static DQLBool evaluate(final VariableExpression expression,
-            final IDQLEvaluator evaluator) {
+            final IDQLEvaluator<?> evaluator) {
         String name = expression.getId();
         if (!TRUE.equalsIgnoreCase(name) && !FALSE.equalsIgnoreCase(name)) {
             return null;
@@ -36,7 +36,7 @@ public class DQLBool extends DQLLiteral<Boolean> {
         return new IVariableEvaluator() {
             @Override
             public DQLExpression evaluate(final VariableExpression expression,
-                    final IDQLEvaluator evaluator) {
+                    final IDQLEvaluator<?> evaluator) {
                 return DQLBool.evaluate(expression, evaluator);
             }
         };

@@ -174,4 +174,9 @@ public class JDOQLQuery<R> extends AbstractJDOQLQuery implements
         return _datastoreCompilation;
     }
 
+    @Override
+    public DQLQueryHelper<R, ?> getQueryHelper() {
+        return _queryHelper;
+    }
+
 }

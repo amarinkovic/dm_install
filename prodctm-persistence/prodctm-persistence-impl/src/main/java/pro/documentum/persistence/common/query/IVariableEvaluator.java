@@ -10,6 +10,6 @@ import pro.documentum.persistence.common.query.expression.DQLExpression;
 public interface IVariableEvaluator {
 
     DQLExpression evaluate(VariableExpression expression,
-            IDQLEvaluator evaluator);
+            IDQLEvaluator<?> evaluator);
 
 }

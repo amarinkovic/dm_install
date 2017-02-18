@@ -169,4 +169,9 @@ public class JPQLQuery<R> extends AbstractJPQLQuery implements
         return _datastoreCompilation;
     }
 
+    @Override
+    public DQLQueryHelper<R, ?> getQueryHelper() {
+        return _queryHelper;
+    }
+
 }

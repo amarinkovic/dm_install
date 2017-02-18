@@ -9,12 +9,14 @@ import pro.documentum.persistence.common.query.expression.DQLExpression;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public interface IDQLEvaluator extends ExpressionEvaluator {
+public interface IDQLEvaluator<T> extends ExpressionEvaluator {
 
     DQLExpression popExpression();
 
     Object processPrimaryExpression(PrimaryExpression expr);
 
     DQLExpression processLiteralOrParameter(Expression expression);
+
+    T getSubquery(String variableName);
 
 }

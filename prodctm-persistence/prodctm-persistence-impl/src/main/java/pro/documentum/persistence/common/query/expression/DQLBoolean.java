@@ -93,6 +93,8 @@ public class DQLBoolean extends DQLExpression {
             builder.append("<");
         } else if (op == Expression.OP_LTEQ) {
             builder.append("<=");
+        } else if (op == Expression.OP_IN) {
+            builder.append(" IN ");
         } else {
             return null;
         }

@@ -20,7 +20,7 @@ public final class DQLLower extends DQLFunc {
     }
 
     private static DQLExpression evaluate(final InvokeExpression invokeExpr,
-            final IDQLEvaluator evaluator) {
+            final IDQLEvaluator<?> evaluator) {
         DQLExpression expression = processField(invokeExpr, evaluator, FUNC,
                 RIGHT_FUNC);
         if (expression == null) {
@@ -37,7 +37,7 @@ public final class DQLLower extends DQLFunc {
         return new IInvokeEvaluator() {
             @Override
             public DQLExpression evaluate(final InvokeExpression expression,
-                    final IDQLEvaluator evaluator) {
+                    final IDQLEvaluator<?> evaluator) {
                 return DQLLower.evaluate(expression, evaluator);
             }
         };

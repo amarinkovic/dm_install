@@ -107,4 +107,9 @@ public class DQLQuery<R, E> extends AbstractJavaQuery<E> implements
         return null;
     }
 
+    @Override
+    public DQLQueryHelper<R, ?> getQueryHelper() {
+        return null;
+    }
+
 }

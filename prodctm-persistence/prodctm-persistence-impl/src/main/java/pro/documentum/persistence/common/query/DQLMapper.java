@@ -12,6 +12,7 @@ import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.OrderExpression;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
+import org.datanucleus.query.expression.SubqueryExpression;
 import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.store.query.Query;
 import org.datanucleus.util.NucleusLogger;
@@ -22,7 +23,6 @@ import pro.documentum.persistence.common.query.expression.DQLBoolean;
 import pro.documentum.persistence.common.query.expression.DQLExpression;
 import pro.documentum.persistence.common.query.expression.DQLField;
 import pro.documentum.persistence.common.query.expression.DQLIN;
-import pro.documentum.persistence.common.query.expression.DQLSubQuery;
 import pro.documentum.persistence.common.query.expression.Expressions;
 import pro.documentum.persistence.common.query.expression.functions.DQLDateToString;
 import pro.documentum.persistence.common.query.expression.functions.DQLLower;
@@ -33,9 +33,10 @@ import pro.documentum.persistence.common.query.expression.literals.DQLConstant;
 import pro.documentum.persistence.common.query.expression.literals.DQLDate;
 import pro.documentum.persistence.common.query.expression.literals.DQLLiteral;
 import pro.documentum.persistence.common.query.expression.literals.nulls.DQLNull;
+import pro.documentum.persistence.common.query.expression.subquery.DQLSubQuery;
 
 public class DQLMapper<R, T extends Query<?> & IDocumentumQuery<R>> extends
-        AbstractDQLEvaluator<R, T> implements IDQLEvaluator {
+        AbstractDQLEvaluator<R, T> implements IDQLEvaluator<T> {
 
     private static final List<IInvokeEvaluator> INVOKE_EVALUATORS;
     private static final List<IVariableEvaluator> VARIABLE_EVALUATORS;
@@ -61,8 +62,10 @@ public class DQLMapper<R, T extends Query<?> & IDocumentumQuery<R>> extends
         VARIABLE_EVALUATORS.add(DQLSubQuery.getVariableEvaluator());
     }
 
-    public DQLMapper(final T query, final Map<?, ?> params) {
-        super(query, params);
+    public DQLMapper(final T query,
+            final AbstractDQLEvaluator<?, ?> parentMapper,
+            final Map<?, ?> params) {
+        super(query, parentMapper, params);
     }
 
     @Override
@@ -199,9 +202,17 @@ public class DQLMapper<R, T extends Query<?> & IDocumentumQuery<R>> extends
 
     @Override
     protected Object processInExpression(final Expression inExpr) {
-        DQLCollection right = (DQLCollection) popExpression();
+        DQLExpression right = popExpression();
         DQLField left = (DQLField) popExpression();
-        return pushExpression(DQLIN.createINExpression(left, right));
+        if (right instanceof DQLCollection) {
+            return pushExpression(DQLIN.createINExpression(left,
+                    (DQLCollection) right));
+        }
+        if (right instanceof DQLSubQuery) {
+            return pushExpression(DQLBoolean.getInstance(left, right,
+                    Expression.OP_IN));
+        }
+        return null;
     }
 
     @Override
@@ -347,7 +358,12 @@ public class DQLMapper<R, T extends Query<?> & IDocumentumQuery<R>> extends
 
         String fieldName = getFieldNameForPrimary(expr);
         if (fieldName != null) {
-            DQLField fieldExpr = new DQLField(getCandidateAlias(), fieldName);
+            List<String> tuples = expr.getTuples();
+            String alias = getCandidateAlias();
+            if (tuples != null && tuples.size() > 1) {
+                alias = tuples.get(0);
+            }
+            DQLField fieldExpr = new DQLField(alias, fieldName);
             return pushExpression(fieldExpr);
         }
 
@@ -409,6 +425,20 @@ public class DQLMapper<R, T extends Query<?> & IDocumentumQuery<R>> extends
             return pushExpression(literal);
         }
         return super.processLiteral(expr);
+    }
+
+    @Override
+    protected Object processSubqueryExpression(final SubqueryExpression expr) {
+        String keyword = expr.getKeyword();
+        Expression expression = expr.getRight();
+        if (!(expression instanceof VariableExpression)) {
+            return super.processSubqueryExpression(expr);
+        }
+        if (processVariableExpression((VariableExpression) expression) == null) {
+            return super.processSubqueryExpression(expr);
+        }
+        DQLExpression subquery = popExpression();
+        return pushExpression(new DQLBoolean(keyword + " " + subquery.getText()));
     }
 
 }

@@ -20,7 +20,7 @@ public class DQLAny extends DQLBoolean {
     }
 
     private static DQLExpression evaluate(final InvokeExpression invokeExpr,
-            final IDQLEvaluator evaluator) {
+            final IDQLEvaluator<?> evaluator) {
         String op = invokeExpr.getOperation();
         if (!ANY.equalsIgnoreCase(op)) {
             return null;
@@ -53,7 +53,7 @@ public class DQLAny extends DQLBoolean {
         return new IInvokeEvaluator() {
             @Override
             public DQLExpression evaluate(final InvokeExpression expression,
-                    final IDQLEvaluator evaluator) {
+                    final IDQLEvaluator<?> evaluator) {
                 return DQLAny.evaluate(expression, evaluator);
             }
         };

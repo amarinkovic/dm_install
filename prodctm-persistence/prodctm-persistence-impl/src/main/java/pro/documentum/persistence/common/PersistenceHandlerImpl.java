@@ -10,7 +10,6 @@ import org.datanucleus.exceptions.NucleusObjectNotFoundException;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.state.ObjectProvider;
 import org.datanucleus.store.AbstractPersistenceHandler;
-import org.datanucleus.store.StoreData;
 import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.connection.ManagedConnection;
 import org.datanucleus.store.schema.table.Table;
@@ -59,8 +58,7 @@ public class PersistenceHandlerImpl extends AbstractPersistenceHandler
         Object objectId = op.getExternalObjectId();
         ManagedConnection mconn = getStoreManager().getConnection(ec);
         try {
-            StoreData storeData = DNMetaData.getStoreData(ec, cmd);
-            Table table = storeData.getTable();
+            Table table = DNMetaData.getTable(ec, cmd);
             IDfSession session = (IDfSession) mconn.getConnection();
             IDfPersistentObject dbObject = newObject(session, objectId, cmd);
             setNonRelationFields(dbObject, op, table, true);

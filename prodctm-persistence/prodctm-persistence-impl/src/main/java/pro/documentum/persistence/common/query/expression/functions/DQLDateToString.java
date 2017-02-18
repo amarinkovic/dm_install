@@ -23,7 +23,7 @@ public final class DQLDateToString extends DQLFunc {
     }
 
     private static DQLDateToString evaluate(final InvokeExpression invokeExpr,
-            final IDQLEvaluator evaluator) {
+            final IDQLEvaluator<?> evaluator) {
         String op = invokeExpr.getOperation();
         if (!FUNC.equalsIgnoreCase(op)) {
             return null;
@@ -56,7 +56,7 @@ public final class DQLDateToString extends DQLFunc {
         return new IInvokeEvaluator() {
             @Override
             public DQLExpression evaluate(final InvokeExpression expression,
-                    final IDQLEvaluator evaluator) {
+                    final IDQLEvaluator<?> evaluator) {
                 return DQLDateToString.evaluate(expression, evaluator);
             }
         };

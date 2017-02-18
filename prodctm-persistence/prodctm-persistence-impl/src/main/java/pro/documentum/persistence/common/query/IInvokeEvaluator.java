@@ -9,6 +9,6 @@ import pro.documentum.persistence.common.query.expression.DQLExpression;
  */
 public interface IInvokeEvaluator {
 
-    DQLExpression evaluate(InvokeExpression expression, IDQLEvaluator evaluator);
+    DQLExpression evaluate(InvokeExpression expression, IDQLEvaluator<?> evaluator);
 
 }

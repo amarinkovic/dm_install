@@ -8,7 +8,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractClassMetaData;
-import org.datanucleus.store.StoreData;
 import org.datanucleus.store.query.Query;
 import org.datanucleus.store.schema.table.Column;
 import org.datanucleus.store.schema.table.Table;
@@ -39,9 +38,8 @@ public final class DNQueries {
             final Long rangeToExcl) {
 
         ExecutionContext context = query.getExecutionContext();
-        StoreData sd = DNMetaData.getStoreData(context,
-                query.getCandidateMetaData());
-        Table table = sd.getTable();
+        Table table = DNMetaData
+                .getTable(context, query.getCandidateMetaData());
 
         String projection = resultText;
         if (StringUtils.isBlank(projection)) {

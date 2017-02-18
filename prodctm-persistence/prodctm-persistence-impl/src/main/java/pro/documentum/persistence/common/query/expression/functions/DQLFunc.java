@@ -25,8 +25,9 @@ public class DQLFunc extends DQLExpression {
     }
 
     protected static DQLExpression processField(
-            final InvokeExpression invokeExpr, final IDQLEvaluator evaluator,
-            final String outer, final String right) {
+            final InvokeExpression invokeExpr,
+            final IDQLEvaluator<?> evaluator, final String outer,
+            final String right) {
         List<Expression> argExprs = invokeExpr.getArguments();
         PrimaryExpression primaryExpression = processFieldOuter(invokeExpr,
                 outer, argExprs);
@@ -43,7 +44,7 @@ public class DQLFunc extends DQLExpression {
     }
 
     protected static DQLExpression processLiteralOrParameter(
-            final InvokeExpression invokeExpr, final IDQLEvaluator evaluator,
+            final InvokeExpression invokeExpr, final IDQLEvaluator<?> evaluator,
             final String outer, final String right) {
         List<Expression> argExprs = invokeExpr.getArguments();
         Expression literalOrParameter = processLiteralOrParameterOuter(

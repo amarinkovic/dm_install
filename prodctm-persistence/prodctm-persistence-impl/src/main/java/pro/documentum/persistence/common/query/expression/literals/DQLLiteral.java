@@ -21,8 +21,8 @@ public abstract class DQLLiteral<T> extends DQLExpression {
         if (object == null) {
             return new DQLNull();
         }
-        if (object instanceof String) {
-            return new DQLString((String) object);
+        if (isCharSequence(object)) {
+            return new DQLString(object.toString());
         }
         if (object instanceof Date) {
             return new DQLDate((Date) object);
@@ -41,6 +41,13 @@ public abstract class DQLLiteral<T> extends DQLExpression {
             return collection;
         }
         return null;
+    }
+
+    private static boolean isCharSequence(final Object object) {
+        if (object instanceof CharSequence) {
+            return true;
+        }
+        return object instanceof Character;
     }
 
     public T getValue() {

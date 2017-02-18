@@ -30,12 +30,15 @@ public class DQLQueryHelper<R, T extends Query<?> & IDocumentumQuery<R>> {
 
     private final T _query;
 
+    private AbstractDQLEvaluator<?, ?> _parentMapper;
+
     public DQLQueryHelper(final T query) {
         _query = query;
     }
 
     public void compileQueryFull(final Map<?, ?> parameters) {
-        DQLMapper<R, T> mapper = new DQLMapper<>(_query, parameters);
+        DQLMapper<R, T> mapper = new DQLMapper<>(_query, _parentMapper,
+                parameters);
         mapper.compile(_query.getDatastoreCompilation());
     }
 
@@ -142,6 +145,10 @@ public class DQLQueryHelper<R, T extends Query<?> & IDocumentumQuery<R>> {
 
     private String getDqlText() {
         return _query.getDatastoreCompilation().getDqlText();
+    }
+
+    public void setParentMapper(final AbstractDQLEvaluator<R, ?> parentMapper) {
+        _parentMapper = parentMapper;
     }
 
 }

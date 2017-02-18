@@ -71,7 +71,7 @@ public abstract class AbstractPersistentObjectFactory<E> implements
     private FetchFieldManager getFetchFieldManager(
             final IDfTypedObject dbObject, final AbstractClassMetaData cmd,
             final ExecutionContext ec) {
-        Table table = DNMetaData.getStoreData(ec, cmd).getTable();
+        Table table = DNMetaData.getTable(ec, cmd);
         return new FetchFieldManager(ec, dbObject, cmd, table);
     }
 

@@ -107,7 +107,7 @@ public class DQLDate extends DQLLiteral<Date> {
     }
 
     private static DQLExpression evaluate(final VariableExpression expression,
-            final IDQLEvaluator evaluator) {
+            final IDQLEvaluator<?> evaluator) {
         if (!isDateVar(expression)) {
             return null;
         }
@@ -115,7 +115,7 @@ public class DQLDate extends DQLLiteral<Date> {
     }
 
     private static DQLExpression evaluate(final InvokeExpression invokeExpr,
-            final IDQLEvaluator evaluator) {
+            final IDQLEvaluator<?> evaluator) {
         String op = invokeExpr.getOperation();
         if (!FUNC.equalsIgnoreCase(op)) {
             return null;
@@ -167,7 +167,7 @@ public class DQLDate extends DQLLiteral<Date> {
         return new IInvokeEvaluator() {
             @Override
             public DQLExpression evaluate(final InvokeExpression expression,
-                    final IDQLEvaluator evaluator) {
+                    final IDQLEvaluator<?> evaluator) {
                 return DQLDate.evaluate(expression, evaluator);
             }
         };
@@ -177,7 +177,7 @@ public class DQLDate extends DQLLiteral<Date> {
         return new IVariableEvaluator() {
             @Override
             public DQLExpression evaluate(final VariableExpression expression,
-                    final IDQLEvaluator evaluator) {
+                    final IDQLEvaluator<?> evaluator) {
                 return DQLDate.evaluate(expression, evaluator);
             }
         };

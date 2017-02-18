@@ -40,7 +40,7 @@ public class DQLNull extends DQLLiteral<Void> {
     }
 
     private static DQLExpression evaluate(final VariableExpression expression,
-            final IDQLEvaluator evaluator) {
+            final IDQLEvaluator<?> evaluator) {
         String name = expression.getId();
         if (!isSpecialNull(name)) {
             return null;
@@ -49,7 +49,7 @@ public class DQLNull extends DQLLiteral<Void> {
     }
 
     private static DQLExpression evaluate(final InvokeExpression invokeExpr,
-            final IDQLEvaluator evaluator) {
+            final IDQLEvaluator<?> evaluator) {
         List<Expression> argExprs = invokeExpr.getArguments();
         if (!Expressions.hasRequiredArgs(argExprs, 0)) {
             return null;
@@ -83,7 +83,7 @@ public class DQLNull extends DQLLiteral<Void> {
         return new IVariableEvaluator() {
             @Override
             public DQLExpression evaluate(final VariableExpression expression,
-                    final IDQLEvaluator evaluator) {
+                    final IDQLEvaluator<?> evaluator) {
                 return DQLNull.evaluate(expression, evaluator);
             }
         };
@@ -93,7 +93,7 @@ public class DQLNull extends DQLLiteral<Void> {
         return new IInvokeEvaluator() {
             @Override
             public DQLExpression evaluate(final InvokeExpression expression,
-                    final IDQLEvaluator evaluator) {
+                    final IDQLEvaluator<?> evaluator) {
                 return DQLNull.evaluate(expression, evaluator);
             }
         };

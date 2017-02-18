@@ -15,6 +15,7 @@ import org.datanucleus.metadata.MetaDataManager;
 import org.datanucleus.metadata.MetaDataUtils;
 import org.datanucleus.metadata.RelationType;
 import org.datanucleus.query.compiler.CompilationComponent;
+import org.datanucleus.query.compiler.QueryCompilation;
 import org.datanucleus.query.evaluator.AbstractExpressionEvaluator;
 import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.ParameterExpression;
@@ -39,6 +40,8 @@ public abstract class AbstractDQLEvaluator<R, T extends Query<?> & IDocumentumQu
 
     private final T _query;
 
+    private final AbstractDQLEvaluator<?, ?> _parentMapper;
+
     private final Map<?, ?> _params;
 
     private String _filterText;
@@ -59,9 +62,12 @@ public abstract class AbstractDQLEvaluator<R, T extends Query<?> & IDocumentumQu
 
     private int _positionalParamNumber = -1;
 
-    public AbstractDQLEvaluator(final T query, final Map<?, ?> params) {
+    public AbstractDQLEvaluator(final T query,
+            final AbstractDQLEvaluator<?, ?> parentMapper,
+            final Map<?, ?> params) {
         _params = params;
         _query = query;
+        _parentMapper = parentMapper;
     }
 
     public void compile(final DQLQueryCompilation dqlCompilation) {
@@ -211,6 +217,21 @@ public abstract class AbstractDQLEvaluator<R, T extends Query<?> & IDocumentumQu
         return paramValue;
     }
 
+    protected AbstractClassMetaData getMetadataFromAlias(final String alias) {
+        AbstractDQLEvaluator<?, ?> mapper = this;
+        while (mapper != null) {
+            if (alias.equals(mapper.getCandidateAlias())) {
+                return mapper.getCandidateMetaData();
+            }
+            mapper = mapper._parentMapper;
+        }
+        return null;
+    }
+
+    protected Table getTable(final AbstractClassMetaData cmd) {
+        return DNMetaData.getTable(_query.getExecutionContext(), cmd);
+    }
+
     protected String getFieldNameForPrimary(final PrimaryExpression expr) {
         List<String> tuples = expr.getTuples();
         if (tuples == null || tuples.isEmpty()) {
@@ -218,8 +239,7 @@ public abstract class AbstractDQLEvaluator<R, T extends Query<?> & IDocumentumQu
         }
 
         AbstractClassMetaData cmd = _query.getCandidateMetaData();
-        Table table = DNMetaData
-                .getStoreData(_query.getExecutionContext(), cmd).getTable();
+        Table table = getTable(cmd);
         AbstractMemberMetaData embMmd = null;
 
         List<AbstractMemberMetaData> embMmds = new ArrayList<>();
@@ -227,14 +247,22 @@ public abstract class AbstractDQLEvaluator<R, T extends Query<?> & IDocumentumQu
         for (int i = 0, n = tuples.size(); i < n; i++) {
             boolean hasNext = i < n - 1;
             String name = tuples.get(i);
-            if (i == 0 && name.equals(getCandidateAlias())) {
-                cmd = _query.getCandidateMetaData();
-                continue;
+            if (i == 0) {
+                AbstractClassMetaData alias = getMetadataFromAlias(name);
+                if (alias != null) {
+                    cmd = alias;
+                    table = getTable(cmd);
+                    continue;
+                }
             }
 
             AbstractMemberMetaData mmd = cmd.getMetaDataForMember(name);
-            RelationType relationType = mmd
-                    .getRelationType(getClassLoaderResolver());
+            RelationType relationType;
+            try {
+                relationType = mmd.getRelationType(getClassLoaderResolver());
+            } catch (Exception ex) {
+                continue;
+            }
             if (DNRelation.isNone(relationType)) {
                 if (hasNext) {
                     throw new NucleusUserException("Query has reference to "
@@ -302,6 +330,25 @@ public abstract class AbstractDQLEvaluator<R, T extends Query<?> & IDocumentumQu
         }
 
         return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T getSubquery(final String variableName) {
+        QueryCompilation compilation = _query.getCompilation();
+        Query.SubqueryDefinition subqueryDefinition = _query
+                .getSubqueryForVariable(variableName);
+        if (subqueryDefinition == null) {
+            return null;
+        }
+        T query = (T) subqueryDefinition.getQuery();
+        if (query == null) {
+            return null;
+        }
+        QueryCompilation subQueryCompilation = compilation
+                .getCompilationForSubquery(variableName);
+        query.setCompilation(subQueryCompilation);
+        query.getQueryHelper().setParentMapper(this);
+        return query;
     }
 
     public final DQLExpression popExpression() {
@@ -393,6 +440,10 @@ public abstract class AbstractDQLEvaluator<R, T extends Query<?> & IDocumentumQu
 
     protected String getCandidateAlias() {
         return _query.getCandidateAlias();
+    }
+
+    protected AbstractClassMetaData getCandidateMetaData() {
+        return _query.getCandidateMetaData();
     }
 
     protected MetaDataManager getMetaDataManager() {

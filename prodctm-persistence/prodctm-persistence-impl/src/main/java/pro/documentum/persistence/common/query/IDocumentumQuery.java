@@ -21,4 +21,6 @@ public interface IDocumentumQuery<R> {
 
     String getCandidateAlias();
 
+    DQLQueryHelper<R, ?> getQueryHelper();
+
 }
