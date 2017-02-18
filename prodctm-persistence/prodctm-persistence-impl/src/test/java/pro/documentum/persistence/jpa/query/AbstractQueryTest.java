@@ -33,7 +33,7 @@ public class AbstractQueryTest extends JPATestSupport {
         return query.getNativeQuery();
     }
 
-    protected JPQLQuery jqql(Class<? extends AbstractPersistent> cls,
+    protected JPQLQuery jpql(Class<? extends AbstractPersistent> cls,
             String addon) {
         return (JPQLQuery) ((JPAQuery) jpa(cls, addon)).getInternalQuery();
     }
