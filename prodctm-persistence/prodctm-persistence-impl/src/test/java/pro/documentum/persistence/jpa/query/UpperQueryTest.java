@@ -22,4 +22,11 @@ public class UpperQueryTest extends AbstractQueryTest {
         String q = str(jpql(DmUser.class, "userName.toUpperCase() = 'dmadmin'"));
         assertThat(q, endsWith("WHERE UPPER(this.user_name)='dmadmin'"));
     }
+
+    @Test
+    public void testUpper3() throws Exception {
+        String q = str(jpql(DmUser.class, "userName = UPPER('dmadmin')"));
+        assertThat(q, endsWith("WHERE this.user_name=UPPER('dmadmin')"));
+    }
+
 }

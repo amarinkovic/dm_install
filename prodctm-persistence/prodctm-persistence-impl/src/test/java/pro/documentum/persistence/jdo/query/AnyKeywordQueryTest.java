@@ -30,7 +30,6 @@ public class AnyKeywordQueryTest extends AbstractQueryTest {
     }
 
     @Test
-    @Ignore
     public void testAnyKeyword3() throws Exception {
         String q = str(jdo(DmFolder.class, "ANY (folderPaths) "
                 + "== '/System/Modules' "
@@ -41,7 +40,6 @@ public class AnyKeywordQueryTest extends AbstractQueryTest {
     }
 
     @Test
-    @Ignore
     public void testAnyKeyword4() throws Exception {
         String q = str(jdo(DmFolder.class, "ANY (folderPaths "
                 + "== '/System/Modules' "
@@ -52,7 +50,6 @@ public class AnyKeywordQueryTest extends AbstractQueryTest {
     }
 
     @Test
-    @Ignore
     public void testAnyKeyword5() throws Exception {
         String q = str(jdo(DmFolder.class, "ANY (folderPaths "
                 + "== '/System/Modules' "
@@ -65,7 +62,6 @@ public class AnyKeywordQueryTest extends AbstractQueryTest {
     }
 
     @Test
-    @Ignore
     public void testAnyKeyword6() throws Exception {
         String q = str(jdo(DmFolder.class, "ANY (folderPaths "
                 + "== '/System/Modules' "
@@ -88,9 +84,9 @@ public class AnyKeywordQueryTest extends AbstractQueryTest {
     @Test
     public void testDateToString2() throws Exception {
         String q = str(jdo(DmUser.class, "ANY(DATETOSTRING(modifyDate,"
-                + "'yyyy/mm/dd hh:mi:ss')) == '2016/05/18 00:00:00'"));
-        assertThat(q, endsWith("WHERE ANY DATETOSTRING(this.r_modify_date,"
-                + "'yyyy/mm/dd hh:mi:ss')='2016/05/18 00:00:00'"));
+                + "'yyyy/mm/dd hh:mi:ss') == '2016/05/18 00:00:00')"));
+        assertThat(q, endsWith("WHERE ANY (DATETOSTRING(this.r_modify_date,"
+                + "'yyyy/mm/dd hh:mi:ss')='2016/05/18 00:00:00')"));
     }
 
 }

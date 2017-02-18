@@ -14,7 +14,7 @@ import pro.documentum.persistence.common.query.expression.literals.DQLString;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public final class DQLDateToString extends DQLFieldFunc {
+public final class DQLDateToString extends DQLFunc {
 
     public static final String FUNC = "DATETOSTRING";
 
@@ -29,10 +29,7 @@ public final class DQLDateToString extends DQLFieldFunc {
             return null;
         }
         List<Expression> dateExprs = invokeExpr.getArguments();
-        if (dateExprs == null || dateExprs.isEmpty()) {
-            return null;
-        }
-        if (dateExprs.size() != 2) {
+        if (!Expressions.hasRequiredArgs(dateExprs, 2)) {
             return null;
         }
         if (!Expressions.isPrimary(dateExprs.get(0))) {

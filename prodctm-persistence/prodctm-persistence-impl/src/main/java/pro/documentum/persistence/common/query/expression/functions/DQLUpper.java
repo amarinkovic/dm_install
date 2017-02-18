@@ -5,12 +5,11 @@ import org.datanucleus.query.expression.InvokeExpression;
 import pro.documentum.persistence.common.query.IDQLEvaluator;
 import pro.documentum.persistence.common.query.IInvokeEvaluator;
 import pro.documentum.persistence.common.query.expression.DQLExpression;
-import pro.documentum.persistence.common.query.expression.DQLField;
 
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public final class DQLUpper extends DQLFieldFunc {
+public final class DQLUpper extends DQLFunc {
 
     public static final String FUNC = "UPPER";
 
@@ -22,11 +21,16 @@ public final class DQLUpper extends DQLFieldFunc {
 
     private static DQLExpression evaluate(final InvokeExpression invokeExpr,
             final IDQLEvaluator evaluator) {
-        DQLField field = process(invokeExpr, evaluator, FUNC, RIGHT_FUNC);
-        if (field == null) {
+        DQLExpression expression = processField(invokeExpr, evaluator, FUNC,
+                RIGHT_FUNC);
+        if (expression == null) {
+            expression = processLiteralOrParameter(invokeExpr, evaluator, FUNC,
+                    RIGHT_FUNC);
+        }
+        if (expression == null) {
             return null;
         }
-        return new DQLUpper(field.getText());
+        return new DQLUpper(expression.getText());
     }
 
     public static IInvokeEvaluator getInvokeEvaluator() {

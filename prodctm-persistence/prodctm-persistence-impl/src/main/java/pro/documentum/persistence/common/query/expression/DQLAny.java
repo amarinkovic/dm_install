@@ -37,14 +37,16 @@ public class DQLAny extends DQLBoolean {
             return null;
         }
         DQLExpression expression = evaluator.popExpression();
-        if (DQLField.isFieldExpression(expression)) {
-            expression = new DQLField(expression.getText(), true);
-        } else if (DQLBoolean.isBooleanExpression(expression)) {
-            expression = new DQLAny(expression.getText());
-        } else {
+        if (expression == null) {
             return null;
         }
-        return expression;
+        if (DQLField.isFieldExpression(expression)) {
+            return new DQLField(expression.getText(), true);
+        }
+        if (DQLBoolean.isBooleanExpression(expression)) {
+            return new DQLAny(expression.getText());
+        }
+        return null;
     }
 
     public static IInvokeEvaluator getInvokeEvaluator() {

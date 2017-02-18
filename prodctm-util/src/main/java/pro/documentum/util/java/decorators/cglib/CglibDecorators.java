@@ -55,7 +55,9 @@ public final class CglibDecorators {
         }
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(cls);
-        enhancer.setInterfaces(interfaces.toArray(new Class<?>[0]));
+        if (!interfaces.isEmpty()) {
+            enhancer.setInterfaces(interfaces.toArray(new Class<?>[0]));
+        }
         enhancer.setCallback(interceptor);
         T result = (T) enhancer.create();
         decorator.setProxy(result);

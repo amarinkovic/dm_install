@@ -6,6 +6,7 @@ import java.util.List;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Columns;
 import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Persistent;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -43,6 +44,12 @@ public class DmSysObject extends AbstractSysObject {
     @Setter
     @Getter
     private List<DmFolder> folders;
+
+    @Column(name = "i_folder_id")
+    @Persistent(defaultFetchGroup = "true", serialized = "true")
+    @Setter
+    @Getter
+    private List<String> folderIds;
 
     @Column(name = "r_creation_date")
     @Getter

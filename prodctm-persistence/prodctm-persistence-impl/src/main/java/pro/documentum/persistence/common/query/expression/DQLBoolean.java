@@ -2,8 +2,6 @@ package pro.documentum.persistence.common.query.expression;
 
 import org.datanucleus.query.expression.Expression;
 
-import pro.documentum.persistence.common.query.expression.literals.DQLLiteral;
-
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
@@ -68,18 +66,16 @@ public class DQLBoolean extends DQLExpression {
 
     private static StringBuilder append(final StringBuilder builder,
             final DQLExpression expression) {
+        if (expression == null) {
+            return null;
+        }
         if (expression instanceof DQLField) {
             DQLField fieldExpression = (DQLField) expression;
             if (fieldExpression.isRepeating()) {
                 builder.append("ANY ");
             }
-            builder.append(fieldExpression.getText());
-        } else if (expression instanceof DQLLiteral) {
-            DQLLiteral<?> literal = (DQLLiteral<?>) expression;
-            builder.append(literal.getText());
-        } else {
-            return null;
         }
+        builder.append(expression.getText());
         return builder;
     }
 

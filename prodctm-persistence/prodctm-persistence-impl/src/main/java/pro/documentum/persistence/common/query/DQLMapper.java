@@ -24,15 +24,14 @@ import pro.documentum.persistence.common.query.expression.DQLField;
 import pro.documentum.persistence.common.query.expression.DQLIN;
 import pro.documentum.persistence.common.query.expression.DQLSubQuery;
 import pro.documentum.persistence.common.query.expression.Expressions;
-import pro.documentum.persistence.common.query.expression.functions.DQLConstant;
 import pro.documentum.persistence.common.query.expression.functions.DQLDateToString;
 import pro.documentum.persistence.common.query.expression.functions.DQLLower;
 import pro.documentum.persistence.common.query.expression.functions.DQLUpper;
 import pro.documentum.persistence.common.query.expression.literals.DQLBool;
 import pro.documentum.persistence.common.query.expression.literals.DQLCollection;
+import pro.documentum.persistence.common.query.expression.literals.DQLConstant;
 import pro.documentum.persistence.common.query.expression.literals.DQLDate;
 import pro.documentum.persistence.common.query.expression.literals.DQLLiteral;
-import pro.documentum.persistence.common.query.expression.literals.DQLString;
 import pro.documentum.persistence.common.query.expression.literals.nulls.DQLNull;
 
 public class DQLMapper<R, T extends Query<?> & IDocumentumQuery<R>> extends
@@ -50,12 +49,13 @@ public class DQLMapper<R, T extends Query<?> & IDocumentumQuery<R>> extends
         INVOKE_EVALUATORS.add(DQLLower.getInvokeEvaluator());
         INVOKE_EVALUATORS.add(DQLIN.getInvokeEvaluator());
         INVOKE_EVALUATORS.add(DQLConstant.getInvokeEvaluator());
+        INVOKE_EVALUATORS.add(DQLNull.getInvokeEvaluator());
     }
 
     static {
         VARIABLE_EVALUATORS = new ArrayList<>();
         VARIABLE_EVALUATORS.add(DQLDate.getVariableEvaluator());
-        VARIABLE_EVALUATORS.add(DQLString.getVariableEvaluator());
+        VARIABLE_EVALUATORS.add(DQLConstant.getVariableEvaluator());
         VARIABLE_EVALUATORS.add(DQLNull.getVariableEvaluator());
         VARIABLE_EVALUATORS.add(DQLBool.getVariableEvaluator());
         VARIABLE_EVALUATORS.add(DQLSubQuery.getVariableEvaluator());
@@ -347,8 +347,7 @@ public class DQLMapper<R, T extends Query<?> & IDocumentumQuery<R>> extends
 
         String fieldName = getFieldNameForPrimary(expr);
         if (fieldName != null) {
-            DQLField fieldExpr = new DQLField(getCandidateAlias() + "."
-                    + fieldName);
+            DQLField fieldExpr = new DQLField(getCandidateAlias(), fieldName);
             return pushExpression(fieldExpr);
         }
 
