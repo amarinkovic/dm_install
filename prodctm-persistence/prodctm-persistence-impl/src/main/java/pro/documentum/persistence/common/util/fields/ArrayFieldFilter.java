@@ -5,18 +5,18 @@ import java.util.Arrays;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public final class ArrayFiledFilter implements IFieldFilter {
+public final class ArrayFieldFilter implements IFieldFilter {
 
     private final int[] _required;
 
-    private ArrayFiledFilter(final int[] required) {
+    private ArrayFieldFilter(final int[] required) {
         _required = new int[required.length];
         System.arraycopy(required, 0, _required, 0, required.length);
         Arrays.sort(_required);
     }
 
     public static IFieldFilter getInstance(final int[] required) {
-        return new ArrayFiledFilter(required);
+        return new ArrayFieldFilter(required);
     }
 
     @Override

@@ -7,7 +7,7 @@ import org.datanucleus.state.ObjectProvider;
 
 import com.documentum.fc.client.IDfTypedObject;
 
-import pro.documentum.persistence.common.util.fields.ArrayFiledFilter;
+import pro.documentum.persistence.common.util.fields.ArrayFieldFilter;
 import pro.documentum.persistence.common.util.fields.ExistingFieldFilter;
 import pro.documentum.persistence.common.util.fields.IFieldFilter;
 import pro.documentum.persistence.common.util.fields.NonPersistentFieldFilter;
@@ -26,7 +26,7 @@ public final class DNFields {
         if (required == null) {
             return new int[0];
         }
-        return filterOut(current, ArrayFiledFilter.getInstance(required));
+        return filterOut(current, ArrayFieldFilter.getInstance(required));
     }
 
     public static int[] getDirtyFields(final ObjectProvider<?> op,
