@@ -204,13 +204,13 @@ public final class DNMetaData {
 
     public static AbstractClassMetaData getActual(
             final IDfTypedObject dbObject, final ExecutionContext ec,
-            final AbstractClassMetaData classMetaData) {
-        AbstractClassMetaData cmd = classMetaData;
+            final AbstractClassMetaData candidate) {
+        AbstractClassMetaData cmd = candidate;
         String className;
         if (cmd == null || !cmd.hasDiscriminatorStrategy()) {
             className = getClassNameForObject(ec, dbObject);
         } else {
-            Table table = getStoreData(ec, classMetaData).getTable();
+            Table table = getStoreData(ec, candidate).getTable();
             String propName = table.getDiscriminatorColumn().getName();
             String value = DNValues.getString(dbObject, propName);
             className = getClassNameFromDiscriminator(ec, cmd, value);

@@ -22,69 +22,83 @@ import pro.documentum.persistence.common.util.Nucleus;
 public abstract class AbstractPersistentObjectFactory<E> implements
         IResultObjectFactory<E> {
 
-    private final AbstractClassMetaData _metaData;
+    private final ExecutionContext _ec;
+
+    private final AbstractClassMetaData _cmd;
 
     private final int[] _members;
 
     private final boolean _ignoreCache;
 
-    protected AbstractPersistentObjectFactory(
-            final AbstractClassMetaData metaData, final int[] members,
+    protected AbstractPersistentObjectFactory(final ExecutionContext ec,
+            final AbstractClassMetaData cmd, final int[] members,
             final boolean ignoreCache) {
-        _metaData = metaData;
+        _ec = ec;
+        _cmd = cmd;
         _members = members;
         _ignoreCache = ignoreCache;
     }
 
+    protected boolean isIgnoreCache() {
+        return _ignoreCache;
+    }
+
     @SuppressWarnings("unchecked")
-    private E findObject(final ExecutionContext ec, final FetchFieldManager fm,
-            final Object id, final Class<E> type) {
+    private E findObject(final FetchFieldManager fm, final Object id,
+            final Class<E> type) {
         FieldValues fv = new HollowFieldValues(fm);
-        E pc = (E) ec.findObject(id, fv, type, _ignoreCache, false);
-        return DNVersions.processVersion(ec, pc);
+        E pc = (E) _ec.findObject(id, fv, type, isIgnoreCache(), false);
+        return DNVersions.processVersion(_ec, pc);
+    }
+
+    protected E getPojoForDBObjectForCandidate(final IDfTypedObject dbObject) {
+        return getPojoForDBObjectForCandidate(dbObject, getMetaData(dbObject));
     }
 
     protected E getPojoForDBObjectForCandidate(final IDfTypedObject dbObject,
-            final ExecutionContext ec) {
-        AbstractClassMetaData cmd = getMetaData(ec, dbObject);
-        FetchFieldManager fieldManager = getFetchFieldManager(dbObject, cmd, ec);
-        Class<E> type = getClass(cmd, ec);
-        Object objectId = getObjectId(dbObject, ec, cmd, fieldManager);
-        return findObject(ec, fieldManager, objectId, type);
+            final AbstractClassMetaData cmd) {
+        FetchFieldManager fieldManager = getFetchFieldManager(dbObject, cmd);
+        Class<E> type = getClass(cmd);
+        Object objectId = getObjectId(dbObject, cmd, fieldManager);
+        return findObject(fieldManager, objectId, type);
     }
 
     private Object getObjectId(final IDfTypedObject dbObject,
-            final ExecutionContext ec, final AbstractClassMetaData cmd,
-            final FetchFieldManager fm) {
+            final AbstractClassMetaData cmd, final FetchFieldManager fm) {
         switch (cmd.getIdentityType()) {
         case APPLICATION:
-            return IdentityUtils.getApplicationIdentityForResultSetRow(ec, cmd,
-                    null, false, fm);
+            return getApplicationIdentity(cmd, fm);
         case DATASTORE:
-            return Nucleus.getIdentity(ec, cmd, dbObject);
+            return Nucleus.getIdentity(_ec, cmd, dbObject);
         default:
             return new SCOID(cmd.getFullClassName());
         }
+    }
 
+    private Object getApplicationIdentity(final AbstractClassMetaData cmd,
+            final FetchFieldManager fm) {
+        return IdentityUtils.getApplicationIdentityForResultSetRow(_ec, cmd,
+                null, false, fm);
     }
 
     private FetchFieldManager getFetchFieldManager(
-            final IDfTypedObject dbObject, final AbstractClassMetaData cmd,
-            final ExecutionContext ec) {
-        Table table = DNMetaData.getTable(ec, cmd);
-        return new FetchFieldManager(ec, dbObject, cmd, table);
+            final IDfTypedObject dbObject, final AbstractClassMetaData cmd) {
+        Table table = DNMetaData.getTable(_ec, cmd);
+        return new FetchFieldManager(_ec, dbObject, cmd, table);
     }
 
     @SuppressWarnings("unchecked")
-    private Class<E> getClass(final AbstractClassMetaData cmd,
-            final ExecutionContext ec) {
-        return (Class<E>) ec.getClassLoaderResolver().classForName(
+    private Class<E> getClass(final AbstractClassMetaData cmd) {
+        return (Class<E>) _ec.getClassLoaderResolver().classForName(
                 cmd.getFullClassName());
     }
 
-    protected AbstractClassMetaData getMetaData(final ExecutionContext ec,
-            final IDfTypedObject dbObject) {
-        return DNMetaData.getActual(dbObject, ec, _metaData);
+    protected AbstractClassMetaData getMetaData(final IDfTypedObject dbObject) {
+        return DNMetaData.getActual(dbObject, _ec, _cmd);
+    }
+
+    protected Table getTable(final AbstractClassMetaData cmd) {
+        return DNMetaData.getTable(_ec, cmd);
     }
 
     private class HollowFieldValues implements FieldValues {

@@ -77,7 +77,7 @@ public abstract class AbstractBulkIterator<O extends IDfPersistentObject, T>
             if (current.hasAttr(DfDocbaseConstants.R_OBJECT_TYPE)) {
                 typeName = current.getString(DfDocbaseConstants.R_OBJECT_TYPE);
             }
-            return (O) DfObjects.buildObject(_session, current, typeName);
+            return (O) DfObjects.asPersistent(_session, current, typeName);
         } catch (DfException ex) {
             throw new RuntimeException(ex);
         }

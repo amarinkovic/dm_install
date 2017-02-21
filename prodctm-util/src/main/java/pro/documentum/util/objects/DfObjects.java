@@ -93,8 +93,14 @@ public final class DfObjects {
         return (T) proxyHandler.____getImp____();
     }
 
+    public static <T extends IDfPersistentObject> T asPersistent(
+            final IDfTypedObject data, final String typeName)
+        throws DfException {
+        return asPersistent(data.getObjectSession(), data, typeName);
+    }
+
     @SuppressWarnings("unchecked")
-    public static <T extends IDfPersistentObject> T buildObject(
+    public static <T extends IDfPersistentObject> T asPersistent(
             final IDfSession dfSession, final IDfTypedObject data,
             final String typeName) throws DfException {
         ISession session = (ISession) dfSession;
@@ -137,7 +143,7 @@ public final class DfObjects {
         ITypedData sourceData = ((ITypedObject) data).getData(false);
         objectData.copyValuesFrom(sourceData, null, true);
         objectData.setAutoFill(false);
-        return (T) buildObject(session, objectData, true, false);
+        return (T) asPersistent(session, objectData, true, false);
     }
 
     public static IPersistentObject getObjectFromCache(
@@ -172,7 +178,7 @@ public final class DfObjects {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends IDfPersistentObject> T buildObject(
+    private static <T extends IDfPersistentObject> T asPersistent(
             final IDfSession dfSession, final ITypedData data,
             final boolean cached, final boolean isNew) throws DfException {
         ISession session = (ISession) dfSession;
@@ -201,7 +207,7 @@ public final class DfObjects {
         }
         ITypedData typedData = dataManager.newData(type,
                 DfIdUtil.getId(objectId), DfId.DF_NULLID);
-        return buildObject(session, typedData, true, true);
+        return asPersistent(session, typedData, true, true);
     }
 
     public static boolean isAttrChanged(final IDfPersistentObject object,

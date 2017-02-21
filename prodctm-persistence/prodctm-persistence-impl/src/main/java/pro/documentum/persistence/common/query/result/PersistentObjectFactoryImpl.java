@@ -4,11 +4,9 @@ import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.store.schema.table.Table;
 
-import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
 
-import pro.documentum.persistence.common.util.DNMetaData;
 import pro.documentum.persistence.common.util.DfExceptions;
 import pro.documentum.util.objects.DfObjects;
 
@@ -18,18 +16,22 @@ import pro.documentum.util.objects.DfObjects;
 public class PersistentObjectFactoryImpl<E> extends
         AbstractPersistentObjectFactory<E> {
 
-    public PersistentObjectFactoryImpl(final AbstractClassMetaData metaData,
-            final int[] members, final boolean ignoreCache) {
-        super(metaData, members, ignoreCache);
+    public PersistentObjectFactoryImpl(final ExecutionContext ec,
+            final AbstractClassMetaData metaData, final int[] members,
+            final boolean ignoreCache) {
+        super(ec, metaData, members, ignoreCache);
     }
 
     @Override
     public E getObject(final ExecutionContext ec, final IDfTypedObject object) {
-        Table table = DNMetaData.getTable(ec, getMetaData(ec, object));
+        AbstractClassMetaData cmd = getMetaData(object);
+        Table table = getTable(cmd);
         try {
-            IDfPersistentObject persistent = DfObjects.buildObject(
-                    object.getObjectSession(), object, table.getName());
-            return getPojoForDBObjectForCandidate(persistent, ec);
+            IDfTypedObject persistent = object;
+            if (!isIgnoreCache()) {
+                persistent = DfObjects.asPersistent(object, table.getName());
+            }
+            return getPojoForDBObjectForCandidate(persistent, cmd);
         } catch (DfException ex) {
             throw DfExceptions.dataStoreException(ex);
         }

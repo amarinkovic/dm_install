@@ -58,6 +58,11 @@ public class StoreManagerImpl extends AbstractStoreManager {
         return url.substring(StoreManagerImpl.PREFIX.length() + 1);
     }
 
+    @Override
+    public String getNativeQueryLanguage() {
+        return "DQL";
+    }
+
     private void setConfiguration(final PersistenceNucleusContext nucleusContext) {
         Configuration configuration = nucleusContext.getConfiguration();
         configuration.setProperty(TRANSLATOR_TYPE, PREFIX);

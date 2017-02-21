@@ -73,7 +73,7 @@ public class DfObjectsTest extends DfcTestSupport {
         IDfSession session = getSession();
         String query = "SELECT r_object_id, i_vstamp, i_is_replica FROM dm_acl";
         IDfTypedObject data = Queries.execute(session, query).next();
-        IDfPersistentObject object = DfObjects.buildObject(session, data, null);
+        IDfPersistentObject object = DfObjects.asPersistent(session, data, null);
         assertTrue(object instanceof IDfACL);
     }
 
@@ -83,7 +83,7 @@ public class DfObjectsTest extends DfcTestSupport {
         // todo: make source_docbase mandatory when building query
         String query = "SELECT r_object_id, i_vstamp, i_is_replica, source_docbase FROM dmi_queue_item";
         IDfTypedObject data = Queries.execute(session, query).next();
-        IDfPersistentObject object = DfObjects.buildObject(session, data, null);
+        IDfPersistentObject object = DfObjects.asPersistent(session, data, null);
         assertTrue(object instanceof IDfQueueItem);
     }
 
@@ -92,7 +92,7 @@ public class DfObjectsTest extends DfcTestSupport {
         IDfSession session = getSession();
         String query = "SELECT r_object_id, i_vstamp, r_object_type, i_is_replica, i_is_reference, r_aspect_name FROM dm_server_config";
         IDfTypedObject data = Queries.execute(session, query).next();
-        IDfPersistentObject object = DfObjects.buildObject(session, data, null);
+        IDfPersistentObject object = DfObjects.asPersistent(session, data, null);
         assertTrue(StringUtils.isNotBlank(object.getString("object_name")));
     }
 

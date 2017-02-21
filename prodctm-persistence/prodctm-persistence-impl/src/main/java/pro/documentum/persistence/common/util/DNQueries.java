@@ -102,18 +102,43 @@ public final class DNQueries {
 
     private static <R, T extends Query<?> & IDocumentumQuery<R>> IResultObjectFactory<R> getObjectFactory(
             final T query, final DfIterator cursor) throws DfException {
-        Class<?> resultClass = query.getResultClass();
-        Class<?> candidateClass = query.getCandidateClass();
-        if (query.getResult() != null
-                || (resultClass != null && resultClass != candidateClass)) {
+        if (query.getResult() != null) {
             return null;
         }
-        AbstractClassMetaData candidateCmd = query.getCandidateMetaData();
-        int[] members = query.getFetchPlan().getFetchPlanForClass(candidateCmd)
+
+        Class<?> resultClass = query.getResultClass();
+        Class<?> candidateClass = query.getCandidateClass();
+
+        if (candidateClass == null) {
+            candidateClass = resultClass;
+        }
+
+        if (candidateClass == null) {
+            return null;
+        }
+
+        if (resultClass != null && resultClass != candidateClass) {
+            return null;
+        }
+
+        ExecutionContext ec = query.getExecutionContext();
+        AbstractClassMetaData cmd = DNMetaData.getMetaDataForClass(ec,
+                candidateClass.getName());
+
+        if (cmd == null) {
+            return null;
+        }
+
+        int[] members = getMemberNumbers(query, cmd);
+        members = DNFields.getPresentMembers(members, cmd, cursor);
+        return new PersistentObjectFactoryImpl<>(ec, cmd, members,
+                query.getIgnoreCache());
+    }
+
+    private static <R, T extends Query<?> & IDocumentumQuery<R>> int[] getMemberNumbers(
+            final T query, final AbstractClassMetaData cmd) {
+        return query.getFetchPlan().getFetchPlanForClass(cmd)
                 .getMemberNumbers();
-        members = DNFields.getPresentMembers(members, candidateCmd, cursor);
-        return new PersistentObjectFactoryImpl<>(query.getCandidateMetaData(),
-                members, query.getIgnoreCache());
     }
 
 }
