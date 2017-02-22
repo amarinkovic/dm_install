@@ -132,8 +132,7 @@ public final class Converter {
             final int type) throws ParseException {
         IConverter<Object, T> converter = getConverter(type);
         Collection<T> result = pro.documentum.util.java.Collections
-                .newCollection((Class<? extends Collection<?>>) values
-                        .getClass());
+                .newCollection(values.getClass());
         for (Object value : values) {
             result.add(converter.convert(value));
         }

@@ -3,8 +3,6 @@ package pro.documentum.persistence.common.query.result;
 import java.io.Closeable;
 import java.util.Iterator;
 
-import org.datanucleus.ExecutionContext;
-
 import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
 
@@ -15,29 +13,28 @@ import pro.documentum.util.queries.DfIterator;
  */
 class CandidateClassResult<T> implements Iterable<IDfTypedObject>, Closeable {
 
-    private final DfIterator _iterator;
+    private final DfIterator _cursor;
 
-    private final IResultObjectFactory<T> _objectFactory;
+    private final IResultFactory<T> _resultFactory;
 
-    CandidateClassResult(final DfIterator curs,
-            final IResultObjectFactory<T> objectFactory) throws DfException {
-        _iterator = curs;
-        _objectFactory = objectFactory;
+    CandidateClassResult(final DfIterator cursor,
+            final IResultFactory<T> resultFactory) throws DfException {
+        _cursor = cursor;
+        _resultFactory = resultFactory;
     }
 
     @Override
     public Iterator<IDfTypedObject> iterator() {
-        return _iterator;
+        return _cursor;
     }
 
     @Override
     public void close() {
-        _iterator.close();
+        _cursor.close();
     }
 
-    public T getPojoForCandidate(final ExecutionContext context,
-            final IDfTypedObject dbObject) {
-        return _objectFactory.getObject(context, dbObject);
+    public T getObject(final IDfTypedObject dbObject) {
+        return _resultFactory.getObject(dbObject);
     }
 
 }

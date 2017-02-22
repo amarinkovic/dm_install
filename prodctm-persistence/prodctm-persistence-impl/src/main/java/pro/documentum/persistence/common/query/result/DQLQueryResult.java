@@ -10,7 +10,6 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.datanucleus.ExecutionContext;
 import org.datanucleus.store.query.AbstractQueryResult;
 import org.datanucleus.store.query.AbstractQueryResultIterator;
 import org.datanucleus.store.query.Query;
@@ -31,8 +30,6 @@ public class DQLQueryResult<R, T extends Query<?> & IDocumentumQuery<R>>
 
     private static final long serialVersionUID = -8682935620558424082L;
 
-    private final ExecutionContext _ec;
-
     private final Map<Integer, R> _itemsByIndex;
 
     private List<CandidateClassResult<R>> _results = new ArrayList<>();
@@ -40,7 +37,6 @@ public class DQLQueryResult<R, T extends Query<?> & IDocumentumQuery<R>>
     @SuppressWarnings("unchecked")
     public DQLQueryResult(final T query) {
         super(query);
-        _ec = query.getExecutionContext();
 
         String cacheType = query.getStringExtensionProperty("cacheType",
                 "strong");
@@ -68,7 +64,7 @@ public class DQLQueryResult<R, T extends Query<?> & IDocumentumQuery<R>>
     }
 
     public void addCandidateResult(final DfIterator cursor,
-            final IResultObjectFactory<R> objectFactory) throws DfException {
+            final IResultFactory<R> objectFactory) throws DfException {
         _results.add(new CandidateClassResult<>(cursor, objectFactory));
     }
 
@@ -175,7 +171,7 @@ public class DQLQueryResult<R, T extends Query<?> & IDocumentumQuery<R>>
             CandidateClassResult<R> result = iter.next();
             // noinspection LoopStatementThatDoesntLoop
             for (IDfTypedObject dbObject : result) {
-                pojo = result.getPojoForCandidate(_ec, dbObject);
+                pojo = result.getObject(dbObject);
                 addObject(pojo);
                 break outer;
             }

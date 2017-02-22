@@ -20,7 +20,7 @@ import org.datanucleus.util.NucleusLogger;
 
 import com.documentum.fc.client.IDfSession;
 
-import pro.documentum.persistence.common.query.result.QueryResultResourceListener;
+import pro.documentum.persistence.common.query.result.ResourceListener;
 import pro.documentum.persistence.common.util.DNQueries;
 
 /**
@@ -118,7 +118,7 @@ public class DQLQueryHelper<R, T extends Query<?> & IDocumentumQuery<R>> {
             return results;
         }
         QueryResult<R> queryResult = (QueryResult<R>) results;
-        ManagedConnectionResourceListener listener = new QueryResultResourceListener<>(
+        ManagedConnectionResourceListener listener = new ResourceListener<>(
                 _query, queryResult, mconn);
         mconn.addListener(listener);
         if (queryResult instanceof AbstractQueryResult) {

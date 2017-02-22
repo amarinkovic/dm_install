@@ -1,17 +1,16 @@
-package pro.documentum.persistence.common.query.result;
+package pro.documentum.persistence.common.query.result.persistent;
 
 import org.datanucleus.ExecutionContext;
-import org.datanucleus.FetchPlan;
 import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.identity.SCOID;
 import org.datanucleus.metadata.AbstractClassMetaData;
-import org.datanucleus.state.ObjectProvider;
 import org.datanucleus.store.FieldValues;
 import org.datanucleus.store.schema.table.Table;
 
 import com.documentum.fc.client.IDfTypedObject;
 
 import pro.documentum.persistence.common.fieldmanager.FetchFieldManager;
+import pro.documentum.persistence.common.query.result.IResultFactory;
 import pro.documentum.persistence.common.util.DNMetaData;
 import pro.documentum.persistence.common.util.DNVersions;
 import pro.documentum.persistence.common.util.Nucleus;
@@ -19,8 +18,7 @@ import pro.documentum.persistence.common.util.Nucleus;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public abstract class AbstractPersistentObjectFactory<E> implements
-        IResultObjectFactory<E> {
+public abstract class AbstractResultFactory<E> implements IResultFactory<E> {
 
     private final ExecutionContext _ec;
 
@@ -30,7 +28,7 @@ public abstract class AbstractPersistentObjectFactory<E> implements
 
     private final boolean _ignoreCache;
 
-    protected AbstractPersistentObjectFactory(final ExecutionContext ec,
+    protected AbstractResultFactory(final ExecutionContext ec,
             final AbstractClassMetaData cmd, final int[] members,
             final boolean ignoreCache) {
         _ec = ec;
@@ -46,13 +44,9 @@ public abstract class AbstractPersistentObjectFactory<E> implements
     @SuppressWarnings("unchecked")
     private E findObject(final FetchFieldManager fm, final Object id,
             final Class<E> type) {
-        FieldValues fv = new HollowFieldValues(fm);
+        FieldValues fv = new HollowFieldValues(fm, _members);
         E pc = (E) _ec.findObject(id, fv, type, isIgnoreCache(), false);
         return DNVersions.processVersion(_ec, pc);
-    }
-
-    protected E getPojoForDBObjectForCandidate(final IDfTypedObject dbObject) {
-        return getPojoForDBObjectForCandidate(dbObject, getMetaData(dbObject));
     }
 
     protected E getPojoForDBObjectForCandidate(final IDfTypedObject dbObject,
@@ -99,32 +93,6 @@ public abstract class AbstractPersistentObjectFactory<E> implements
 
     protected Table getTable(final AbstractClassMetaData cmd) {
         return DNMetaData.getTable(_ec, cmd);
-    }
-
-    private class HollowFieldValues implements FieldValues {
-
-        private final FetchFieldManager _fm;
-
-        HollowFieldValues(final FetchFieldManager fm) {
-            _fm = fm;
-        }
-
-        @Override
-        @SuppressWarnings("rawtypes")
-        public void fetchFields(final ObjectProvider op) {
-            op.replaceFields(_members, _fm);
-        }
-
-        @Override
-        @SuppressWarnings("rawtypes")
-        public void fetchNonLoadedFields(final ObjectProvider op) {
-            op.replaceNonLoadedFields(_members, _fm);
-        }
-
-        public FetchPlan getFetchPlanForLoading() {
-            return null;
-        }
-
     }
 
 }

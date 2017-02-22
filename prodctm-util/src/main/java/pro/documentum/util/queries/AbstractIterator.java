@@ -1,8 +1,11 @@
 package pro.documentum.util.queries;
 
 import java.io.Closeable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 import com.documentum.fc.client.IDfCollection;
@@ -10,6 +13,7 @@ import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSessionManager;
 import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
+import com.documentum.fc.common.DfRuntimeException;
 import com.documentum.fc.common.IDfAttr;
 import com.documentum.fc.common.IDfId;
 import com.documentum.fc.common.IDfTime;
@@ -23,8 +27,27 @@ public abstract class AbstractIterator implements Iterator<IDfTypedObject>,
 
     private final IDfCollection _collection;
 
+    private final List<String> _columns;
+
     public AbstractIterator(final IDfCollection collection) {
         _collection = Objects.requireNonNull(collection);
+        _columns = extractColumns(collection);
+    }
+
+    private List<String> extractColumns(final IDfCollection collection) {
+        try {
+            List<String> result = new ArrayList<>();
+            for (int i = 0, n = collection.getAttrCount(); i < n; i++) {
+                result.add(collection.getAttr(i).getName());
+            }
+            return result;
+        } catch (DfException ex) {
+            throw DfRuntimeException.convertToRuntimeException(ex);
+        }
+    }
+
+    public List<String> getColumns() {
+        return Collections.unmodifiableList(_columns);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package pro.documentum.persistence.common.query.result;
+package pro.documentum.persistence.common.query.result.persistent;
 
 import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractClassMetaData;
@@ -13,17 +13,16 @@ import pro.documentum.util.objects.DfObjects;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class PersistentObjectFactoryImpl<E> extends
-        AbstractPersistentObjectFactory<E> {
+public class PersistentResultFactory<E> extends AbstractResultFactory<E> {
 
-    public PersistentObjectFactoryImpl(final ExecutionContext ec,
+    public PersistentResultFactory(final ExecutionContext ec,
             final AbstractClassMetaData metaData, final int[] members,
             final boolean ignoreCache) {
         super(ec, metaData, members, ignoreCache);
     }
 
     @Override
-    public E getObject(final ExecutionContext ec, final IDfTypedObject object) {
+    public E getObject(final IDfTypedObject object) {
         AbstractClassMetaData cmd = getMetaData(object);
         Table table = getTable(cmd);
         try {

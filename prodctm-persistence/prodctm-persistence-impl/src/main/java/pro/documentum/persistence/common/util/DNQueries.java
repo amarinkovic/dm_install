@@ -17,8 +17,9 @@ import com.documentum.fc.common.DfException;
 
 import pro.documentum.persistence.common.query.IDocumentumQuery;
 import pro.documentum.persistence.common.query.result.DQLQueryResult;
-import pro.documentum.persistence.common.query.result.IResultObjectFactory;
-import pro.documentum.persistence.common.query.result.PersistentObjectFactoryImpl;
+import pro.documentum.persistence.common.query.result.IResultFactory;
+import pro.documentum.persistence.common.query.result.SimpleResultFactory;
+import pro.documentum.persistence.common.query.result.persistent.PersistentResultFactory;
 import pro.documentum.util.queries.DfIterator;
 import pro.documentum.util.queries.Queries;
 import pro.documentum.util.queries.ReservedWords;
@@ -100,7 +101,17 @@ public final class DNQueries {
         }
     }
 
-    private static <R, T extends Query<?> & IDocumentumQuery<R>> IResultObjectFactory<R> getObjectFactory(
+    private static <R, T extends Query<?> & IDocumentumQuery<R>> IResultFactory<R> getObjectFactory(
+            final T query, final DfIterator cursor) throws DfException {
+        IResultFactory<R> factory = getPersistentObjectFactory(query, cursor);
+        if (factory == null) {
+            factory = new SimpleResultFactory<>(query.getExecutionContext(),
+                    cursor.getColumns(), query.getResultClass());
+        }
+        return factory;
+    }
+
+    private static <R, T extends Query<?> & IDocumentumQuery<R>> IResultFactory<R> getPersistentObjectFactory(
             final T query, final DfIterator cursor) throws DfException {
         if (query.getResult() != null) {
             return null;
@@ -131,7 +142,7 @@ public final class DNQueries {
 
         int[] members = getMemberNumbers(query, cmd);
         members = DNFields.getPresentMembers(members, cmd, cursor);
-        return new PersistentObjectFactoryImpl<>(ec, cmd, members,
+        return new PersistentResultFactory<>(ec, cmd, members,
                 query.getIgnoreCache());
     }
 

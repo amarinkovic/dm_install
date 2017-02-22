@@ -10,7 +10,7 @@ import pro.documentum.persistence.common.query.IDocumentumQuery;
 /**
  * @author Andrey B. Panfilov <andrey@panfilov.tel>
  */
-public class QueryResultResourceListener<R, T extends Query<?> & IDocumentumQuery<R>>
+public class ResourceListener<R, T extends Query<?> & IDocumentumQuery<R>>
         implements ManagedConnectionResourceListener {
 
     private final T _query;
@@ -19,8 +19,8 @@ public class QueryResultResourceListener<R, T extends Query<?> & IDocumentumQuer
 
     private final ManagedConnection _mconn;
 
-    public QueryResultResourceListener(final T query,
-            final QueryResult<R> queryResult, final ManagedConnection mconn) {
+    public ResourceListener(final T query, final QueryResult<R> queryResult,
+            final ManagedConnection mconn) {
         _query = query;
         _queryResult = queryResult;
         _mconn = mconn;
