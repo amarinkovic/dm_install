@@ -11,4 +11,22 @@
 
     <artifactId>prodctm-businessobjects-impl</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.emc.documentum.dfc</groupId>
+            <artifactId>dfc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>pro.documentum</groupId>
+            <artifactId>prodctm-businessobjects-api</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>pro.documentum</groupId>
+            <artifactId>prodctm-util</artifactId>
+            <version>0.1</version>
+        </dependency>
+    </dependencies>
+
+
 </project>
