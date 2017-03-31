@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 import com.emc.ide.artifactmanager.uriconverter.IUrnFinderFactory;
 import com.emc.ide.logger.dbc.DBC;
+import com.emc.ide.project.IDmProject;
 import com.emc.ide.project.IDmProjectFactory;
 import com.emc.ide.project.IDmProjectFactoryCache;
 
@@ -117,8 +118,10 @@ public class ImportProjectAntTask extends AbstractAntTask {
                     + " already exists, deleting");
             removeProjectFromWorkspace(workspaceRoot, project, progressMonitor);
         }
-        importProjectIntoWorkspace(workspace, _projectName, projectProperties,
-                progressMonitor);
+        project = importProjectIntoWorkspace(workspace, _projectName,
+                projectProperties, progressMonitor);
+        IDmProject dmProject = validateIsDocumentumProject(project.getName());
+        dmProject.updateComposerProductVersion(progressMonitor);
     }
 
     private void removeProjectFromWorkspace(final IWorkspaceRoot workspaceRoot,
