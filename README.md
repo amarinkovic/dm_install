@@ -15,7 +15,7 @@ After the import has been successfully complete, you can simply include DFC as a
 </dependency>
 ```
 
-Alternatively you can just invoke `mvn clean install` from the repository root folder which will install all dependencies and run a dfc connectivity test. In case you need to provide different user credentials for the connection test you can pass them ass command line arguments like this:
+Alternatively you can just invoke `mvn clean install` from the repository root folder which will install all dependencies and run a dfc connectivity test. In case you need to provide different user credentials for the connection test you can pass them as command line arguments like this:
 ```
 mvn clean install -Drepo=<repository_name> -Duser=<username> -Dpass=<password>
 ```
