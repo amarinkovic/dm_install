@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Pro DCTMP Composer plugin
-Bundle-SymbolicName: pro.documentum.composer.plugin;singleton:=true
-Bundle-Version: 0.1.0
-Bundle-Vendor: Andrey B. Panfilov
-Bundle-Localization: plugin

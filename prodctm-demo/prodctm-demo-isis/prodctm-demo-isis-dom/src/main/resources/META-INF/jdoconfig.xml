@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<jdoconfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/jdo/jdoconfig" xsi:noNamespaceSchemaLocation="http://java.sun.com/xml/ns/jdo/jdoconfig">
-
-    <persistence-manager-factory name="JDOTesting">
-        <property name="javax.jdo.option.PersistenceUnitName" value="JDOTesting" />
-        <property name="javax.jdo.PersistenceManagerFactoryClass" value="pro.documentum.persistence.jdo.PersistenceManagerFactoryImpl" />
-    </persistence-manager-factory>
-
-</jdoconfig>

@@ -1,7 +1,0 @@
-dfc.docbroker.host[0]=docu72dev01
-dfc.docbroker.port[0]=1489
-dfc.crypto.repository=DCTM_DEV
-dfc.session.secure_connect_default=try_secure_first
-dfc.globalregistry.repository=DCTM_DEV
-dfc.globalregistry.username=dm_bof_registry
-dfc.globalregistry.password=dm_bof_registry
