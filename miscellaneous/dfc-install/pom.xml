@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>pro.documentum</groupId>
-        <artifactId>prodctm-base</artifactId>
-        <version>0.1</version>
-        <relativePath>../../prodctm-base/pom.xml</relativePath>
-    </parent>
-
+    <groupId>pro.documentum</groupId>
     <artifactId>dfc-install</artifactId>
     <packaging>pom</packaging>
-
+	<version>0.1</version>
 
     <build>
         <plugins>
@@ -26,7 +20,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/All-MB.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/All-MB.jar</file>
                             <pomFile>${basedir}/src/main/resources/All-MB.xml</pomFile>
                         </configuration>
                     </execution>
@@ -37,7 +31,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/bpmutil.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/bpmutil.jar</file>
                             <pomFile>${basedir}/src/main/resources/bpmutil.xml</pomFile>
                         </configuration>
                     </execution>
@@ -48,7 +42,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/certj.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/certj.jar</file>
                             <pomFile>${basedir}/src/main/resources/certj.xml</pomFile>
                         </configuration>
                     </execution>
@@ -59,7 +53,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/ci.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/ci.jar</file>
                             <pomFile>${basedir}/src/main/resources/ci.xml</pomFile>
                         </configuration>
                     </execution>
@@ -70,7 +64,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/collaboration.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/collaboration.jar</file>
                             <pomFile>${basedir}/src/main/resources/collaboration.xml</pomFile>
                         </configuration>
                     </execution>
@@ -81,7 +75,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/configservice-api.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/configservice-api.jar</file>
                             <pomFile>${basedir}/src/main/resources/configservice-api.xml</pomFile>
                         </configuration>
                     </execution>
@@ -92,7 +86,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/configservice-impl.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/configservice-impl.jar</file>
                             <pomFile>${basedir}/src/main/resources/configservice-impl.xml</pomFile>
                         </configuration>
                     </execution>
@@ -103,7 +97,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/cryptojce.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/cryptojce.jar</file>
                             <pomFile>${basedir}/src/main/resources/cryptojce.xml</pomFile>
                         </configuration>
                     </execution>
@@ -114,7 +108,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/cryptojcommon.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/cryptojcommon.jar</file>
                             <pomFile>${basedir}/src/main/resources/cryptojcommon.xml</pomFile>
                         </configuration>
                     </execution>
@@ -125,7 +119,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/DmcRecords.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/DmcRecords.jar</file>
                             <pomFile>${basedir}/src/main/resources/DmcRecords.xml</pomFile>
                         </configuration>
                     </execution>
@@ -136,7 +130,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/dms-client-api.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/dms-client-api.jar</file>
                             <pomFile>${basedir}/src/main/resources/dms-client-api.xml</pomFile>
                         </configuration>
                     </execution>
@@ -147,7 +141,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/dfc.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/dfc.jar</file>
                             <pomFile>${basedir}/src/main/resources/dfc.xml</pomFile>
                         </configuration>
                     </execution>
@@ -158,7 +152,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/jcifs-krb5-1.3.1.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/jcifs-krb5-1.3.1.jar</file>
                             <pomFile>${basedir}/src/main/resources/jcifs-krb5.xml</pomFile>
                         </configuration>
                     </execution>
@@ -169,7 +163,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/jcmFIPS.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/jcmFIPS.jar</file>
                             <pomFile>${basedir}/src/main/resources/jcmFIPS.xml</pomFile>
                         </configuration>
                     </execution>
@@ -180,7 +174,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/krbutil.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/krbutil.jar</file>
                             <pomFile>${basedir}/src/main/resources/krbutil.xml</pomFile>
                         </configuration>
                     </execution>
@@ -191,7 +185,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/messageArchive.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/messageArchive.jar</file>
                             <pomFile>${basedir}/src/main/resources/messageArchive.xml</pomFile>
                         </configuration>
                     </execution>
@@ -202,7 +196,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/messageService.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/messageService.jar</file>
                             <pomFile>${basedir}/src/main/resources/messageService.xml</pomFile>
                         </configuration>
                     </execution>
@@ -213,7 +207,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/questFixForJDK7.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/questFixForJDK7.jar</file>
                             <pomFile>${basedir}/src/main/resources/questFixForJDK7.xml</pomFile>
                         </configuration>
                     </execution>
@@ -224,7 +218,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/subscription.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/subscription.jar</file>
                             <pomFile>${basedir}/src/main/resources/subscription.xml</pomFile>
                         </configuration>
                     </execution>
@@ -235,7 +229,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/vsj-license.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/vsj-license.jar</file>
                             <pomFile>${basedir}/src/main/resources/vsj-license.xml</pomFile>
                         </configuration>
                     </execution>
@@ -246,7 +240,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/vsj-standard-3.3.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/vsj-standard-3.3.jar</file>
                             <pomFile>${basedir}/src/main/resources/vsj-standard.xml</pomFile>
                         </configuration>
                     </execution>
@@ -257,7 +251,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/workflow.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/workflow.jar</file>
                             <pomFile>${basedir}/src/main/resources/workflow.xml</pomFile>
                         </configuration>
                     </execution>
@@ -268,7 +262,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/xtrim-api.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/xtrim-api.jar</file>
                             <pomFile>${basedir}/src/main/resources/xtrim-api.xml</pomFile>
                         </configuration>
                     </execution>
@@ -279,7 +273,7 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>${env.DOCUMENTUM_SHARED}/dfc/xtrim-server.jar</file>
+                            <file>${env.DOCUMENTUM_SHARED}/xtrim-server.jar</file>
                             <pomFile>${basedir}/src/main/resources/xtrim-server.xml</pomFile>
                         </configuration>
                     </execution>
